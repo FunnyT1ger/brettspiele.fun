@@ -1,0 +1,468 @@
+<!DOCTYPE html>
+<html lang="de" data-game="kronenlande">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0,user-scalable=no">
+<title>Kronenlande</title>
+  <meta name="description" content="Aufbau-Strategie im Plättchen-Look: Baue Straßen, Dörfer, Märkte, Städte und Burgen, sammle Rohstoffe über die Jahreszeiten und würfle den rollenden W8. Bald spielbar." />
+  <link rel="canonical" href="https://brettspiele.fun/games/kronenlande/" />
+  <meta property="og:type" content="website" />
+  <meta property="og:site_name" content="brettspiele.fun" />
+  <meta property="og:title" content="Kronenlande – brettspiele.fun" />
+  <meta property="og:description" content="Aufbau-Strategie im Plättchen-Look: Straßen, Dörfer, Märkte, Städte und Burgen bauen, Rohstoffe über die Jahreszeiten sammeln und den rollenden W8 würfeln. Bald spielbar." />
+  <meta property="og:url" content="https://brettspiele.fun/games/kronenlande/" />
+  <meta property="og:image" content="https://brettspiele.fun/games/kronenlande/button.svg" />
+  <meta property="og:locale" content="de_DE" />
+  <meta name="twitter:card" content="summary_large_image" />
+  <meta name="twitter:title" content="Kronenlande – brettspiele.fun" />
+  <meta name="twitter:description" content="Aufbau-Strategie im Plättchen-Look mit rollendem W8. Bald spielbar." />
+  <meta name="twitter:image" content="https://brettspiele.fun/games/kronenlande/button.svg" />
+  <script type="application/ld+json">{"@context": "https://schema.org", "@type": "VideoGame", "name": "Kronenlande", "description": "Aufbau-Strategie im Plättchen-Look: Straßen, Dörfer, Märkte, Städte und Burgen bauen, Rohstoffe über die Jahreszeiten sammeln und den rollenden W8 würfeln.", "url": "https://brettspiele.fun/games/kronenlande/", "image": "https://brettspiele.fun/games/kronenlande/button.svg", "genre": "Strategiespiel", "playMode": "SinglePlayer", "applicationCategory": "Game", "operatingSystem": "Any (Web Browser)", "inLanguage": ["de"]}</script>
+<link rel="icon" href="./button.svg" type="image/svg+xml">
+<script>try{var m=localStorage.getItem('brettspiele.themeMode')||'auto';var d=matchMedia('(prefers-color-scheme: dark)').matches;document.documentElement.dataset.theme=m==='auto'?(d?'dark':'light'):m;}catch(e){document.documentElement.dataset.theme='dark';}</script>
+<script src="../../assets/runtime-config.js?v=20260905-donation-on"></script><script src="../../assets/i18n/de.js?v=20260824-i18n-gaps"></script><script src="../../assets/i18n/en.js?v=20260824-i18n-gaps"></script><script src="../../assets/i18n/fr.js?v=20260824-i18n-gaps"></script><script src="../../assets/i18n/es.js?v=20260824-i18n-gaps"></script><script src="../../assets/i18n/it.js?v=20260824-i18n-gaps"></script><script src="../../assets/i18n/ru.js?v=20260824-i18n-gaps"></script><script src="../../assets/i18n/zh.js?v=20260824-i18n-gaps"></script><script src="../../assets/i18n/ja.js?v=20260824-i18n-gaps"></script><script src="i18n/de.js?v=20260708-kronenlande"></script><script src="i18n/en.js?v=20260708-kronenlande"></script><script src="i18n/fr.js?v=20260708-kronenlande"></script><script src="i18n/es.js?v=20260708-kronenlande"></script><script src="i18n/it.js?v=20260708-kronenlande"></script><script src="i18n/ru.js?v=20260708-kronenlande"></script><script src="i18n/zh.js?v=20260708-kronenlande"></script><script src="i18n/ja.js?v=20260708-kronenlande"></script><script src="../../assets/i18n.js?v=20260824-i18n-gaps"></script><script src="../../assets/auth.js?v=20260904-oauth-link"></script><script src="../../assets/consent.js?v=20260603-chrome"></script><script src="../../assets/game-chrome.js?v=20260625-nav"></script><link rel="stylesheet" href="../../assets/game-chrome.css?v=20260708-nohscroll">
+<link rel="stylesheet" href="styles.css?v=20260718-lobbyfix">
+<style>
+  #setupMenu .setup-count{display:flex;gap:8px;margin:2px 0 14px}
+  #setupMenu .setup-chip{flex:1;padding:11px;border-radius:10px;border:1px solid rgba(255,255,255,.16);background:rgba(255,255,255,.04);color:inherit;font-size:16px;font-weight:800;cursor:pointer;transition:all .15s}
+  #setupMenu .setup-chip.on{background:#b3954e;border-color:#b3954e;color:#1b1408}
+  #setupMenu .setup-row{display:flex;align-items:center;gap:10px;margin-bottom:8px}
+  #setupMenu .setup-dot{width:16px;height:16px;border-radius:50%;flex:none;box-shadow:0 0 0 2px rgba(0,0,0,.3) inset}
+  #setupMenu .setup-name{flex:1;min-width:0;padding:9px 11px;border-radius:9px;border:1px solid rgba(255,255,255,.16);background:rgba(0,0,0,.18);color:inherit;font-size:15px}
+  #setupMenu .setup-colors{display:flex;gap:5px;flex:none}
+  #setupMenu .setup-col{width:24px;height:24px;border-radius:7px;border:2px solid transparent;cursor:pointer;padding:0}
+  #setupMenu .setup-col.on{border-color:#fff;box-shadow:0 0 0 2px rgba(0,0,0,.35)}
+  #setupMenu .setup-lbl{font-size:13px;opacity:.7;margin:2px 0 6px}
+  .setup-maps{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin:2px 0 12px}
+  .setup-map{display:flex;flex-direction:column;gap:2px;padding:10px 12px;border-radius:10px;border:1px solid rgba(255,255,255,.16);background:rgba(255,255,255,.04);color:inherit;cursor:pointer;text-align:left;font-family:inherit;transition:all .15s}
+  .setup-map:hover:not(.locked){border-color:#b3954e}
+  .setup-map.on{background:#b3954e;border-color:#b3954e;color:#1b1408}
+  .setup-map .mp-thumb{width:100%;height:40px;display:block;border-radius:6px;margin-bottom:6px;background:#12384c}
+  .setup-map .mp-land polygon{fill:#8a9457;stroke:#5c6a3e;stroke-width:.7;stroke-linejoin:round}
+  .setup-map.on .mp-thumb{background:#0e2c3c}
+  .setup-map .mp-name{font-weight:800;font-size:14px}
+  .setup-map .mp-desc{font-size:11px;opacity:.72}
+  .setup-map.on .mp-desc{opacity:.85}
+  .setup-map.locked{cursor:default}
+  .setup-map.locked:not(.on){opacity:.5}
+</style>
+  <link rel="stylesheet" href="../../assets/gamepad.css?v=20260824-pad" />
+</head>
+<body>
+<div class="game-top-actions">
+  <select class="game-language-select" data-language-select aria-label="Sprache"></select>
+  <button class="game-theme-toggle" id="themeToggle" type="button">Theme</button>
+</div>
+
+<!-- ===== HAUPTMENÜ ===== -->
+<div id="mainMenu" class="scene active">
+  <div class="brand">
+    <div class="eyebrow" data-i18n="kronenlande.brand.eyebrow">Reiche &amp; Kronen</div>
+    <h1>Kronenlande</h1>
+    <div class="tagline" data-i18n="kronenlande.brand.tagline">„Wer die Jahreszeiten meistert, trägt die Krone."</div>
+    <div class="divider"></div>
+  </div>
+  <div class="menu-card">
+    <h2 data-i18n="kronenlande.menu.title">Hauptmenü</h2>
+    <button class="menu-btn primary" onclick="openSetup()">
+      <span class="btn-icon">✨</span>
+      <span class="btn-info"><span data-i18n="kronenlande.menu.new">Neues Spiel</span>
+        <div class="btn-sub" data-i18n="kronenlande.menu.new.sub">Plättchen legen · Rohstoffe sammeln · Reich ausbauen</div></span>
+    </button>
+    <button class="menu-btn" onclick="openLobby()">
+      <span class="btn-icon">🌐</span>
+      <span class="btn-info"><span>Online spielen <small style="opacity:.6">(Beta)</small></span>
+        <div class="btn-sub">Raum erstellen oder mit Code beitreten</div></span>
+    </button>
+    <button class="menu-btn" onclick="goScreen('howtoMenu')">
+      <span class="btn-icon">📖</span>
+      <span class="btn-info"><span data-i18n="kronenlande.menu.howto">Anleitung</span>
+        <div class="btn-sub" data-i18n="kronenlande.menu.howto.sub">Spielregeln, Rohstoffe &amp; Gebäude im Überblick</div></span>
+    </button>
+  </div>
+  <div class="menu-credit" data-i18n="kronenlande.menu.credit">Aufbau-Strategie im Plättchen-Look · rollender W8 · lokal am Gerät</div>
+</div>
+
+<!-- ===== ANLEITUNG ===== -->
+<div id="howtoMenu" class="scene">
+  <div class="brand">
+    <div class="eyebrow" data-i18n="kronenlande.howto.eyebrow">Spielregeln</div>
+    <h1 style="font-size:clamp(34px,5vw,56px)" data-i18n="kronenlande.menu.howto">Anleitung</h1>
+    <div class="divider"></div>
+  </div>
+  <div class="howto-card">
+    <button class="menu-btn back" onclick="goScreen('mainMenu')" data-i18n="kronenlande.howto.back">◀ Zurück zum Hauptmenü</button>
+    <p class="howto-intro" data-i18n="kronenlande.howto.intro">Kronenlande ist ein Aufbauspiel im Brettspiel-Plättchen-Look. Erschließe das Land, sammle Rohstoffe und errichte vom einfachen Dorf bis zur mächtigen Burg dein Reich.</p>
+
+    <div class="howto-sec">
+      <h3 data-i18n="kronenlande.howto.goal.h3">🎯 Ziel des Spiels</h3>
+      <p data-i18n-html="kronenlande.howto.goal.p">Baue dein Reich über die <b>Jahreszeiten</b> hinweg aus. Wer die wertvollsten Gebäude errichtet und das Land am geschicktesten erschließt, gewinnt.</p>
+    </div>
+
+    <div class="howto-sec">
+      <h3 data-i18n="kronenlande.howto.turn.h3">🎲 Zug &amp; Würfel</h3>
+      <p data-i18n-html="kronenlande.howto.turn.p">Pro Zug wirfst du den <b>rollenden W8</b>. Das Ergebnis bestimmt die Rohstoffernte auf den angrenzenden Plättchen. Danach kannst du bauen oder handeln, bevor du den Zug beendest.</p>
+    </div>
+
+    <div class="howto-sec">
+      <h3 data-i18n="kronenlande.howto.res.h3">🌾 Rohstoffe</h3>
+      <p data-i18n-html="kronenlande.howto.res.p">Gesammelt werden <b>Holz, Stein, Kohle, Erz, Getreide</b> und weitere Ressourcen. Jedes Gebäude verlangt eine eigene Kombination — plane deine Ernte vorausschauend.</p>
+    </div>
+
+    <div class="howto-sec">
+      <h3 data-i18n="kronenlande.howto.build.h3">🏰 Gebäude</h3>
+      <ul>
+        <li data-i18n-html="kronenlande.howto.build.li1"><b>Straße</b> — verbindet dein Reich und erschließt neue Felder.</li>
+        <li data-i18n-html="kronenlande.howto.build.li2"><b>Dorf &amp; Markt</b> — Grundversorgung und Handel.</li>
+        <li data-i18n-html="kronenlande.howto.build.li3"><b>Stadt</b> — höhere Erträge auf ausgebautem Land.</li>
+        <li data-i18n-html="kronenlande.howto.build.li4"><b>Burg &amp; Wachturm</b> — sichern Gebiete und bringen Prestige.</li>
+        <li data-i18n-html="kronenlande.howto.build.li5"><b>Hafen</b> — eröffnet Handel über das Wasser.</li>
+      </ul>
+    </div>
+
+    <button class="menu-btn primary" onclick="openSetup()" style="margin-top:6px">
+      <span class="btn-icon">✨</span>
+      <span class="btn-info"><span data-i18n="kronenlande.menu.start">Los geht's</span><div class="btn-sub" data-i18n="kronenlande.menu.start.sub">Direkt ins Spiel starten</div></span>
+    </button>
+  </div>
+</div>
+
+<!-- ===== SPIEL EINRICHTEN ===== -->
+<div id="setupMenu" class="scene">
+  <div class="brand">
+    <div class="eyebrow">Neues Spiel</div>
+    <h1 style="font-size:clamp(34px,5vw,56px)">Spiel einrichten</h1>
+    <div class="divider"></div>
+  </div>
+  <div class="menu-card" style="max-width:540px">
+    <button class="menu-btn back" onclick="goScreen('mainMenu')">◀ Zurück zum Hauptmenü</button>
+    <h2>Spieler</h2>
+    <div class="setup-lbl">Wie viele spielen mit? (abwechselnd am selben Gerät)</div>
+    <div class="setup-count" id="setupCount"></div>
+    <div class="setup-lbl">Namen &amp; Farben</div>
+    <div id="setupPlayers"></div>
+    <div class="setup-lbl">Karte</div>
+    <div class="setup-maps" id="setupMaps"></div>
+    <button class="menu-btn primary" onclick="startConfiguredGame()" style="margin-top:12px">
+      <span class="btn-icon">✨</span>
+      <span class="btn-info"><span>Los geht's</span><div class="btn-sub">Lokal am Gerät · reihum am Zug</div></span>
+    </button>
+  </div>
+</div>
+
+<!-- ===== ONLINE-LOBBY ===== -->
+<div id="lobbyMenu" class="scene">
+  <div class="brand">
+    <div class="eyebrow">Online spielen</div>
+    <h1 style="font-size:clamp(34px,5vw,56px)">Online-Raum</h1>
+    <div class="divider"></div>
+  </div>
+  <div class="menu-card" style="max-width:540px">
+    <button class="menu-btn back" onclick="lobbyLeave();goScreen('mainMenu')">◀ Zurück zum Hauptmenü</button>
+
+    <div id="lobbyConnect">
+      <div class="setup-lbl">Dein Name</div>
+      <input id="lobbyName" class="setup-name" maxlength="18" placeholder="Dein Name" style="width:100%;box-sizing:border-box;margin-bottom:14px">
+      <button class="menu-btn primary" onclick="lobbyCreate()" style="margin-bottom:12px">
+        <span class="btn-icon">➕</span>
+        <span class="btn-info"><span>Raum erstellen</span><div class="btn-sub">Du wirst Gastgeber und lädst per Code ein</div></span>
+      </button>
+      <div class="setup-lbl">… oder einem Raum beitreten</div>
+      <div style="display:flex;gap:8px;align-items:stretch">
+        <input id="lobbyJoinCode" class="setup-name" maxlength="6" placeholder="Raumcode" style="flex:1;text-transform:uppercase;letter-spacing:2px;font-weight:700">
+        <button class="menu-btn" onclick="lobbyJoin()" style="width:auto;padding:0 18px;margin:0">Beitreten</button>
+      </div>
+    </div>
+
+    <div id="lobbyRoom" style="display:none">
+      <h2 style="margin-top:0">Raum <span id="lobbyCode" style="color:#b3954e;letter-spacing:3px"></span></h2>
+      <div id="lobbyStatus" class="setup-lbl"></div>
+      <div class="setup-lbl">Spieler im Raum</div>
+      <div id="lobbyPlayers"></div>
+      <div class="setup-lbl" id="lobbyMapLbl">Karte</div>
+      <div class="setup-maps" id="lobbyMaps"></div>
+      <button id="lobbyStartBtn" class="menu-btn primary" onclick="lobbyStart()" style="margin-top:12px">
+        <span class="btn-icon">✨</span>
+        <span class="btn-info"><span>Spiel starten</span><div class="btn-sub">Alle im Raum starten gemeinsam</div></span>
+      </button>
+      <button class="menu-btn back" onclick="lobbyLeave()" style="margin-top:8px">Raum verlassen</button>
+    </div>
+  </div>
+</div>
+
+<!-- ===== SPIEL (eingebettet) ===== -->
+<div id="game" class="scene">
+  <iframe id="gameFrame" data-pad-delegate title="Kronenlande" allow="autoplay; gamepad"></iframe>
+</div>
+
+<script>
+(function () {
+  'use strict';
+  var frameLoaded = false;
+
+  function scenes() { return document.querySelectorAll('.scene'); }
+
+  window.goScreen = function (id) {
+    scenes().forEach(function (s) { s.classList.remove('active'); });
+    var el = document.getElementById(id);
+    if (el) el.classList.add('active');
+    document.body.classList.remove('in-game');
+    window.scrollTo(0, 0);
+  };
+
+  window.startGame = function (extraQuery) {
+    var frame = document.getElementById('gameFrame');
+    // Root-absolute so it also resolves from localized copies (/en/games/…).
+    var url = '/games/kronenlande/play.html?v=20260721-ships' + (extraQuery ? '&' + extraQuery : '');
+    frame.src = url; frameLoaded = true;   // frisch laden, damit die gewählte Konfiguration greift
+    scenes().forEach(function (s) { s.classList.remove('active'); });
+    document.getElementById('game').classList.add('active');
+    document.body.classList.add('in-game');
+  };
+
+  // ---- Spiel-Einrichtung: Spielerzahl (1–4), Namen, Farben ----
+  var PAL = ['4f7fae', 'a84e45', '5f865b', 'b3954e', '7d4f9c', '3f9c8f'];
+  var DEFN = ['Blaues Banner', 'Roter Löwe', 'Grüne Eiche', 'Goldene Krone', 'Violette Distel', 'Türkise Welle'];
+  var setup = { count: 4, players: [], map: 'klassik' };
+  for (var _i = 0; _i < 6; _i++) setup.players.push({ name: DEFN[_i], color: _i });
+
+  // ---- Karten-Auswahl (ids müssen mit MAPS in play.html übereinstimmen) ----
+  var MAPS_META = [
+    { id: 'klassik', name: 'Klassische Insel', desc: '19 Felder · 2–4', min: 2, max: 4, land: [[-2,0],[-2,1],[-2,2],[-1,-1],[-1,0],[-1,1],[-1,2],[0,-2],[0,-1],[0,0],[0,1],[0,2],[1,-2],[1,-1],[1,0],[1,1],[2,-2],[2,-1],[2,0]] },
+    { id: 'gross', name: 'Großes Reich', desc: '37 Felder · 2–6', min: 2, max: 6, land: [[-3,0],[-3,1],[-3,2],[-3,3],[-2,-1],[-2,0],[-2,1],[-2,2],[-2,3],[-1,-2],[-1,-1],[-1,0],[-1,1],[-1,2],[-1,3],[0,-3],[0,-2],[0,-1],[0,0],[0,1],[0,2],[0,3],[1,-3],[1,-2],[1,-1],[1,0],[1,1],[1,2],[2,-3],[2,-2],[2,-1],[2,0],[2,1],[3,-3],[3,-2],[3,-1],[3,0]] },
+    { id: 'duell', name: 'Kleines Duell', desc: '7 Felder · 2–3', min: 2, max: 3, land: [[-1,0],[-1,1],[0,-1],[0,0],[0,1],[1,-1],[1,0]] },
+    { id: 'krater', name: 'Kraterinsel', desc: '12 Felder · Lagune · 2–4', min: 2, max: 4, land: [[-2,0],[-2,1],[-2,2],[-1,-1],[-1,2],[0,-2],[0,2],[1,-2],[1,1],[2,-2],[2,-1],[2,0]] },
+    { id: 'meerenge', name: 'Meerenge', desc: '2 Inseln · Schiffe · 2–4', min: 2, max: 4, land: [[-3,0],[-3,1],[-2,-1],[-2,0],[-2,1],[-1,-1],[-1,0],[1,0],[1,1],[2,-1],[2,0],[2,1],[3,-1],[3,0]] },
+    { id: 'archipel', name: 'Inselwelt', desc: '4 Inseln · Seewege · 2–6', min: 2, max: 6, land: [[-1,-3],[-1,-2],[0,-4],[0,-3],[0,-2],[1,-4],[1,-3],[-4,1],[-4,2],[-3,0],[-3,1],[-3,2],[-2,0],[-2,1],[2,-1],[2,0],[3,-2],[3,-1],[3,0],[4,-2],[4,-1],[-1,3],[-1,4],[0,2],[0,3],[0,4],[1,2],[1,3]] },
+    { id: 'weltmeer', name: 'Großes Weltmeer', desc: '6 Inseln · Seewege · 2–6', min: 2, max: 6, land: [[-1,0],[-1,1],[0,-1],[0,0],[0,1],[1,-1],[1,0],[-5,0],[-5,1],[-4,-1],[-4,0],[-4,1],[-3,-1],[-3,0],[3,-2],[3,-1],[4,-3],[4,-2],[4,-1],[5,-3],[5,-2],[-3,4],[-3,5],[-2,3],[-2,4],[-2,5],[-1,3],[-1,4],[1,2],[1,3],[2,1],[2,2],[2,3],[3,1],[3,2],[-1,-4],[-1,-3],[0,-5],[0,-4],[0,-3],[1,-5],[1,-4]] }
+  ];
+  function mapMeta(id) { for (var i = 0; i < MAPS_META.length; i++) if (MAPS_META[i].id === id) return MAPS_META[i]; return MAPS_META[0]; }
+  function hexPreview(land) {
+    if (!land || !land.length) return '';
+    var R = 6, minX = 1e9, maxX = -1e9, minY = 1e9, maxY = -1e9;
+    function cx(q, r) { return R * Math.sqrt(3) * (q + r / 2); }
+    function cy(q, r) { return R * 1.5 * r; }
+    land.forEach(function (t) { var x = cx(t[0], t[1]), y = cy(t[0], t[1]);
+      minX = Math.min(minX, x - R); maxX = Math.max(maxX, x + R); minY = Math.min(minY, y - R); maxY = Math.max(maxY, y + R); });
+    minX -= 3; minY -= 3; maxX += 3; maxY += 3;
+    var w = maxX - minX, h = maxY - minY;
+    var hexes = land.map(function (t) {
+      var x = cx(t[0], t[1]), y = cy(t[0], t[1]), p = [];
+      for (var i = 0; i < 6; i++) { var a = Math.PI / 180 * (60 * i - 30); p.push((x + R * Math.cos(a)).toFixed(1) + ',' + (y + R * Math.sin(a)).toFixed(1)); }
+      return '<polygon points="' + p.join(' ') + '"/>';
+    }).join('');
+    return '<svg class="mp-thumb" viewBox="' + minX.toFixed(1) + ' ' + minY.toFixed(1) + ' ' + w.toFixed(1) + ' ' + h.toFixed(1) + '" preserveAspectRatio="xMidYMid meet" aria-hidden="true">' +
+      '<g class="mp-land">' + hexes + '</g></svg>';
+  }
+  function renderMaps(host, selId, disabled, onPick) {
+    if (!host) return;
+    host.innerHTML = '';
+    MAPS_META.forEach(function (mp) {
+      var b = document.createElement('button'); b.type = 'button';
+      b.className = 'setup-map' + (mp.id === selId ? ' on' : '') + (disabled ? ' locked' : '');
+      b.innerHTML = hexPreview(mp.land) + '<span class="mp-name">' + mp.name + '</span><span class="mp-desc">' + mp.desc + '</span>';
+      if (!disabled) b.onclick = function () { onPick(mp.id); };
+      host.appendChild(b);
+    });
+  }
+
+  function renderSetup() {
+    var mm = mapMeta(setup.map);
+    if (setup.count < mm.min) setup.count = mm.min;
+    if (setup.count > mm.max) setup.count = mm.max;
+    var cc = document.getElementById('setupCount'); cc.innerHTML = '';
+    for (var n = mm.min; n <= mm.max; n++) (function (n) {
+      var b = document.createElement('button'); b.type = 'button';
+      b.className = 'setup-chip' + (setup.count === n ? ' on' : ''); b.textContent = n;
+      b.onclick = function () { setup.count = n; renderSetup(); };
+      cc.appendChild(b);
+    })(n);
+    var host = document.getElementById('setupPlayers'); host.innerHTML = '';
+    for (var i = 0; i < setup.count; i++) (function (p) {
+      var row = document.createElement('div'); row.className = 'setup-row';
+      var dot = document.createElement('span'); dot.className = 'setup-dot'; dot.style.background = '#' + PAL[p.color];
+      var inp = document.createElement('input'); inp.type = 'text'; inp.maxLength = 18;
+      inp.className = 'setup-name'; inp.value = p.name; inp.placeholder = 'Name';
+      inp.oninput = function () { p.name = inp.value; };
+      var cols = document.createElement('div'); cols.className = 'setup-colors';
+      PAL.forEach(function (hex, ci) {
+        var c = document.createElement('button'); c.type = 'button';
+        c.className = 'setup-col' + (p.color === ci ? ' on' : ''); c.style.background = '#' + hex; c.title = 'Farbe';
+        c.onclick = function () {
+          var old = p.color;   // Farben unter den aktiven Spielern eindeutig halten (tauschen)
+          for (var j = 0; j < setup.players.length; j++) { var q = setup.players[j]; if (q !== p && q.color === ci) q.color = old; }
+          p.color = ci; renderSetup();
+        };
+        cols.appendChild(c);
+      });
+      row.appendChild(dot); row.appendChild(inp); row.appendChild(cols);
+      host.appendChild(row);
+    })(setup.players[i]);
+    renderMaps(document.getElementById('setupMaps'), setup.map, false, function (id) { setup.map = id; renderSetup(); });
+  }
+
+  window.openSetup = function () { renderSetup(); goScreen('setupMenu'); };
+  window.startConfiguredGame = function () {
+    var names = [], cols = [];
+    for (var i = 0; i < setup.count; i++) {
+      var p = setup.players[i];
+      var nm = ((p.name || DEFN[i] || ('Spieler ' + (i + 1))) + '').trim() || DEFN[i];
+      names.push(encodeURIComponent(nm));
+      cols.push(PAL[p.color]);
+    }
+    startGame('names=' + names.join('~') + '&colors=' + cols.join('~') + '&map=' + (setup.map || 'klassik'));
+  };
+
+  // ---- Online-Lobby (Relay-Verbindung + Präsenz) ----
+  // Stufe 3a: Raum erstellen/beitreten, sehen wer da ist, gemeinsam starten
+  // (alle mit identischem Spieler-Roster). Live-Zug-Synchronisation folgt als
+  // eigener, getesteter Schritt. Selbstständig — die Spiellogik bleibt unberührt.
+  var GAME_ID = 'kronenlande';
+  function wsUrl() {
+    return location.protocol === 'file:' ? 'ws://localhost:8787/ws'
+      : (location.protocol === 'https:' ? 'wss:' : 'ws:') + '//' + location.host + '/ws';
+  }
+  var myId = (function () {
+    try { var k = 'kronenlande.cid', v = sessionStorage.getItem(k);
+      if (!v) { v = (window.crypto && crypto.randomUUID) ? crypto.randomUUID() : (Date.now() + '' + Math.random()); sessionStorage.setItem(k, v); }
+      return v; } catch (e) { return Date.now() + '' + Math.random(); }
+  })();
+  var net = { sock: null, room: '', host: false, name: '', peers: {}, hb: null, prune: null, connected: false, map: 'klassik' };
+  function lel(id) { return document.getElementById(id); }
+  function lstatus(t) { var s = lel('lobbyStatus'); if (s) s.textContent = t; }
+  function randCode() { var c = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789', r = ''; for (var i = 0; i < 4; i++) r += c[Math.floor(Math.random() * c.length)]; return r; }
+  function netSend(o) { if (net.sock && net.sock.readyState === 1) { o.game = GAME_ID; o.room = net.room; o.clientId = myId; try { net.sock.send(JSON.stringify(o)); } catch (e) {} } }
+
+  function connect(room, asHost) {
+    net.room = room; net.host = asHost; net.peers = {};
+    net.name = (lel('lobbyName').value || '').trim() || (asHost ? 'Gastgeber' : 'Gast');
+    try { net.sock = new WebSocket(wsUrl()); } catch (e) { lstatus('Verbindung fehlgeschlagen.'); return; }
+    lel('lobbyCode').textContent = room;
+    lel('lobbyConnect').style.display = 'none';
+    lel('lobbyRoom').style.display = 'block';
+    lel('lobbyStartBtn').style.display = asHost ? '' : 'none';
+    lstatus('Verbinde …');
+    net.sock.onopen = function () {
+      net.connected = true;
+      netSend({ type: asHost ? 'create' : 'join', name: net.name, host: asHost });
+      startHeartbeat(); renderRoster();
+      lstatus('Verbunden. ' + (asHost ? 'Teile den Code ' + room + '.' : 'Warte auf Start durch den Gastgeber …'));
+    };
+    net.sock.onmessage = function (ev) { var m; try { m = JSON.parse(ev.data); } catch (e) { return; }
+      if (!m || m.clientId === myId) return;
+      if (String(m.room || '').toUpperCase() !== net.room) return;
+      handleMsg(m); };
+    net.sock.onclose = function () { net.connected = false; stopHeartbeat(); lstatus('Verbindung getrennt.'); };
+    net.sock.onerror = function () { lstatus('Server nicht erreichbar (' + wsUrl() + ').'); };
+  }
+  function handleMsg(m) {
+    notePeer(m);
+    if (m.type === 'start' && !net.host && m.order) { launchOnline(m.order, m.names || {}, m.colors || {}, m.seed, m.map); }
+  }
+  function notePeer(m) {
+    if (!m.clientId || m.clientId === myId) return;
+    var p = net.peers[m.clientId]; if (!p) { p = { name: '', host: false, seen: 0 }; net.peers[m.clientId] = p; }
+    p.seen = Date.now();
+    if (m.type === 'presence' || m.type === 'create' || m.type === 'join') { if (m.name) p.name = m.name; p.host = !!m.host; if (m.map) p.map = m.map; }
+    renderRoster();
+  }
+  function startHeartbeat() {
+    stopHeartbeat();
+    net.hb = setInterval(function () { netSend({ type: 'presence', name: net.name, host: net.host, map: net.host ? net.map : undefined }); }, 2000);
+    net.prune = setInterval(function () { var now = Date.now(), ch = false;
+      for (var id in net.peers) { if (now - net.peers[id].seen > 6000) { delete net.peers[id]; ch = true; } }
+      if (ch) renderRoster(); }, 2500);
+    netSend({ type: 'presence', name: net.name, host: net.host, map: net.host ? net.map : undefined });
+  }
+  function stopHeartbeat() { clearInterval(net.hb); clearInterval(net.prune); net.hb = net.prune = null; }
+  function roster() {
+    var arr = [{ id: myId, name: net.name, host: net.host }];
+    for (var id in net.peers) arr.push({ id: id, name: net.peers[id].name || 'Gast', host: net.peers[id].host });
+    arr.sort(function (a, b) { return a.id < b.id ? -1 : a.id > b.id ? 1 : 0; });
+    return arr.slice(0, mapMeta(hostMap()).max);
+  }
+  function renderRoster() {
+    var host = lel('lobbyPlayers'); if (!host) return; var r = roster(); host.innerHTML = '';
+    r.forEach(function (pl, i) {
+      var row = document.createElement('div'); row.className = 'setup-row';
+      var dot = document.createElement('span'); dot.className = 'setup-dot'; dot.style.background = '#' + PAL[i];
+      var nm = document.createElement('span'); nm.style.flex = '1';
+      nm.textContent = pl.name + (pl.id === myId ? ' (du)' : '') + (pl.host ? ' · Gastgeber' : '');
+      row.appendChild(dot); row.appendChild(nm); host.appendChild(row);
+    });
+    var btn = lel('lobbyStartBtn'); if (btn) btn.disabled = !(net.host && r.length >= mapMeta(hostMap()).min);
+    renderLobbyMaps();
+  }
+  function hostMap() {
+    if (net.host) return net.map;
+    for (var id in net.peers) if (net.peers[id].host && net.peers[id].map) return net.peers[id].map;
+    return net.map || 'klassik';
+  }
+  function renderLobbyMaps() {
+    renderMaps(lel('lobbyMaps'), hostMap(), !net.host, function (id) {
+      net.map = id; renderLobbyMaps();
+      netSend({ type: 'presence', name: net.name, host: true, map: net.map });
+    });
+    var lbl = lel('lobbyMapLbl');
+    if (lbl) lbl.textContent = net.host ? 'Karte (du wählst)' : 'Karte (der Gastgeber wählt)';
+  }
+  function launchOnline(order, names, colors, seed, map) {
+    var ns = [], cs = [];
+    order.slice(0, mapMeta(map || 'klassik').max).forEach(function (id) { ns.push(encodeURIComponent(names[id] || 'Spieler')); cs.push(colors[id] || PAL[0]); });
+    var seat = order.indexOf(myId);
+    startGame('names=' + ns.join('~') + '&colors=' + cs.join('~') + '&seed=' + (seed || 0) + '&map=' + (map || 'klassik') + '&room=' + encodeURIComponent(net.room) + '&seat=' + seat + '&online=1');
+  }
+
+  window.openLobby = function () {
+    lel('lobbyConnect').style.display = 'block';
+    lel('lobbyRoom').style.display = 'none';
+    lstatus('Erstelle einen Raum oder tritt mit Code bei.');
+    goScreen('lobbyMenu');
+  };
+  window.lobbyCreate = function () { connect(randCode(), true); };
+  window.lobbyJoin = function () {
+    var code = (lel('lobbyJoinCode').value || '').trim().toUpperCase();
+    if (code.length < 3) { lstatus('Bitte einen gültigen Raumcode eingeben.'); return; }
+    connect(code, false);
+  };
+  window.lobbyLeave = function () {
+    try { net.sock && net.sock.close(); } catch (e) {}
+    stopHeartbeat(); net.peers = {}; net.connected = false; net.sock = null;
+    if (lel('lobbyConnect')) { lel('lobbyConnect').style.display = 'block'; lel('lobbyRoom').style.display = 'none'; }
+  };
+  window.lobbyStart = function () {
+    if (!net.host) return;
+    var r = roster(), order = r.map(function (p) { return p.id; }), names = {}, colors = {};
+    r.forEach(function (p, i) { names[p.id] = p.name; colors[p.id] = PAL[i]; });
+    var seed = Math.floor(Math.random() * 1e9);
+    netSend({ type: 'start', order: order, names: names, colors: colors, seed: seed, map: net.map });
+    launchOnline(order, names, colors, seed, net.map);
+  };
+
+  function toMenu() {
+    document.getElementById('game').classList.remove('active');
+    document.body.classList.remove('in-game');
+    window.goScreen('mainMenu');
+  }
+
+  // Mehrstufige Navigation für den geteilten Zurück-Button (game-chrome.js):
+  //  - atTop() == true  -> nächster "Zurück" verlässt zur Spieleübersicht
+  //  - up()             -> eine Ebene zurück innerhalb der Seite
+  window.__brettBack = {
+    atTop: function () {
+      return document.getElementById('mainMenu').classList.contains('active');
+    },
+    up: function () {
+      if (document.getElementById('game').classList.contains('active')) { toMenu(); return; }
+      if (document.getElementById('lobbyMenu').classList.contains('active')) { window.lobbyLeave(); window.goScreen('mainMenu'); return; }
+      if (document.getElementById('setupMenu').classList.contains('active')) { window.goScreen('mainMenu'); return; }
+      if (document.getElementById('howtoMenu').classList.contains('active')) { window.goScreen('mainMenu'); return; }
+      window.goScreen('mainMenu');
+    }
+
+  };
+})();
+</script>
+  <script src="../../assets/gamepad.js?v=20260824-pad"></script>
+</body>
+</html>

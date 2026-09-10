@@ -1,0 +1,63 @@
+{
+  "title": "Lacuna",
+  "subtitle": {
+    "de": "Stichspiel um die Lücke",
+    "en": "A trick-taking game about the gap",
+    "fr": "Un jeu de plis autour de l'écart",
+    "es": "Un juego de bazas sobre el hueco",
+    "it": "Un gioco di prese sul divario",
+    "ru": "Карточная игра о разрыве",
+    "zh": "关于「缺口」的抽墩纸牌游戏",
+    "ja": "「隙間」をめぐるトリックテイキングゲーム"
+  },
+  "description": {
+    "de": "Die ersten beiden ausgespielten Karten stecken die Lücke ab – wer als Letzter eine passende Zahl hineinlegt, gewinnt den Stich. Doppelziffern dürfen immer gespielt werden, Fünfer können die Lücke verschieben, Zehner bringen Bonuspunkte, aber Minuspunkte am Rundenende. Online-Räume mit Raumcode, Bots zum Auffüllen, animierter 3D-Tisch.",
+    "en": "The first two cards played stake out the gap — whoever plays the last matching number into it wins the trick. Double digits can always be played, fives can shift the gap, tens earn bonus points but cost minus points if still in hand at round end. Online rooms with room codes, bots to fill seats, animated 3D table.",
+    "fr": "Les deux premières cartes jouées délimitent l'écart — qui joue le dernier nombre qui y correspond remporte le pli. Les chiffres doubles se jouent toujours, les cinq peuvent déplacer l'écart, les dizaines rapportent des points bonus mais coûtent des points en fin de manche. Salles en ligne avec code, bots pour compléter la table, table 3D animée.",
+    "es": "Las dos primeras cartas jugadas marcan el hueco — quien juegue el último número que encaje se lleva la baza. Los dígitos dobles siempre se pueden jugar, los cincos pueden desplazar el hueco, las decenas dan puntos extra pero restan puntos si quedan en la mano al final de la ronda. Salas online con código, bots para completar la mesa, mesa 3D animada.",
+    "it": "Le prime due carte giocate delimitano il divario — chi gioca per ultimo un numero che ci sta dentro vince la presa. Le cifre doppie si giocano sempre, i cinque possono spostare il divario, le decine danno punti bonus ma tolgono punti se restano in mano a fine round. Stanze online con codice, bot per riempire i posti, tavolo 3D animato.",
+    "ru": "Первые две сыгранные карты задают разрыв — кто последним положит туда подходящее число, забирает взятку. Двойные цифры можно играть всегда, пятёрки могут сдвигать разрыв, десятки приносят бонусные очки, но штрафуют, если остались на руке в конце раунда. Онлайн-комнаты с кодом, боты для заполнения мест, анимированный 3D-стол.",
+    "zh": "最先打出的两张牌划定「缺口」——谁最后打出一张落在缺口内的数字牌,谁就赢下这墩牌。重复数字牌任何时候都能出,尾数为5的牌可以移动缺口,整十的牌能加分,但回合结束时留在手里就要扣分。支持房间码在线对战、机器人补位、动画3D牌桌。",
+    "ja": "最初に出された2枚のカードが「隙間」を決める——その隙間に収まる数字を最後に出した人がトリックを獲得する。ゾロ目はいつでも出せる、末尾が5のカードは隙間をずらせる、10の倍数はボーナス点だがラウンド終了時に手札に残っているとマイナス点になる。ルームコードのオンライン対戦、席を埋めるボット、アニメーション3Dテーブル対応。"
+  },
+  "players": {
+    "de": "2–6 Spieler",
+    "en": "2–6 players",
+    "fr": "2–6 joueurs",
+    "es": "2–6 jugadores",
+    "it": "2–6 giocatori",
+    "ru": "2–6 игроков",
+    "zh": "2–6 名玩家",
+    "ja": "2〜6人"
+  },
+  "minutes": "25–45 min",
+  "category": {
+    "de": "Karten",
+    "en": "Cards",
+    "fr": "Cartes",
+    "es": "Cartas",
+    "it": "Carte",
+    "ru": "Карты",
+    "zh": "卡牌",
+    "ja": "カード"
+  },
+  "tags": [
+    {
+      "de": "Online-Räume", "en": "Online rooms", "fr": "Salles en ligne", "es": "Salas online",
+      "it": "Stanze online", "ru": "Онлайн-комнаты", "zh": "在线房间", "ja": "オンラインルーム"
+    },
+    {
+      "de": "Bots", "en": "Bots", "fr": "Bots", "es": "Bots",
+      "it": "Bot", "ru": "Боты", "zh": "机器人", "ja": "ボット"
+    },
+    {
+      "de": "3D-Tisch", "en": "3D table", "fr": "Table 3D", "es": "Mesa 3D",
+      "it": "Tavolo 3D", "ru": "3D-стол", "zh": "3D牌桌", "ja": "3Dテーブル"
+    }
+  ],
+  "image": "games/lacuna/button.svg",
+  "accent": "#b98cff",
+  "theme": "lacuna",
+  "order": 70,
+  "comingSoon": false
+}

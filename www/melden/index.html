@@ -1,0 +1,303 @@
+<!doctype html>
+<html lang="de" data-page="legal">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Rechtswidrigen Inhalt melden — brettspiele.fun</title>
+  <meta name="description" content="Melde- und Abhilfeverfahren nach Artikel 16 DSA: Hinweise auf rechtswidrige Inhalte auf brettspiele.fun melden." />
+  <meta name="robots" content="index, follow" />
+  <link rel="canonical" href="https://brettspiele.fun/melden/" />
+  <link rel="icon" href="../assets/favicon.svg?v=20260618-dice-logo" type="image/svg+xml" />
+  <link rel="preload" as="font" type="font/woff2" href="../assets/fonts/instrument-serif-normal-400-latin.woff2" crossorigin />
+  <link rel="preload" as="font" type="font/woff2" href="../assets/fonts/geist-normal-latin.woff2" crossorigin />
+  <link rel="stylesheet" href="../assets/fonts/core.css?v=20260904-selfhost" />
+  <script>
+    (function(){
+      try {
+        var key = "brettspiele.themeMode";
+        var mode = localStorage.getItem(key) || "auto";
+        if (!["auto", "light", "dark"].includes(mode)) mode = "auto";
+        var prefersDark = window.matchMedia && window.matchMedia("(prefers-color-scheme: dark)").matches;
+        var theme = mode === "auto" ? (prefersDark ? "dark" : "light") : mode;
+        document.documentElement.dataset.theme = theme;
+        document.documentElement.dataset.themeMode = mode;
+      } catch (e) {
+        document.documentElement.dataset.theme = "light";
+        document.documentElement.dataset.themeMode = "auto";
+      }
+    })();
+  </script>
+  <link rel="stylesheet" href="../assets/site.css?v=20260904-legal" />
+  <link rel="stylesheet" href="../assets/gamepad.css?v=20260824-pad" />
+  <style>
+    .legal{max-width:760px;margin:0 auto;padding:48px 0 72px}
+    .legal h1{font-size:clamp(30px,5vw,48px);letter-spacing:-.04em;margin:0 0 10px}
+    .legal h2{font-size:clamp(18px,2.4vw,23px);letter-spacing:-.02em;margin:38px 0 10px}
+    .legal p,.legal li{line-height:1.65}
+    .legal .lead{color:var(--muted,#9ca3af);margin:0 0 8px}
+    .legal a{color:inherit}
+    .legal-box{border:1px solid var(--line,var(--hairline,rgba(255,255,255,.16)));border-radius:18px;padding:18px 20px;margin:18px 0;background:var(--paper-2,rgba(255,255,255,.05))}
+    .legal-updated{margin-top:44px;font-size:13px;color:var(--muted,#9ca3af)}
+    /* Formular: eigene, knappe Feldstile — die Startseite bringt keine mit. */
+    .rf-field{margin:18px 0}
+    .rf-field label{display:block;font-weight:600;margin-bottom:6px}
+    .rf-field .hint{display:block;font-weight:400;font-size:13px;color:var(--muted,#9ca3af);margin-top:4px}
+    .rf-field input[type="text"],.rf-field input[type="email"],.rf-field select,.rf-field textarea{
+      width:100%;box-sizing:border-box;font:inherit;color:inherit;padding:10px 12px;border-radius:10px;
+      background:var(--paper-2,rgba(255,255,255,.05));border:1px solid var(--line,var(--hairline,rgba(255,255,255,.16)))}
+    .rf-field textarea{min-height:150px;resize:vertical;line-height:1.55}
+    .rf-check{display:flex;gap:10px;align-items:flex-start;margin:18px 0;line-height:1.55}
+    .rf-check input{margin-top:4px;flex:0 0 auto}
+    .rf-req{color:#d4553f}
+    .rf-msg{margin:16px 0;padding:14px 16px;border-radius:12px;border:1px solid var(--line,var(--hairline,rgba(255,255,255,.16)))}
+    .rf-msg.err{border-color:#d4553f}
+    .rf-msg.ok{border-color:#3f9e6a}
+    .rf-case{font-family:var(--mono,monospace);font-size:20px;letter-spacing:.08em}
+    .rf-actions{display:flex;gap:12px;align-items:center;flex-wrap:wrap;margin-top:8px}
+  </style>
+</head>
+<body>
+  <nav class="nav shell">
+    <a href="../" class="logo" data-i18n-aria="site.logo.aria" aria-label="Nicht noch eine Brettspielseite">
+      <img class="logo-mark" src="../assets/favicon.svg?v=20260618-dice-logo" alt="" aria-hidden="true">
+      <span>brettspiele<i>.</i>fun</span>
+    </a>
+    <button class="nav-menu-toggle" data-nav-toggle type="button" aria-label="Menü" aria-expanded="false" aria-controls="navActions">
+      <span aria-hidden="true">☰</span>
+    </button>
+    <div class="nav-actions" id="navActions" data-nav-actions>
+      <select class="language-select" data-language-select aria-label="Sprache"></select>
+      <button class="theme-toggle" data-theme-toggle type="button"><span aria-hidden="true">◐</span><span data-theme-label>Theme</span></button>
+      <a class="btn btn-primary" href="../#catalog" data-i18n="nav.play">Spielen</a>
+    </div>
+  </nav>
+
+  <main class="legal shell">
+    <p class="lead">Melde- und Abhilfeverfahren nach Artikel 16 DSA</p>
+    <h1>Rechtswidrigen Inhalt melden</h1>
+    <p>
+      Auf brettspiele.fun können Nutzerinnen und Nutzer eigene Spiele erstellen,
+      veröffentlichen und bewerten. Wenn dir dabei ein Inhalt auffällt, den du
+      für rechtswidrig hältst, kannst du ihn hier melden — mit oder ohne Konto.
+      Jede Meldung erhält eine Vorgangsnummer, wird geprüft und beantwortet.
+    </p>
+
+    <h2>Was hierher gehört</h2>
+    <p>
+      Dieses Formular ist für <strong>rechtswidrige Inhalte</strong> gedacht:
+      Urheberrechts- und Markenverletzungen, Beleidigungen und Hetze,
+      unzulässig veröffentlichte personenbezogene Daten, jugendgefährdende
+      Darstellungen und Vergleichbares.
+    </p>
+    <p>
+      Für alles andere gibt es bessere Wege: technische Fehler, unpassende
+      Spielinhalte ohne Rechtsverstoß, Fragen zum Konto oder Beschwerden über
+      eine getroffene Entscheidung bitte formlos an
+      <a href="mailto:support@brettspiele.fun">support@brettspiele.fun</a>.
+    </p>
+
+    <h2>Wie es weitergeht</h2>
+    <ol>
+      <li><strong>Eingang.</strong> Deine Meldung wird mit Vorgangsnummer und
+        Zeitstempel erfasst. Hast du eine E-Mail-Adresse angegeben, bestätigen
+        wir den Eingang.</li>
+      <li><strong>Prüfung.</strong> Der gemeldete Inhalt wird sorgfältig,
+        sachlich und ohne Willkür geprüft — zügig und in der Reihenfolge des
+        Eingangs. Das Projekt wird von einer Einzelperson nebenbei betrieben;
+        eine feste Bearbeitungsfrist wird deshalb bewusst nicht zugesagt.</li>
+      <li><strong>Entscheidung.</strong> Ergibt die Prüfung eine
+        Rechtsverletzung, wird der Inhalt entfernt oder gesperrt; andernfalls
+        bleibt er bestehen. Bei Bedarf werden weitere Maßnahmen gegen das
+        betroffene Konto ergriffen.</li>
+      <li><strong>Rückmeldung.</strong> Du erhältst eine begründete Mitteilung
+        über die Entscheidung, ebenso die Person, deren Inhalt betroffen ist.
+        Beide können der Entscheidung formlos per E-Mail widersprechen.</li>
+    </ol>
+    <p>
+      Der Weg zu Gerichten, zur zuständigen Aufsichtsbehörde oder zu einer
+      außergerichtlichen Streitbeilegungsstelle steht unabhängig davon offen.
+    </p>
+
+    <div class="legal-box">
+      <p style="margin:0">
+        <strong>Bitte beachten:</strong> Wissentlich falsche Angaben in einer
+        Meldung können ihrerseits Rechtsfolgen haben. Deine Angaben werden
+        ausschließlich zur Bearbeitung des Vorgangs verwendet — Einzelheiten in
+        der <a href="../datenschutz/#meldungen">Datenschutzerklärung</a>. Zur
+        Bearbeitung geben wir sie in der Regel an die Person weiter, deren
+        Inhalt betroffen ist; deinen Namen und deine E-Mail-Adresse nur dann,
+        wenn das zur Klärung erforderlich ist.
+      </p>
+    </div>
+
+    <h2>Meldung absenden</h2>
+    <form id="reportForm" novalidate>
+      <div class="rf-field">
+        <label for="rfTarget">Betroffener Inhalt <span class="rf-req" aria-hidden="true">*</span></label>
+        <input type="text" id="rfTarget" name="target" maxlength="500" required
+               placeholder="https://brettspiele.fun/studio/#id=abc12xyz" autocomplete="off" />
+        <span class="hint">Die Adresse der Seite oder des Spiels. Wenn du keine
+          Adresse hast, beschreibe die Fundstelle so genau wie möglich (Spielname,
+          Kartentext, Benutzername, Zeitpunkt).</span>
+      </div>
+
+      <div class="rf-field">
+        <label for="rfCategory">Worum geht es? <span class="rf-req" aria-hidden="true">*</span></label>
+        <select id="rfCategory" name="category" required>
+          <option value="">— bitte wählen —</option>
+          <option value="copyright">Urheberrecht (Text, Bild, Musik, Spielinhalt)</option>
+          <option value="trademark">Marken- oder Kennzeichenrecht</option>
+          <option value="personal">Personenbezogene Daten / Persönlichkeitsrecht</option>
+          <option value="insult">Beleidigung, Hetze, Diskriminierung</option>
+          <option value="youth">Jugendgefährdender Inhalt</option>
+          <option value="minors">Darstellung sexuellen Missbrauchs von Kindern</option>
+          <option value="other">Sonstiger rechtswidriger Inhalt</option>
+        </select>
+      </div>
+
+      <div class="rf-field">
+        <label for="rfReason">Begründung <span class="rf-req" aria-hidden="true">*</span></label>
+        <textarea id="rfReason" name="reason" maxlength="4000" required
+                  placeholder="Was genau ist rechtswidrig, und warum? Wenn du Rechteinhaber bist: woran bestehen deine Rechte, und woraus ergibt sich das?"></textarea>
+        <span class="hint">Je genauer die Beschreibung, desto schneller lässt sich
+          entscheiden. Mindestens 20 Zeichen.</span>
+      </div>
+
+      <div class="rf-field">
+        <label for="rfName">Dein Name <span class="hint" style="display:inline;font-weight:400">(optional)</span></label>
+        <input type="text" id="rfName" name="name" maxlength="120" autocomplete="name" />
+      </div>
+
+      <div class="rf-field">
+        <label for="rfEmail">Deine E-Mail-Adresse <span class="rf-req" id="rfEmailReq" aria-hidden="true">*</span></label>
+        <input type="email" id="rfEmail" name="email" maxlength="200" autocomplete="email" />
+        <span class="hint" id="rfEmailHint">Wird für Eingangsbestätigung, Rückfragen
+          und die Mitteilung der Entscheidung gebraucht. Artikel 16 DSA verlangt
+          diese Angabe — außer bei Meldungen zu Darstellungen sexuellen
+          Missbrauchs von Kindern; dort ist die Meldung auch anonym zulässig.</span>
+      </div>
+
+      <div class="rf-check">
+        <input type="checkbox" id="rfAffirm" name="affirmed" required />
+        <label for="rfAffirm" style="font-weight:400">
+          Ich erkläre in gutem Glauben, dass meine Angaben zutreffend und
+          vollständig sind. <span class="rf-req" aria-hidden="true">*</span>
+        </label>
+      </div>
+
+      <div class="rf-actions">
+        <button type="submit" class="btn btn-primary" id="rfSubmit">Meldung absenden</button>
+        <span class="hint" style="color:var(--muted,#9ca3af)">Pflichtfelder sind mit * gekennzeichnet.</span>
+      </div>
+      <div class="rf-msg" id="rfMsg" hidden role="status" aria-live="polite"></div>
+    </form>
+
+    <p class="legal-updated">Stand: September 2026</p>
+  </main>
+
+  <footer>
+    <div class="shell foot"><span data-i18n="site.footer.left">© 2026 Nicht noch eine Brettspielseite</span><span class="foot-legal"><a href="../impressum/" data-i18n="site.footer.legal">Impressum</a> · <a href="../datenschutz/" data-i18n="site.footer.privacy">Datenschutz</a> · <a href="../nutzungsbedingungen/" data-i18n="site.footer.terms">Nutzungsbedingungen</a> · <a href="../melden/" data-i18n="site.footer.report">Inhalt melden</a></span><span data-i18n="site.footer.right">Keine Lootboxen · kein Tagesquest-Terror · nur Spieltische</span></div>
+  </footer>
+  <script>
+  (function(){
+    var form = document.getElementById('reportForm');
+    var msg = document.getElementById('rfMsg');
+    var submit = document.getElementById('rfSubmit');
+    var category = document.getElementById('rfCategory');
+    var emailReq = document.getElementById('rfEmailReq');
+
+    // Art. 16 Abs. 2 lit. c: Kontaktangabe ist Pflicht — Ausnahme sind
+    // Meldungen zu Darstellungen sexuellen Missbrauchs von Kindern. Das
+    // Sternchen spiegelt nur, was der Server ohnehin prüft.
+    var ANONYMOUS_OK = ['minors'];
+    function syncEmailRequirement(){
+      var optional = ANONYMOUS_OK.indexOf(category.value) !== -1;
+      emailReq.hidden = optional;
+    }
+    category.addEventListener('change', syncEmailRequirement);
+    syncEmailRequirement();
+
+    function show(text, kind){
+      msg.textContent = text;
+      msg.className = 'rf-msg ' + (kind || '');
+      msg.hidden = false;
+    }
+    function showCase(id){
+      msg.className = 'rf-msg ok';
+      msg.innerHTML = '';
+      var h = document.createElement('p');
+      h.style.margin = '0 0 8px';
+      h.innerHTML = '<strong>Deine Meldung ist eingegangen.</strong>';
+      var c = document.createElement('p');
+      c.style.margin = '0 0 8px';
+      c.innerHTML = 'Vorgangsnummer: <span class="rf-case"></span>';
+      c.querySelector('.rf-case').textContent = id;
+      var t = document.createElement('p');
+      t.style.margin = '0';
+      t.textContent = 'Bitte bewahre diese Nummer auf — sie identifiziert den Vorgang bei Rückfragen. '
+        + 'Hast du eine E-Mail-Adresse angegeben, erhältst du die Eingangsbestätigung und später die begründete Entscheidung dorthin.';
+      msg.appendChild(h); msg.appendChild(c); msg.appendChild(t);
+      msg.hidden = false;
+    }
+
+    var ERRORS = {
+      rate_limited: 'Zu viele Meldungen in kurzer Zeit. Bitte versuche es später erneut oder schreibe an support@brettspiele.fun.',
+      affirmation_required: 'Bitte bestätige, dass deine Angaben zutreffen.',
+      invalid_report: 'Bitte fülle Fundstelle, Kategorie und eine Begründung von mindestens 20 Zeichen aus.',
+      invalid_email: 'Die E-Mail-Adresse sieht nicht gültig aus.',
+      contact_required: 'Für diese Kategorie ist eine E-Mail-Adresse erforderlich.'
+    };
+
+    form.addEventListener('submit', async function(ev){
+      ev.preventDefault();
+      var payload = {
+        target: document.getElementById('rfTarget').value.trim(),
+        category: category.value,
+        reason: document.getElementById('rfReason').value.trim(),
+        name: document.getElementById('rfName').value.trim(),
+        email: document.getElementById('rfEmail').value.trim(),
+        affirmed: document.getElementById('rfAffirm').checked
+      };
+      // Vorprüfung im Browser, damit offensichtliche Lücken keinen Request
+      // kosten; verbindlich ist die Prüfung im Relay.
+      if (!payload.affirmed) { show(ERRORS.affirmation_required, 'err'); return; }
+      if (!payload.target || !payload.category || payload.reason.length < 20) {
+        show(ERRORS.invalid_report, 'err'); return;
+      }
+      if (!payload.email && ANONYMOUS_OK.indexOf(payload.category) === -1) {
+        show(ERRORS.contact_required, 'err'); return;
+      }
+      submit.disabled = true;
+      show('Wird übermittelt …');
+      try {
+        var res = await fetch('/api/report', {
+          method: 'POST',
+          credentials: 'same-origin',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(payload)
+        });
+        var data = {};
+        try { data = await res.json(); } catch (e) {}
+        if (res.ok && data.ok) {
+          showCase(data.id);
+          form.reset();
+          syncEmailRequirement();
+          return;
+        }
+        show(ERRORS[data.error] || ('Die Meldung konnte nicht übermittelt werden (' + (data.error || res.status) + '). '
+          + 'Bitte schreibe stattdessen an support@brettspiele.fun.'), 'err');
+      } catch (e) {
+        show('Keine Verbindung zum Server. Bitte versuche es später erneut oder schreibe an support@brettspiele.fun.', 'err');
+      } finally {
+        submit.disabled = false;
+      }
+    });
+  })();
+  </script>
+  <script src="../assets/runtime-config.js?v=20260910-legal"></script>
+  <script src="../assets/i18n/de.js?v=20260910-legal"></script><script src="../assets/i18n/en.js?v=20260910-legal"></script><script src="../assets/i18n/fr.js?v=20260910-legal"></script><script src="../assets/i18n/es.js?v=20260910-legal"></script><script src="../assets/i18n/it.js?v=20260910-legal"></script><script src="../assets/i18n/ru.js?v=20260910-legal"></script><script src="../assets/i18n/zh.js?v=20260910-legal"></script><script src="../assets/i18n/ja.js?v=20260910-legal"></script><script src="../assets/i18n.js?v=20260910-legal"></script>
+  <script src="../assets/auth.js?v=20260904-oauth-link"></script>
+  <script src="../assets/consent.js?v=20260530-optional-account"></script>
+  <script src="../assets/gamepad.js?v=20260824-pad"></script>
+</body>
+</html>

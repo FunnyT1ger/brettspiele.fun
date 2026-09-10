@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<!--
+  Altersklassifizierung nach § 5 Abs. 3 JMStV (Label-Format age-de.xml).
+  Anerkannte Jugendschutzprogramme (z. B. JusProg) lesen diese Datei im
+  Wurzelverzeichnis der Domain und blenden Inhalte für jüngere Nutzer aus.
+
+  Einstufung: Die Seite ist insgesamt unbedenklich (0). Einzig „Blank & Frech"
+  bietet Kartensets mit anzüglichem und schwarzem Humor an; die sind seit dem
+  10.09.2026 hinter eine Altersbestätigung gelegt, im Grundzustand spielt das
+  Spiel mit dem harmlosen Set. Deshalb ist der Spielpfad mit 16 eingestuft und
+  nicht mit 18 — die 18er-Inhalte sind nicht ohne Weiteres wahrnehmbar.
+
+  ACHTUNG: Diese Datei ist von Hand geschrieben. Für eine belastbare, formal
+  geprüfte Fassung erzeugt der kostenlose Label-Generator von JusProg
+  (jugendschutzprogramm.de) die Datei — dann diese hier ersetzen.
+  Ändert sich die Einstufung eines Spiels, MUSS <last-change> mitwandern.
+-->
+<age-declaration>
+  <ageblock-basic>
+    <age-issuer>self</age-issuer>
+    <last-change>2026-09-10</last-change>
+    <country>de</country>
+    <label-version>1.0</label-version>
+    <revisit-after>30days</revisit-after>
+  </ageblock-basic>
+  <ageblock-labeltype>
+    <default-age>0</default-age>
+  </ageblock-labeltype>
+  <ageblock-labeltype-definition>
+    <labeltype-xmlfile>
+      <label class="default">
+        <min-age>0</min-age>
+        <default-age>0</default-age>
+      </label>
+      <label class="blank-frech">
+        <age>16</age>
+        <min-age>16</min-age>
+        <default-age>16</default-age>
+        <scope>brettspiele.fun/games/blank-frech/*</scope>
+      </label>
+    </labeltype-xmlfile>
+  </ageblock-labeltype-definition>
+</age-declaration>

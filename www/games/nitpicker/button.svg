@@ -1,0 +1,30 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 800" role="img" aria-label="Korinthenkacker">
+  <defs>
+    <linearGradient id="npBg" x1="0" y1="0" x2="0" y2="1">
+      <stop stop-color="#221a45"/><stop offset="1" stop-color="#140f2c"/>
+    </linearGradient>
+    <linearGradient id="npGold" x1="0" y1="0" x2="0" y2="1">
+      <stop stop-color="#ffe08a"/><stop offset="1" stop-color="#ffc24b"/>
+    </linearGradient>
+    <filter id="npShadow"><feDropShadow dx="0" dy="16" stdDeviation="18" flood-opacity=".55"/></filter>
+  </defs>
+
+  <rect width="640" height="800" rx="72" fill="#140f2c"/>
+  <rect width="640" height="800" rx="72" fill="url(#npBg)"/>
+  <circle cx="510" cy="150" r="180" fill="#ffc24b" opacity=".12"/>
+  <circle cx="120" cy="690" r="200" fill="#43d99a" opacity=".08"/>
+
+  <!-- magnifying glass = nitpicking -->
+  <g filter="url(#npShadow)" transform="translate(300 330) rotate(-12)">
+    <circle cx="0" cy="0" r="96" fill="none" stroke="url(#npGold)" stroke-width="20"/>
+    <circle cx="0" cy="0" r="76" fill="#2b2356" fill-opacity=".6"/>
+    <rect x="66" y="66" width="30" height="120" rx="15" fill="url(#npGold)" transform="rotate(-45 66 66)"/>
+    <!-- tiny checkmark spotted under the lens -->
+    <path d="M-34 4 L-10 30 L34 -26" fill="none" stroke="#43d99a" stroke-width="14" stroke-linecap="round" stroke-linejoin="round"/>
+  </g>
+
+  <text x="320" y="640" text-anchor="middle" font-family="'Bricolage Grotesque',system-ui,sans-serif"
+        font-size="52" font-weight="800" letter-spacing="-1" fill="#f4f0ff">Korinthen<tspan fill="#ffc24b">kacker</tspan></text>
+  <text x="320" y="700" text-anchor="middle" font-family="'Space Grotesk',monospace"
+        font-size="22" font-weight="500" letter-spacing="8" fill="#ffc24b">PARTY-QUIZ</text>
+</svg>

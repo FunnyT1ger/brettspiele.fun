@@ -1,0 +1,532 @@
+<!doctype html>
+<html lang="de" data-game="lets-draw">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+  <meta http-equiv="Cache-Control" content="no-store, no-cache, must-revalidate" />
+  <meta http-equiv="Pragma" content="no-cache" />
+  <meta http-equiv="Expires" content="0" />
+  <script>
+    (function(){
+      try {
+        var key = "brettspiele.themeMode";
+        var mode = localStorage.getItem(key) || "auto";
+        if (!["auto", "light", "dark"].includes(mode)) mode = "auto";
+        var prefersDark = window.matchMedia && window.matchMedia("(prefers-color-scheme: dark)").matches;
+        var theme = mode === "auto" ? (prefersDark ? "dark" : "light") : mode;
+        document.documentElement.dataset.theme = theme;
+        document.documentElement.dataset.themeMode = mode;
+      } catch (e) {
+        document.documentElement.dataset.theme = "light";
+        document.documentElement.dataset.themeMode = "auto";
+      }
+    })();
+  </script>
+  <title data-i18n="letsdraw.pageTitle">Let's Draw – brettspiele.fun</title>
+  <meta name="description" content="Zeichenspiel mit Teams, Begriffsauswahl, Raumcode-Sync, Timer und gemeinsamer Canvas-Fläche. 2+ Teams." />
+  <link rel="canonical" href="https://brettspiele.fun/games/lets-draw/" />
+  <!--hreflang:auto-->
+  <link rel="alternate" hreflang="de" href="https://brettspiele.fun/games/lets-draw/" />
+  <link rel="alternate" hreflang="en" href="https://brettspiele.fun/en/games/lets-draw/" />
+  <link rel="alternate" hreflang="fr" href="https://brettspiele.fun/fr/games/lets-draw/" />
+  <link rel="alternate" hreflang="es" href="https://brettspiele.fun/es/games/lets-draw/" />
+  <link rel="alternate" hreflang="it" href="https://brettspiele.fun/it/games/lets-draw/" />
+  <link rel="alternate" hreflang="ru" href="https://brettspiele.fun/ru/games/lets-draw/" />
+  <link rel="alternate" hreflang="zh" href="https://brettspiele.fun/zh/games/lets-draw/" />
+  <link rel="alternate" hreflang="ja" href="https://brettspiele.fun/ja/games/lets-draw/" />
+  <link rel="alternate" hreflang="x-default" href="https://brettspiele.fun/games/lets-draw/" />
+  <!--/hreflang:auto-->
+  <meta property="og:type" content="website" />
+  <meta property="og:site_name" content="brettspiele.fun" />
+  <meta property="og:title" content="Let's Draw – brettspiele.fun" />
+  <meta property="og:description" content="Zeichenspiel mit Teams, Begriffsauswahl, Raumcode-Sync, Timer und gemeinsamer Canvas-Fläche." />
+  <meta property="og:url" content="https://brettspiele.fun/games/lets-draw/" />
+  <meta property="og:image" content="https://brettspiele.fun/games/lets-draw/wallpaper.png" />
+  <meta property="og:locale" content="de_DE" />
+  <meta name="twitter:card" content="summary_large_image" />
+  <meta name="twitter:title" content="Let's Draw – brettspiele.fun" />
+  <meta name="twitter:description" content="Zeichenspiel mit Teams, Begriffsauswahl, Raumcode-Sync, Timer und gemeinsamer Canvas-Fläche." />
+  <meta name="twitter:image" content="https://brettspiele.fun/games/lets-draw/wallpaper.png" />
+  <script type="application/ld+json">{"@context": "https://schema.org", "@type": "VideoGame", "name": "Let's Draw", "description": "Zeichenspiel mit Teams, Begriffsauswahl, Raumcode-Sync, Timer und gemeinsamer Canvas-Fläche.", "url": "https://brettspiele.fun/games/lets-draw/", "image": "https://brettspiele.fun/games/lets-draw/wallpaper.png", "genre": "Partyspiel", "playMode": "MultiPlayer", "applicationCategory": "Game", "operatingSystem": "Any (Web Browser)", "inLanguage": ["de", "en", "fr", "es", "it", "ru", "zh", "ja"]}</script>
+  <link rel="icon" href="../../assets/icons/lets-draw.svg?v=20260530-optional-account" type="image/svg+xml" />
+  <link rel="stylesheet" href="./styles.css?v=20260708-selectscheme" />
+  <script src="../../assets/runtime-config.js?v=20260905-donation-on"></script>
+  <script src="../../assets/i18n/de.js?v=20260824-i18n-gaps"></script><script src="../../assets/i18n/en.js?v=20260824-i18n-gaps"></script><script src="../../assets/i18n/fr.js?v=20260824-i18n-gaps"></script><script src="../../assets/i18n/es.js?v=20260824-i18n-gaps"></script><script src="../../assets/i18n/it.js?v=20260824-i18n-gaps"></script><script src="../../assets/i18n/ru.js?v=20260824-i18n-gaps"></script><script src="../../assets/i18n/zh.js?v=20260824-i18n-gaps"></script><script src="../../assets/i18n/ja.js?v=20260824-i18n-gaps"></script><script src="i18n/de.js?v=20260824-i18n-gaps"></script><script src="i18n/en.js?v=20260824-i18n-gaps"></script><script src="i18n/fr.js?v=20260824-i18n-gaps"></script><script src="i18n/es.js?v=20260824-i18n-gaps"></script><script src="i18n/it.js?v=20260824-i18n-gaps"></script><script src="i18n/ru.js?v=20260824-i18n-gaps"></script><script src="i18n/zh.js?v=20260824-i18n-gaps"></script><script src="i18n/ja.js?v=20260824-i18n-gaps"></script><script src="../../assets/i18n.js?v=20260824-i18n-gaps"></script>
+  <script src="../../assets/auth.js?v=20260904-oauth-link"></script>
+  <script src="../../assets/consent.js?v=20260530-optional-account"></script>
+  <script src="../../assets/ratings.js?v=20260603-home-ratings"></script>
+  <link rel="stylesheet" href="../../assets/gamepad.css?v=20260824-pad" />
+</head>
+<body>
+  <div class="game-top-left-ld"><a id="ldBackBtn" class="ld-back-btn" href="../../" aria-label="Zurück zur Spieleübersicht">← Hauptmenü</a></div>
+  <div class="game-top-actions"><select class="game-language-select" data-language-select aria-label="Sprache"></select><button class="game-theme-toggle" id="themeToggle" type="button">Theme</button></div>
+<div class="app">
+    <header>
+      <div class="brand">
+        <img class="brand-emblem letsdraw-emblem" src="../../assets/icons/lets-draw.svg?v=20260530-optional-account" alt="" />
+        <div>
+          <h1>Let's Draw</h1>
+          <div class="subtitle" data-i18n="letsdraw.subtitle">Ein lokales Browser-Zeichenspiel für Teams, Couch, Beamer und Chaos.</div>
+        </div>
+      </div>
+      <div class="round-pill">
+        <button id="returnToLobbyBtn" class="secondary game-lobby-return hidden" type="button" data-i18n="letsdraw.returnLobby">Zurück zur Lobby</button>
+        <div class="pill"><span data-i18n="letsdraw.round">Runde</span> <strong id="roundNumber">1</strong></div>
+        <div class="pill"><span data-i18n="letsdraw.target">Ziel</span> <strong id="targetScoreLabel">2000</strong> <span data-i18n="letsdraw.points">Punkte</span></div>
+        <div class="pill"><span data-i18n="letsdraw.mode">Modus</span> <strong id="modeLabel" data-i18n="letsdraw.teams">Teams</strong></div>
+      </div>
+    </header>
+
+    <aside class="sidebar leftbar">
+      <section class="card engine-only-section" aria-hidden="true">
+        <div class="card-inner">
+          <div class="section-title">
+            <h2 data-i18n="letsdraw.start.title">Spiel starten</h2>
+            <span class="muted" data-i18n="letsdraw.local">lokal</span>
+          </div>
+
+          <label for="roundTime" data-i18n="letsdraw.roundTime">Zeit pro Runde</label>
+          <select id="roundTime">
+            <option value="45">45 Sekunden</option>
+            <option value="60" selected>60 Sekunden</option>
+            <option value="75">75 Sekunden</option>
+            <option value="90">90 Sekunden</option>
+            <option value="120">120 Sekunden</option>
+          </select>
+
+          <label for="category" data-i18n="letsdraw.category">Thema</label>
+          <select id="category">
+            <option value="mixed" selected data-i18n="letsdraw.cat.mixed">Alle Themen</option>
+            <option value="alltag" data-i18n="letsdraw.cat.alltag">Alltag</option>
+            <option value="fantasy" data-i18n="letsdraw.cat.fantasy">Fantasy/Brettspiel</option>
+            <option value="animals" data-i18n="letsdraw.cat.animals">Tiere</option>
+            <option value="jobs" data-i18n="letsdraw.cat.jobs">Berufe</option>
+            <option value="filmtv" data-i18n="letsdraw.cat.filmtv">Film &amp; TV</option>
+            <option value="sport" data-i18n="letsdraw.cat.sport">Sport</option>
+          </select>
+
+          <label for="difficulty" data-i18n="letsdraw.difficulty">Schwierigkeit</label>
+          <select id="difficulty">
+            <option value="mixed" selected data-i18n="letsdraw.diff.mixed">Gemischt</option>
+            <option value="easy" data-i18n="letsdraw.diff.easy">Einfach</option>
+            <option value="medium" data-i18n="letsdraw.diff.medium">Mittel</option>
+            <option value="hard" data-i18n="letsdraw.diff.hard">Schwer</option>
+          </select>
+
+          <label for="targetScore" data-i18n="letsdraw.targetPoints">Zielpunkte</label>
+          <input id="targetScore" type="number" min="10" max="5000" value="2000" />
+
+          <div class="button-row">
+            <button id="newRoundBtn" data-i18n="letsdraw.newRound">Neue Runde</button>
+            <button id="startPauseBtn" class="good" data-i18n="letsdraw.start">Start</button>
+          </div>
+          <div class="button-row">
+            <button id="correctBtn" class="good" data-i18n="letsdraw.correct">Erraten +2</button>
+            <button id="skipBtn" class="secondary" data-i18n="letsdraw.skip">Überspringen</button>
+          </div>
+          <button id="resetGameBtn" class="danger" style="width:100%; margin-top:10px;" data-i18n="letsdraw.reset">Spiel zurücksetzen</button>
+        </div>
+      </section>
+
+
+
+      <section class="card engine-only-section" aria-hidden="true">
+        <div class="card-inner">
+          <div class="section-title">
+            <h2 data-i18n="letsdraw.multiplayer.title">Multiplayer</h2>
+            <span class="muted" data-i18n="letsdraw.lobby">Lobby</span>
+          </div>
+          <div class="muted" data-i18n="letsdraw.multiplayer.desc">Host erstellt zuerst einen Raum. Spieler treten per Link oder Code bei und wählen Name + Team.</div>
+          <label for="syncRoomInput" data-i18n="letsdraw.roomCode">Raumcode</label>
+          <input id="syncRoomInput" placeholder="z.B. DRAW42" data-i18n-placeholder="letsdraw.roomCode" maxlength="24" readonly />
+          <input id="syncInviteLink" class="room-code-field" placeholder="Einladungslink" data-i18n-placeholder="rollforge.inviteLink" readonly />
+          <div class="button-row">
+            <button id="openLobbyBtn" class="good" data-i18n="letsdraw.openLobby">Lobby öffnen</button>
+            <button id="syncCopyLinkBtn" class="secondary" data-i18n="letsdraw.copyLink">Link kopieren</button>
+          </div>
+          <div class="button-row">
+            <button id="syncDisconnectBtn" class="secondary" data-i18n="letsdraw.disconnect">Trennen</button>
+            <button id="syncNowBtn" class="secondary" data-i18n="letsdraw.saveSend">Speichern</button>
+          </div>
+          <div class="muted" id="syncStatus" style="margin-top:10px;" data-i18n="letsdraw.offline">Offline</div>
+        </div>
+      </section>
+
+      <section class="card">
+        <div class="card-inner">
+          <div class="section-title">
+            <h2 data-i18n="letsdraw.teams.title">Teams</h2>
+            <button id="addTeamBtn" class="secondary" style="padding:8px 10px; border-radius:12px;" data-i18n="letsdraw.addTeam">+ Team</button>
+          </div>
+          <div id="teamList" class="team-list"></div>
+        </div>
+      </section>
+
+      <section class="card guesses-card">
+        <div class="card-inner guesses-card-inner">
+          <aside class="round-guesses" id="roundGuessesPanel" aria-live="polite">
+            <div class="round-guesses-head">
+              <strong data-i18n="letsdraw.guesses.title">Eingaben</strong>
+              <span class="muted" data-i18n="letsdraw.guesses.format">Spieler: Begriff</span>
+            </div>
+            <div class="round-guesses-list" id="roundGuessesList">
+              <div class="round-guess-empty" data-i18n="letsdraw.guesses.empty">Noch keine Eingaben.</div>
+            </div>
+          </aside>
+        </div>
+      </section>
+
+      <section class="engine-only-section" aria-hidden="true">
+        <textarea id="customWords" tabindex="-1"></textarea>
+        <button id="saveCustomWordsBtn" type="button" tabindex="-1">Begriffe speichern</button>
+      </section>
+    </aside>
+
+    <main class="card game-table">
+      <div class="table-top">
+        <div class="current-team" id="currentTeamBadge">
+          <span class="team-dot"></span>
+          <div>
+            <span class="muted" data-i18n="letsdraw.current">Am Zug</span>
+            <strong id="currentTeamName">Team Gold</strong>
+          </div>
+        </div>
+
+        <div class="timer-wrap">
+          <div class="timer" id="timerCircle"><span id="timerText">60</span></div>
+        </div>
+
+        <div class="word-card hidden" id="wordCard" title="Klicken, um den Begriff kurz sichtbar/unsichtbar zu machen">
+          <div class="label" id="wordCategory" data-i18n="letsdraw.word">Begriff</div>
+          <div class="word" id="wordText" data-i18n="letsdraw.noWord">Noch keiner</div>
+        </div>
+      </div>
+
+      <form class="guess-panel" id="guessForm" autocomplete="off">
+        <div class="guess-copy">
+          <strong data-i18n="letsdraw.guess.title">Begriff raten</strong>
+          <span id="guessHint" class="muted" data-i18n="letsdraw.guess.hint">Richtig geraten? Punkte = übrige Sekunden.</span>
+        </div>
+        <input id="guessInput" type="text" placeholder="Begriff eingeben …" data-i18n-placeholder="letsdraw.guess.placeholder" />
+        <button id="guessSubmitBtn" class="good" type="submit" data-i18n="letsdraw.guess.submit">Raten</button>
+      </form>
+
+      <div class="canvas-stage">
+        <div class="canvas-shell">
+          <canvas id="drawCanvas"></canvas>
+          <div class="hint-overlay" id="hintOverlay" data-i18n="letsdraw.drawHere">Zeichne hier</div>
+        </div>
+      </div>
+
+      <div class="toolbar">
+        <div class="tool-group" id="colorSwatches"></div>
+        <div class="brush-size">
+          <span class="muted" data-i18n="letsdraw.brush">Pinsel</span>
+          <input id="brushSize" type="range" min="2" max="44" value="9" />
+          <strong id="brushSizeLabel">9</strong>
+        </div>
+        <div class="tool-group">
+          <button id="penBtn" class="secondary" data-i18n="letsdraw.pen">Stift</button>
+          <button id="eraserBtn" class="secondary" data-i18n="letsdraw.eraser">Radierer</button>
+        </div>
+        <div class="tool-group">
+          <button id="undoBtn" class="secondary" data-i18n="letsdraw.undo">Undo</button>
+          <button id="clearBtn" class="secondary" data-i18n="letsdraw.clearBoard">Tafel leeren</button>
+          <button id="newWordsBtn" class="secondary" data-i18n="letsdraw.newWords">Neue Begriffe</button>
+          <button id="saveImageBtn" class="secondary" data-i18n="letsdraw.png">PNG</button>
+        </div>
+      </div>
+    </main>
+
+    <aside class="sidebar rightbar">
+      <section class="card">
+        <div class="card-inner">
+          <div class="section-title">
+            <h2 data-i18n="letsdraw.log">Rundenlog</h2>
+            <button id="clearLogBtn" class="secondary" style="padding:8px 10px; border-radius:12px;" data-i18n="letsdraw.clear">Leeren</button>
+          </div>
+          <div id="log" class="log"></div>
+        </div>
+      </section>
+
+      <section class="card">
+        <div class="card-inner">
+          <div class="section-title">
+            <h2 data-i18n="letsdraw.rules">Regeln</h2>
+          </div>
+          <ul class="rules-list" data-i18n-html="letsdraw.rulesText">
+            <li>Ein Team zeichnet, die anderen raten.</li>
+            <li>Der Zeichner bekommt drei Begriffe und wählt geheim einen davon aus.</li>
+            <li>Richtig geraten: <strong>+2 Punkte</strong>. Überspringen: nächstes Team.</li>
+            <li>Keine Buchstaben, keine Zahlen, keine wilden PowerPoint-Pfeile. Außer ihr seid Monster.</li>
+            <li><span class="kbd">Leertaste</span> startet/pausiert, <span class="kbd">N</span> neue Runde, <span class="kbd">Z</span> Undo.</li>
+          </ul>
+        </div>
+      </section>
+
+      <section class="card">
+        <div class="card-inner">
+          <div class="section-title">
+            <h2 data-i18n="letsdraw.exportImport">Export / Import</h2>
+          </div>
+          <div class="muted" data-i18n="letsdraw.exportDesc">Speichere Teams, Punkte und eigene Begriffe als JSON. Praktisch, wenn das Spiel auf einem Beamer läuft.</div>
+          <div class="button-row">
+            <button id="exportBtn" class="secondary" data-i18n="letsdraw.export">Export</button>
+            <button id="importBtn" class="secondary" data-i18n="letsdraw.import">Import</button>
+          </div>
+          <input id="importFile" type="file" accept="application/json" hidden />
+        </div>
+      </section>
+    </aside>
+  </div>
+
+  <div class="modal-backdrop" id="roundModal">
+    <div class="modal">
+      <div class="category-badge" id="modalCategory" data-i18n="letsdraw.word">Begriff</div>
+      <h2 id="modalTitle" data-i18n="letsdraw.newRound">Neue Runde</h2>
+      <div class="word-options" id="modalWord">---</div>
+      <p class="muted" id="modalText" data-i18n="letsdraw.modalText">Der Zeichner darf jetzt kurz schauen. Danach starten und loskritzeln.</p>
+      <div class="button-row modal-start-only">
+        <button id="closeModalBtn" class="secondary modal-cancel-hidden" type="button" aria-hidden="true" tabindex="-1" data-i18n="letsdraw.close">Schließen</button>
+        <button id="modalStartBtn" class="good" type="button" data-i18n="letsdraw.startDrawing">Starten</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="toast" id="toast" data-i18n="letsdraw.saved">Gespeichert</div>
+
+  <div class="ld-lobby-backdrop open" id="multiplayerLobby">
+    <div class="ld-lobby-card">
+      <div class="ld-lobby-head">
+        <div>
+          <div class="category-badge" data-i18n="letsdraw.multiKicker">Let's Draw Multiplayer</div>
+          <h2 id="lobbyHeadline" data-i18n="letsdraw.lobby">Lobby</h2>
+          <p class="muted" id="lobbyLead" data-i18n="letsdraw.lobbyText">Erstelle einen Raum oder tritt einem bestehenden Spiel bei.</p>
+        </div>
+        <button class="secondary hidden" id="lobbyCloseBtn" type="button" aria-label="Close" aria-hidden="true" tabindex="-1">×</button>
+      </div>
+
+      <div class="ld-lobby-form" id="lobbyMenuForm">
+        <div class="lobby-tabs" role="tablist">
+          <button type="button" class="secondary lobby-tab active" id="modeCreateTab" role="tab" aria-selected="true" data-i18n="letsdraw.mode.host">Raum hosten</button>
+          <button type="button" class="secondary lobby-tab" id="modeJoinTab" role="tab" aria-selected="false" data-i18n="letsdraw.mode.join">Raum beitreten</button>
+        </div>
+        <p class="tab-hint muted" data-i18n="letsdraw.tabHint">Die Reiter öffnen nur den Bereich – danach unten noch auf den Button „Raum hosten“ bzw. „Raum beitreten“ tippen.</p>
+
+        <div id="hostFormFields">
+          <label for="hostPlayerName" data-i18n="rollforge.yourName">Dein Name</label>
+          <input id="hostPlayerName" maxlength="32" placeholder="Host" />
+        </div>
+
+        <div id="joinFormFields" class="hidden">
+          <label for="joinPlayerName" data-i18n="rollforge.yourName">Dein Name</label>
+          <input id="joinPlayerName" maxlength="32" placeholder="Spielername" data-i18n-placeholder="rollforge.yourName" />
+          <label for="joinRoomCode" data-i18n="letsdraw.roomCode">Raumcode</label>
+          <input id="joinRoomCode" maxlength="24" placeholder="DRAW42" />
+          <div class="public-rooms" id="publicRoomsList">
+            <div class="public-rooms-head" data-i18n="letsdraw.publicRooms.title">Öffentliche Spiele</div>
+            <div class="public-rooms-items" id="publicRoomsItems">
+              <div class="public-rooms-empty muted" data-i18n="letsdraw.publicRooms.empty">Aktuell keine öffentlichen Räume.</div>
+            </div>
+          </div>
+        </div>
+
+        <div class="button-row">
+          <button id="menuActionBtn" class="good" type="button" data-i18n="letsdraw.createLobby">Lobby erstellen</button>
+        </div>
+      </div>
+
+      <div class="ld-lobby-room hidden" id="lobbyRoomView">
+        <div class="ld-room-top">
+          <div>
+            <div class="muted" data-i18n="letsdraw.room">Raum</div>
+            <strong id="lobbyRoomCodeLabel">—</strong>
+          </div>
+          <div>
+            <div class="muted" data-i18n="letsdraw.role">Rolle</div>
+            <strong id="lobbyRoleLabel">—</strong>
+          </div>
+        </div>
+        <input id="lobbyInviteLinkView" readonly />
+        <div class="button-row">
+          <button id="lobbyCopyLinkBtn" class="secondary" type="button" data-i18n="letsdraw.copyLink">Link kopieren</button>
+          <button id="lobbyStartGameBtn" class="good" type="button" data-i18n="letsdraw.startGame">Spiel starten</button>
+        </div>
+        <section class="ld-profile-panel ld-host-settings" id="lobbyHostSettingsPanel">
+          <h3 data-i18n="letsdraw.lobby.settingsTitle">Rundeneinstellungen</h3>
+          <p class="muted" data-i18n="letsdraw.lobby.settingsHelp">Der Host stellt Zeit, Begriffe und Zielpunkte ein, bevor das Chaos startet.</p>
+          <label for="lobbyTargetScore" data-i18n="letsdraw.targetPoints">Zielpunkte</label>
+          <input id="lobbyTargetScore" type="number" min="10" max="5000" value="2000" />
+          <label for="lobbyRoundTime" data-i18n="letsdraw.roundTime">Zeit pro Runde</label>
+          <select id="lobbyRoundTime">
+            <option value="45">45 Sekunden</option>
+            <option value="60" selected>60 Sekunden</option>
+            <option value="75">75 Sekunden</option>
+            <option value="90">90 Sekunden</option>
+            <option value="120">120 Sekunden</option>
+          </select>
+          <label for="lobbyCategory" data-i18n="letsdraw.category">Thema</label>
+          <select id="lobbyCategory">
+            <option value="mixed" selected data-i18n="letsdraw.cat.mixed">Alle Themen</option>
+            <option value="alltag" data-i18n="letsdraw.cat.alltag">Alltag</option>
+            <option value="fantasy" data-i18n="letsdraw.cat.fantasy">Fantasy/Brettspiel</option>
+            <option value="animals" data-i18n="letsdraw.cat.animals">Tiere</option>
+            <option value="jobs" data-i18n="letsdraw.cat.jobs">Berufe</option>
+            <option value="filmtv" data-i18n="letsdraw.cat.filmtv">Film &amp; TV</option>
+            <option value="sport" data-i18n="letsdraw.cat.sport">Sport</option>
+          </select>
+
+          <label for="lobbyDifficulty" data-i18n="letsdraw.difficulty">Schwierigkeit</label>
+          <select id="lobbyDifficulty">
+            <option value="mixed" selected data-i18n="letsdraw.diff.mixed">Gemischt</option>
+            <option value="easy" data-i18n="letsdraw.diff.easy">Einfach</option>
+            <option value="medium" data-i18n="letsdraw.diff.medium">Mittel</option>
+            <option value="hard" data-i18n="letsdraw.diff.hard">Schwer</option>
+          </select>
+          <label class="public-room-toggle">
+            <input type="checkbox" id="publicRoomCheck">
+            <span data-i18n="letsdraw.publicRoom">Öffentlich sichtbar (im Spiele-Browser gelistet)</span>
+          </label>
+        </section>
+        <section class="ld-profile-panel" id="lobbyProfilePanel">
+          <h3 data-i18n="letsdraw.lobby.profileTitle">Dein Platz am Kritzel-Tisch</h3>
+          <p class="muted" id="lobbyProfileHelp" data-i18n="letsdraw.lobby.profileHelp">Wähle Namen und Team, dann trittst du wirklich dem Raum bei.</p>
+          <label for="lobbyPlayerName" data-i18n="rollforge.yourName">Dein Name</label>
+          <input id="lobbyPlayerName" maxlength="32" placeholder="Spielername" data-i18n-placeholder="rollforge.yourName" />
+          <label for="lobbyPlayerTeam" data-i18n="letsdraw.team">Team</label>
+          <select id="lobbyPlayerTeam"></select>
+          <button id="lobbyJoinTeamBtn" class="good" type="button" style="width:100%; margin-top:10px;" data-i18n="letsdraw.lobby.joinTeam">Dem Team beitreten</button>
+        </section>
+        <h3 data-i18n="rollforge.playersSection">Spieler</h3>
+        <div id="lobbyPlayersList" class="ld-lobby-players"></div>
+        <p class="muted" id="lobbyWaitText" data-i18n="letsdraw.hostStartHint">Der Host startet das Spiel, sobald alle im richtigen Team sind.</p>
+      </div>
+    </div>
+  </div>
+
+
+
+  <div class="ranking-overlay hidden" id="rankingOverlay" aria-hidden="true">
+    <div class="ranking-card" role="dialog" aria-modal="true" aria-labelledby="rankingTitle">
+      <div class="ranking-kicker" data-i18n="letsdraw.ranking.kicker">Finale Kritzel-Krone</div>
+      <h2 id="rankingTitle" data-i18n="letsdraw.ranking.title">Die Galerie hat entschieden.</h2>
+      <p id="rankingSubtitle" class="ranking-subtitle" data-i18n="letsdraw.ranking.subtitle">Kunst war es vielleicht nicht. Punkte gab es trotzdem.</p>
+      <div class="ranking-podium" id="rankingPodium"></div>
+      <div class="ranking-list" id="rankingList"></div>
+      <div class="ranking-actions">
+        <button class="good" id="rankingAgainBtn" type="button" data-i18n="ranking.again">Noch eine Runde</button>
+        <button class="secondary" id="rankingCloseBtn" type="button" data-i18n="letsdraw.ranking.board">Tafel ansehen</button>
+        <button class="danger" id="rankingLobbyBtn" type="button" data-i18n="ranking.lobby">Zur Lobby</button>
+      </div>
+    </div>
+  </div>
+
+
+  <!-- Custom in-game confirm dialog (replaces native confirm(), which can be silently suppressed in sandboxed/embedded contexts) -->
+  <div id="gameConfirmOverlay" class="gc-overlay" hidden>
+    <div class="gc-modal">
+      <div class="gc-msg" id="gcMsg">Sicher?</div>
+      <div class="gc-actions">
+        <button class="secondary" id="gcCancelBtn">Abbrechen</button>
+        <button class="danger" id="gcConfirmBtn">Bestätigen</button>
+      </div>
+    </div>
+  </div>
+  <script src="../../assets/sounds/sound.js?v=20260615-diceroll"></script><script src="./game.js?v=20260723-host-migration"></script>
+
+  <!-- Back-to-home confirm modal -->
+  <script>
+  (function () {
+    var homeUrl = '../../';
+
+    // Decide "where back goes" from the *visible* screen (DOM), not state.phase,
+    // which can lag (e.g. an intent restore shows the room view while phase is
+    // still 'menu'). Top level = the create/join menu form is showing; only then
+    // does back leave to the catalogue. Otherwise it walks one level up in-page:
+    // room lobby → menu form, live game → room lobby.
+    function el(id) { return document.getElementById(id); }
+    function lobbyOpen() { var lb = el('multiplayerLobby'); return !!(lb && lb.classList.contains('open')); }
+    function onMenuForm() { var f = el('lobbyMenuForm'); return !!(f && !f.classList.contains('hidden')); }
+    function atTop() { return lobbyOpen() && onMenuForm(); }
+
+    function updateLdBtn() {
+      var btn = el('ldBackBtn');
+      if (!btn) return;
+      var top = atTop();
+      btn.textContent = top ? '← Alle Spiele' : '← Hauptmenü';
+      btn.href = top ? homeUrl : '#';
+    }
+
+    el('ldBackBtn').addEventListener('click', function (e) {
+      if (atTop()) return;            // follow href → catalogue
+      e.preventDefault();
+      // Prefer the game's own hook (handles the confirm dialog + clears the
+      // saved reconnect intent); fall back to driving the controls directly.
+      var hook = window.__brettBack;
+      if (hook && typeof hook.up === 'function') { hook.up(); return; }
+      if (!lobbyOpen()) {             // live game → back to the room lobby
+        var ret = el('returnToLobbyBtn'); if (ret) { ret.click(); return; }
+        var ol = el('openLobbyBtn'); if (ol) { ol.click(); return; }
+        return;
+      }
+      var dc = el('syncDisconnectBtn'); // room lobby → leave room to the menu form
+      if (dc) dc.click();
+    });
+
+    setInterval(updateLdBtn, 800);
+    updateLdBtn();
+  })();
+  </script>
+
+  <script>
+    (function(){
+      var key = "brettspiele.themeMode";
+      var root = document.documentElement;
+      var button = document.getElementById("themeToggle");
+      var media = window.matchMedia ? window.matchMedia("(prefers-color-scheme: dark)") : null;
+      function getMode() {
+        try {
+          var mode = localStorage.getItem(key) || "auto";
+          return ["auto", "light", "dark"].includes(mode) ? mode : "auto";
+        } catch (e) {
+          return "auto";
+        }
+      }
+      function resolve(mode) {
+        return mode === "auto" ? (media && media.matches ? "dark" : "light") : mode;
+      }
+      function apply(mode, save) {
+        mode = ["auto", "light", "dark"].includes(mode) ? mode : "auto";
+        var theme = resolve(mode);
+        root.dataset.themeMode = mode;
+        root.dataset.theme = theme;
+        if (save) {
+          try { localStorage.setItem(key, mode); } catch (e) {}
+        }
+        try { localStorage.setItem("brettspiele.theme", theme); } catch (e) {}
+        if (button) {
+          var text = window.BFI18N && BFI18N.describeThemeMode ? BFI18N.describeThemeMode(mode, theme) : (theme === "light" ? "Light" : "Dark");
+          button.textContent = text;
+          button.setAttribute("aria-label", window.BFI18N ? BFI18N.t("theme.aria", { mode: text }) : ("Theme wechseln. Aktuell: " + text));
+          button.setAttribute("title", "Theme: " + text);
+        }
+        window.dispatchEvent(new CustomEvent("brettspiele-theme-change", { detail: { mode: mode, theme: theme } }));
+      }
+      function nextMode(mode) {
+        return mode === "auto" ? "light" : mode === "light" ? "dark" : "auto";
+      }
+      button && button.addEventListener("click", function(){
+        apply(nextMode(getMode()), true);
+      });
+      if (media) {
+        var onSystemChange = function(){ apply(getMode(), false); };
+        if (media.addEventListener) media.addEventListener("change", onSystemChange);
+        else if (media.addListener) media.addListener(onSystemChange);
+      }
+      apply(getMode(), false);
+      window.addEventListener("brettspiele-language-change", function(){ apply(getMode(), false); });
+    })();
+  </script>
+  <script src="../../assets/gamepad.js?v=20260824-pad"></script>
+</body>
+</html>

@@ -1,0 +1,605 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="robots" content="noindex, nofollow">
+<title>Administration – brettspiele.fun</title>
+<script>try{var m=localStorage.getItem('brettspiele.themeMode')||'auto';var d=matchMedia('(prefers-color-scheme: dark)').matches;document.documentElement.dataset.theme=m==='auto'?(d?'dark':'light'):m;}catch(e){document.documentElement.dataset.theme='dark';}</script>
+<style>
+  :root{--bg:#0f1420;--panel:#182131;--line:rgba(255,255,255,.12);--text:#eef2f8;--muted:#93a0b4;--gold:#d4a84f;--green:#57d68d;--red:#ff6b6b;--chip:rgba(255,255,255,.07)}
+  :root[data-theme="light"]{--bg:#eef1f6;--panel:#ffffff;--line:rgba(0,0,0,.12);--text:#141a24;--muted:#5a6675;--gold:#a9812f;--green:#1e9e5a;--red:#c53434;--chip:rgba(0,0,0,.05)}
+  *{box-sizing:border-box}
+  body{margin:0;background:var(--bg);color:var(--text);font:15px/1.5 system-ui,-apple-system,Segoe UI,Roboto,sans-serif;padding:24px}
+  .wrap{max-width:960px;margin:0 auto}
+  h1{font-size:24px;margin:0 0 4px}
+  .sub{color:var(--muted);margin:0 0 20px}
+  .gate{display:none;background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:24px;text-align:center}
+  .gate a{color:var(--gold)}
+  .panel{background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:16px;margin-bottom:16px}
+  .toolbar{display:flex;gap:10px;align-items:center;flex-wrap:wrap;margin-bottom:14px}
+  .search{flex:1;min-width:200px;display:flex;align-items:center;gap:8px;background:var(--chip);border:1px solid var(--line);border-radius:999px;padding:9px 14px}
+  .search input{flex:1;background:none;border:0;color:var(--text);font:inherit;outline:none}
+  .count{color:var(--muted);font-size:13px;white-space:nowrap}
+  table{width:100%;border-collapse:collapse}
+  th,td{text-align:left;padding:10px 8px;border-bottom:1px solid var(--line);vertical-align:middle}
+  th{color:var(--muted);font-size:12px;text-transform:uppercase;letter-spacing:.04em}
+  td.name strong{display:block}
+  td.name small{color:var(--muted)}
+  .badge{display:inline-block;font-size:11px;font-weight:800;padding:2px 8px;border-radius:999px;background:var(--chip)}
+  .badge.admin{background:rgba(212,168,79,.18);color:var(--gold)}
+  .badge.blocked{background:rgba(255,107,107,.16);color:var(--red)}
+  .badge.creator{background:rgba(87,214,141,.16);color:var(--green)}
+  .actions{display:flex;gap:6px;flex-wrap:wrap;justify-content:flex-end}
+  button.btn{font:700 12px/1 system-ui,sans-serif;padding:7px 10px;border-radius:8px;border:1px solid var(--line);background:var(--chip);color:var(--text);cursor:pointer;white-space:nowrap}
+  button.btn:hover:not(:disabled){filter:brightness(1.12)}
+  button.btn:disabled{opacity:.4;cursor:not-allowed}
+  button.btn.danger{border-color:rgba(255,107,107,.4);color:var(--red)}
+  button.btn.on{background:rgba(87,214,141,.16);border-color:rgba(87,214,141,.4);color:var(--green)}
+  .empty{color:var(--muted);text-align:center;padding:24px}
+  .req-row{display:flex;justify-content:space-between;align-items:flex-start;gap:12px;padding:11px 8px;border-bottom:1px solid var(--line)}
+  .req-row:last-child{border-bottom:0}
+  .req-info{flex:1;min-width:0}
+  .req-info small{color:var(--muted)}
+  .req-info .req-msg a{color:inherit;overflow-wrap:anywhere}
+  .req-msg{color:var(--muted);font-size:13px;margin-top:4px;white-space:pre-wrap}
+  .panel h3{margin:0 0 10px;font-size:15px}
+  .toast{position:fixed;left:50%;bottom:24px;transform:translateX(-50%);background:var(--panel);border:1px solid var(--line);border-radius:10px;padding:10px 16px;box-shadow:0 8px 24px rgba(0,0,0,.4);opacity:0;transition:opacity .2s;pointer-events:none}
+  .toast.show{opacity:1}
+  .toast.err{border-color:var(--red);color:var(--red)}
+  .topbar{display:flex;justify-content:space-between;align-items:center;margin-bottom:6px}
+  .topbar a{color:var(--muted);text-decoration:none;font-size:13px}
+  /* Ausklappbare Panels */
+  details.panel > summary{cursor:pointer;list-style:none;display:flex;align-items:center;gap:8px;user-select:none}
+  details.panel > summary::-webkit-details-marker{display:none}
+  details.panel > summary::before{content:"▸";color:var(--muted);font-size:12px;transition:transform .15s}
+  details.panel[open] > summary::before{transform:rotate(90deg)}
+  details.panel > summary h3{margin:0}
+  details.panel[open] > summary{margin-bottom:10px}
+  /* Zuweisungs-Picker (User↔Spiel) */
+  .picker-backdrop{position:fixed;inset:0;z-index:1000;background:rgba(0,0,0,.5);display:grid;place-items:center;padding:20px}
+  .picker{background:var(--panel);border:1px solid var(--line);border-radius:14px;width:min(540px,100%);max-height:min(80vh,600px);display:flex;flex-direction:column;padding:16px}
+  .picker-head{display:flex;justify-content:space-between;align-items:center;gap:10px;margin-bottom:10px}
+  .picker-list{overflow:auto;margin-top:10px;flex:1}
+  .picker-row{display:flex;justify-content:space-between;align-items:center;gap:10px;padding:9px 6px;border-bottom:1px solid var(--line)}
+  .picker-row:last-child{border-bottom:0}
+  .picker-row .name small{display:block;color:var(--muted)}
+  .picker-row.selectable{cursor:pointer;border-radius:8px}
+  .picker-row.selectable:hover{background:var(--chip)}
+</style>
+  <link rel="stylesheet" href="../assets/gamepad.css?v=20260824-pad" />
+</head>
+<body>
+<div class="wrap">
+  <div class="topbar"><span></span><a href="/">← zur Seite</a></div>
+  <h1>Administration</h1>
+  <p class="sub" id="whoami">Nutzerverwaltung</p>
+
+  <div class="gate" id="gate">
+    <p><strong>Kein Zugriff.</strong></p>
+    <p>Diese Seite ist nur für Administrator-Konten. Bitte melde dich als Administrator an.</p>
+    <p><a href="/">Zur Startseite</a></p>
+  </div>
+
+  <details class="panel" id="reportPanel" style="display:none" open>
+    <summary><h3>🚩 Meldungen <span class="count" id="reportCount"></span></h3></summary>
+    <p class="sub" style="margin:0 0 10px;font-size:13px">Hinweise auf rechtswidrige Inhalte aus <a href="/melden/" target="_blank" rel="noopener">/melden/</a> (Melde- und Abhilfeverfahren nach Artikel 16 DSA). Offene Vorgänge zuerst, der älteste oben. Nach der Entscheidung die meldende Person <strong>und</strong> die betroffene Person begründet benachrichtigen — die Begründung gehört in die Notiz.</p>
+    <div id="reportRows"></div>
+  </details>
+
+  <details class="panel" id="reqPanel" style="display:none" open>
+    <summary><h3>📨 Ersteller-Anträge <span class="count" id="reqCount"></span></h3></summary>
+    <div id="reqRows"></div>
+  </details>
+
+  <details class="panel" id="studioPanel" style="display:none" open>
+    <summary><h3>🎲 Studio-Einreichungen <span class="count" id="studioCount"></span></h3></summary>
+    <p class="sub" style="margin:0 0 10px;font-size:13px">Im Spiele-Studio erstellte Spiele, die zur Veröffentlichung in der Community-Galerie eingereicht wurden. „Ansehen" öffnet das Spiel im Studio.</p>
+    <div id="studioRows"></div>
+  </details>
+
+
+  <details class="panel" id="projPanel" style="display:none">
+    <summary><h3>🗂 Spiele <span class="count" id="projCount"></span></h3></summary>
+    <p class="sub" style="margin:0 0 10px;font-size:13px">Alle live vorhandenen Spiele: wem sie gehören, wer zusätzlich Zugriff hat (Terminal/Deploy) und was als Community-Spiel auf der Startseite erscheint. „Nicht registriert" = existiert live, ist aber noch keinem Nutzer zugeordnet – über „Besitzer setzen" zuordnen. Neue Spiele werden ihrem Ersteller beim ersten Deploy automatisch zugeordnet.</p>
+    <table>
+      <thead><tr><th>Spiel</th><th>Besitzer</th><th>Freigaben</th><th style="text-align:right">Aktionen</th></tr></thead>
+      <tbody id="projRows"></tbody>
+    </table>
+    <div class="empty" id="projEmpty" style="display:none">Noch keine registrierten Projekte.</div>
+    <div style="margin-top:10px"><button class="btn" id="projRegister">＋ Projekt registrieren / Besitzer setzen</button></div>
+  </details>
+
+  <details class="panel" id="main" style="display:none">
+    <summary><h3>👥 Nutzer <span class="count" id="userCount"></span></h3></summary>
+    <div class="toolbar">
+      <label class="search">
+        <span aria-hidden="true">🔍</span>
+        <input id="q" type="search" placeholder="Nach Benutzername oder Anzeigename suchen…" autocomplete="off">
+      </label>
+      <span class="count" id="count"></span>
+    </div>
+    <table>
+      <thead><tr><th>Nutzer</th><th>Rolle</th><th>Status</th><th style="text-align:right">Aktionen</th></tr></thead>
+      <tbody id="rows"></tbody>
+    </table>
+    <div class="empty" id="empty" style="display:none">Keine Nutzer gefunden.</div>
+  </details>
+</div>
+<div class="toast" id="toast"></div>
+
+<script>
+const $ = (id) => document.getElementById(id);
+let ME = null;
+
+async function api(path, method='GET', body){
+  const opts = { method, credentials:'same-origin', headers:{} };
+  if(body){ opts.headers['Content-Type']='application/json'; opts.body=JSON.stringify(body); }
+  const res = await fetch(path, opts);
+  let data = {};
+  try{ data = await res.json(); }catch(e){}
+  if(!res.ok) throw Object.assign(new Error(data.error||('HTTP '+res.status)), {status:res.status, data});
+  return data;
+}
+function toast(msg, isErr){
+  const t=$('toast'); t.textContent=msg; t.className='toast show'+(isErr?' err':'');
+  clearTimeout(toast._t); toast._t=setTimeout(()=>t.className='toast',2200);
+}
+function esc(s){ return String(s==null?'':s).replace(/[&<>"']/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#039;'}[m])); }
+function fmtDate(ts){ if(!ts) return '—'; try{ return new Date(ts*1000).toLocaleDateString('de-DE',{year:'numeric',month:'2-digit',day:'2-digit'}); }catch(e){ return '—'; } }
+
+function rowHtml(u){
+  const isSelf = u.username===ME.username;
+  const protectedUser = u.role==='admin' || isSelf;   // Rechte-/Sperr-/Lösch-Aktionen
+  const dis = protectedUser ? 'disabled' : '';
+  const selfDis = isSelf ? 'disabled' : '';            // Admin-/Recovery-Aktionen: nur sich selbst schützen
+  const roleBadge = u.role==='admin' ? '<span class="badge admin">Admin</span>' : '<span class="badge">Nutzer</span>';
+  const creatorBadge = u.creator ? ' <span class="badge creator">Ersteller</span>' : '';
+  const siteBadge = u.site && u.role !== 'admin' ? ' <span class="badge creator" title="Darf die gesamte Seite bearbeiten und deployen">Seite</span>' : '';
+  const twofaBadge = u.twofa ? ' <span class="badge" title="Zwei-Faktor aktiv">2FA</span>' : '';
+  const status = u.blocked ? '<span class="badge blocked">Gesperrt</span>' : '<span class="badge">aktiv</span>';
+  const adminBtn = u.role==='admin'
+    ? `<button class="btn on" data-act="admin" data-val="0" ${selfDis} title="Admin-Rechte entziehen">Admin ✓</button>`
+    : `<button class="btn" data-act="admin" data-val="1" ${selfDis} title="Zum Admin ernennen">Admin machen</button>`;
+  return `<tr data-u="${esc(u.username)}">
+    <td class="name"><strong>${esc(u.displayName||u.username)}</strong><small>@${esc(u.username)} · seit ${fmtDate(u.createdAt)}</small></td>
+    <td>${roleBadge}${creatorBadge}${siteBadge}${twofaBadge}</td>
+    <td>${status}</td>
+    <td><div class="actions">
+      ${adminBtn}
+      <button class="btn ${u.creator?'on':''}" data-act="creator" data-val="${u.creator?0:1}" ${dis} title="Recht, eigene Spiele zu erstellen">${u.creator?'Ersteller ✓':'Ersteller-Recht'}</button>
+      <button class="btn ${u.ai?'on':''}" data-act="ai" data-val="${u.ai?0:1}" ${dis} title="Recht, Spiele per KI zu erstellen (eigener Claude-Key)">${u.ai?'KI ✓':'KI-Recht'}</button>
+      <button class="btn ${u.site?'on':''}" data-act="site" data-val="${u.site?0:1}" ${dis} title="Recht, im Terminal die GANZE Seite zu bearbeiten und site-weit zu deployen — faktisch Admin-Macht über die ausgelieferten Inhalte">${u.site?'Seite ✓':'Seiten-Recht'}</button>
+      <button class="btn" data-act="games" title="Spiel-Zuweisungen dieses Nutzers (Besitz/Freigaben)">Spiele…</button>
+      <button class="btn" data-act="resetpw" ${selfDis} title="Neues Passwort setzen">Passwort…</button>
+      ${u.twofa ? `<button class="btn" data-act="remove2fa" ${selfDis} title="Zwei-Faktor-Authentifizierung entfernen">2FA entfernen</button>` : ''}
+      <button class="btn" data-act="block" data-val="${u.blocked?0:1}" ${dis}>${u.blocked?'Entsperren':'Sperren'}</button>
+      <button class="btn danger" data-act="delete" ${dis}>Löschen</button>
+    </div></td>
+  </tr>`;
+}
+
+let searchTimer=null;
+async function load(){
+  const q = $('q').value.trim();
+  try{
+    const data = await api('/api/admin/users'+(q?('?q='+encodeURIComponent(q)):''));
+    const rows = data.users||[];
+    $('rows').innerHTML = rows.map(rowHtml).join('');
+    $('empty').style.display = rows.length ? 'none' : '';
+    $('count').textContent = (data.count!=null?data.count:rows.length)+' Nutzer';
+    if(!q) $('userCount').textContent = '('+(data.count!=null?data.count:rows.length)+')';
+  }catch(e){
+    if(e.status===403){ showGate(); return; }
+    toast('Fehler beim Laden: '+e.message, true);
+  }
+}
+
+function showGate(){ $('gate').style.display='block'; $('main').style.display='none'; $('reqPanel').style.display='none'; $('projPanel').style.display='none'; $('studioPanel').style.display='none'; $('reportPanel').style.display='none'; }
+
+function reqRowHtml(r){
+  return `<div class="req-row" data-u="${esc(r.username)}">
+    <div class="req-info"><strong>${esc(r.displayName||r.username)}</strong> <small>@${esc(r.username)} · ${fmtDate(r.createdAt)}</small>${r.message?`<div class="req-msg">${esc(r.message)}</div>`:''}</div>
+    <div class="actions">
+      <button class="btn on" data-req="approve">Freigeben</button>
+      <button class="btn danger" data-req="deny">Ablehnen</button>
+    </div>
+  </div>`;
+}
+async function loadRequests(){
+  try{
+    const d=await api('/api/admin/creator-requests');
+    const reqs=d.requests||[];
+    $('reqPanel').style.display = reqs.length ? '' : 'none';
+    $('reqCount').textContent = reqs.length ? '('+reqs.length+')' : '';
+    $('reqRows').innerHTML = reqs.map(reqRowHtml).join('');
+  }catch(e){ $('reqPanel').style.display='none'; }
+}
+$('reqRows').addEventListener('click', async (e)=>{
+  const btn=e.target.closest('button[data-req]'); if(!btn) return;
+  const username=e.target.closest('.req-row').dataset.u;
+  const approve=btn.dataset.req==='approve';
+  if(!approve && !confirm(`Antrag von @${username} ablehnen?`)) return;
+  try{ await api('/api/admin/resolve-creator-request','POST',{username, approve}); toast(approve?'Freigegeben':'Abgelehnt'); await loadRequests(); await load(); }
+  catch(e){ toast('Fehler: '+e.message); }
+});
+
+// ---- Meldungen rechtswidriger Inhalte (DSA Art. 16) ----
+const REPORT_CATEGORIES={copyright:'Urheberrecht',trademark:'Marke/Kennzeichen',personal:'Personenbezogene Daten',insult:'Beleidigung/Hetze',youth:'Jugendschutz',minors:'Missbrauchsdarstellung',other:'Sonstiges'};
+const REPORT_DECISIONS={removed:'Inhalt entfernt',kept:'Keine Rechtsverletzung',forwarded:'Weitergeleitet'};
+function fmtDateTime(ts){ if(!ts) return '—'; try{ return new Date(ts*1000).toLocaleString('de-DE',{dateStyle:'medium',timeStyle:'short'}); }catch(e){ return '—'; } }
+// Die Fundstelle ist Freitext aus einem offenen Formular: nur echte http(s)-
+// Adressen werden verlinkt, alles andere bleibt Text. Sonst wäre ein
+// javascript:-„Link" ein Klick vom Admin entfernt.
+function reportTargetHtml(t){
+  return /^https?:\/\//i.test(t) ? `<a href="${esc(t)}" target="_blank" rel="noopener noreferrer">${esc(t)}</a>` : esc(t);
+}
+function reportRowHtml(r){
+  const open = r.status==='open';
+  const cat = REPORT_CATEGORIES[r.category]||r.category;
+  const from = r.email
+    ? `${esc(r.name||'ohne Namen')} &lt;${esc(r.email)}&gt;` + (r.reporter?` · @${esc(r.reporter)}`:'')
+    : '<em>anonym</em>';
+  const decided = open ? '' :
+    `<div class="req-msg"><strong>${esc(REPORT_DECISIONS[r.decision]||r.decision||'entschieden')}</strong> · ${fmtDateTime(r.resolvedAt)}${r.resolvedBy?' · @'+esc(r.resolvedBy):''}${r.note?'<br>'+esc(r.note):''}</div>`;
+  const actions = open
+    ? '<button class="btn danger" data-report="removed">Inhalt entfernt</button>'
+      + '<button class="btn on" data-report="kept">Keine Rechtsverletzung</button>'
+      + '<button class="btn" data-report="forwarded">Weitergeleitet</button>'
+    : '<button class="btn danger" data-report="delete" title="Vorgang endgültig löschen (Datenminimierung)">Löschen</button>';
+  return `<div class="req-row" data-id="${esc(r.id)}">
+    <div class="req-info">
+      <strong>${esc(cat)}</strong> <small>· Vorgang ${esc(r.id)} · ${fmtDateTime(r.createdAt)}</small>
+      <div class="req-msg">${reportTargetHtml(r.target)}</div>
+      <div class="req-msg">${esc(r.reason)}</div>
+      <small>Meldung von ${from}</small>
+      ${decided}
+    </div>
+    <div class="actions">${actions}</div>
+  </div>`;
+}
+async function loadReports(){
+  try{
+    const d=await api('/api/admin/reports');
+    const open=d.open||[], done=d.resolved||[];
+    $('reportPanel').style.display = (open.length||done.length) ? '' : 'none';
+    $('reportCount').textContent = open.length ? '('+open.length+')' : '';
+    $('reportRows').innerHTML = open.map(reportRowHtml).join('')
+      + (done.length ? '<p class="sub" style="margin:10px 0 6px;font-size:13px">Abgeschlossen ('+done.length+'):</p>'+done.map(reportRowHtml).join('') : '');
+  }catch(e){ $('reportPanel').style.display='none'; }
+}
+$('reportRows').addEventListener('click', async (e)=>{
+  const btn=e.target.closest('button[data-report]'); if(!btn) return;
+  const id=e.target.closest('.req-row').dataset.id;
+  const act=btn.dataset.report;
+  try{
+    if(act==='delete'){
+      if(!confirm('Vorgang '+id+' endgültig löschen? Damit verschwinden auch Name und E-Mail der meldenden Person.')) return;
+      await api('/api/admin/delete-report','POST',{id});
+      toast('Vorgang gelöscht');
+    } else {
+      // Die Begründung ist keine Fleißarbeit: Art. 16 Abs. 5 verlangt eine
+      // begründete Mitteilung an die meldende Person.
+      const note=prompt('Begründung der Entscheidung („'+REPORT_DECISIONS[act]+'“) – wird der meldenden und der betroffenen Person mitgeteilt:');
+      if(note===null) return;
+      await api('/api/admin/resolve-report','POST',{id, decision:act, note});
+      toast('Entscheidung festgehalten');
+    }
+    await loadReports();
+  }catch(err){
+    const map={report_not_found:'Vorgang nicht gefunden.',report_still_open:'Offene Vorgänge lassen sich nicht löschen.',invalid_decision:'Unbekannte Entscheidung.'};
+    toast(map[err.message]||('Fehler: '+err.message), true);
+  }
+});
+
+// ---- Studio-Einreichungen (Veröffentlichungs-Moderation) ----
+function studioRowHtml(r, published){
+  const when = published ? r.publishedAt : r.submittedAt;
+  const actions = published
+    ? '<button class="btn danger" data-studio="unpub">Zurückziehen</button>'
+    : '<button class="btn on" data-studio="approve">Freigeben</button><button class="btn danger" data-studio="deny">Ablehnen</button>';
+  const terms = r.termsAcceptedAt
+    ? `<div class="req-msg">✓ Rechte-Zusicherung bestätigt am ${fmtDateTime(r.termsAcceptedAt)}${r.termsVersion?' (Fassung '+esc(r.termsVersion)+')':''}</div>`
+    : '<div class="req-msg">⚠ Keine Rechte-Zusicherung hinterlegt (vor Einführung eingereicht).</div>';
+  return `<div class="req-row" data-id="${esc(r.id)}">
+    <div class="req-info"><strong>${esc(r.title||'(ohne Titel)')}</strong> <small>von ${esc(r.author||r.owner)} · @${esc(r.owner)} · ${fmtDate(when)}</small>${terms}</div>
+    <div class="actions">
+      <a class="btn" href="/studio/#id=${esc(r.id)}" target="_blank" rel="noopener">▶ Ansehen</a>
+      ${actions}
+    </div>
+  </div>`;
+}
+async function loadStudio(){
+  try{
+    const d=await api('/api/admin/studio-submissions');
+    const sub=d.submitted||[], pub=d.published||[];
+    $('studioPanel').style.display = (sub.length||pub.length) ? '' : 'none';
+    $('studioCount').textContent = sub.length ? '('+sub.length+')' : '';
+    $('studioRows').innerHTML = sub.map(r=>studioRowHtml(r,false)).join('')
+      + (pub.length ? '<p class="sub" style="margin:10px 0 6px;font-size:13px">Veröffentlicht ('+pub.length+'):</p>'+pub.map(r=>studioRowHtml(r,true)).join('') : '');
+  }catch(e){ $('studioPanel').style.display='none'; }
+}
+$('studioRows').addEventListener('click', async (e)=>{
+  const btn=e.target.closest('button[data-studio]'); if(!btn) return;
+  const id=e.target.closest('.req-row').dataset.id;
+  const act=btn.dataset.studio;
+  try{
+    if(act==='approve'){
+      await api('/api/admin/resolve-studio-submission','POST',{id, approve:true});
+      toast('Veröffentlicht');
+    } else {
+      const reason=prompt(act==='unpub' ? 'Veröffentlichung zurückziehen – Grund (optional):' : 'Einreichung ablehnen – Grund (optional):');
+      if(reason===null) return;
+      await api('/api/admin/resolve-studio-submission','POST',{id, approve:false, reason});
+      toast(act==='unpub' ? 'Zurückgezogen' : 'Abgelehnt');
+    }
+    await loadStudio();
+  }catch(err){ toast('Fehler: '+err.message, true); }
+});
+
+// ---- Spiele-Projekte (Besitz + Freigaben + Community-Flag) ----
+function projRowHtml(p){
+  // Nicht registrierte, aber live vorhandene Spiele: nur „Besitzer setzen“
+  // (das legt den Registry-Eintrag an); Freigaben/Community/Löschen brauchen
+  // erst einen Eintrag.
+  if(p.unregistered){
+    return `<tr data-slug="${esc(p.slug)}">
+      <td class="name"><strong>${esc(p.slug)}</strong><small><span class="badge">Site</span> <span class="badge blocked">nicht registriert</span></small></td>
+      <td><span class="count">—</span></td>
+      <td><div class="actions" style="justify-content:flex-start"><span class="count">—</span></div></td>
+      <td><div class="actions">
+        <button class="btn" data-proj="owner" title="Besitzer setzen (registriert das Spiel)">Besitzer setzen…</button>
+      </div></td>
+    </tr>`;
+  }
+  const grants = (p.grants||[]).map(g=>`<button class="btn" data-proj="ungrant" data-g="${esc(g)}" title="Freigabe entziehen">@${esc(g)} ✕</button>`).join(' ') || '<span class="count">—</span>';
+  const owner = p.owner ? `<strong>${esc(p.ownerDisplay||p.owner)}</strong><br><small class="count">@${esc(p.owner)}</small>` : '<span class="badge blocked">verwaist</span>';
+  const community = p.community ? '<span class="badge creator">Community</span>' : '<span class="badge">Site</span>';
+  const liveBadge = p.live===false ? ' <span class="badge blocked">nicht live</span>' : '';
+  return `<tr data-slug="${esc(p.slug)}">
+    <td class="name"><strong>${esc(p.slug)}</strong><small>${community}${liveBadge}</small></td>
+    <td>${owner}</td>
+    <td><div class="actions" style="justify-content:flex-start">${grants}</div></td>
+    <td><div class="actions">
+      <button class="btn" data-proj="grant" title="Weiterem Nutzer Zugriff geben">Freigeben…</button>
+      <button class="btn" data-proj="owner" title="Besitzer ändern">Besitzer…</button>
+      <button class="btn ${p.community?'on':''}" data-proj="community" data-val="${p.community?0:1}" title="Auf der Startseite als Community-Spiel zeigen">Community</button>
+      <button class="btn danger" data-proj="delete" title="Registry-Eintrag löschen (Dateien bleiben)">Löschen</button>
+    </div></td>
+  </tr>`;
+}
+async function loadProjects(){
+  try{
+    const d = await api('/api/admin/projects');
+    const projs = d.projects||[];
+    $('projPanel').style.display='';
+    $('projRows').innerHTML = projs.map(projRowHtml).join('');
+    $('projEmpty').style.display = projs.length ? 'none' : '';
+    $('projCount').textContent = projs.length ? '('+projs.length+')' : '';
+  }catch(e){ $('projPanel').style.display='none'; }
+}
+$('projRegister').addEventListener('click', async ()=>{
+  const slug = (prompt('Spiel-Slug (Verzeichnisname unter games/):')||'').trim().toLowerCase();
+  if(!slug) return;
+  const username = await pickUser(`Besitzer für „${slug}“ wählen`);
+  if(!username) return;
+  try{ await api('/api/admin/project-set-owner','POST',{slug, username}); toast('Projekt registriert'); await loadProjects(); }
+  catch(e){ toast('Fehler: '+e.message, true); }
+});
+$('projRows').addEventListener('click', async (e)=>{
+  const btn = e.target.closest('button[data-proj]'); if(!btn) return;
+  const slug = e.target.closest('tr').dataset.slug; const act = btn.dataset.proj;
+  try{
+    if(act==='grant'){
+      const username=await pickUser(`Wem Zugriff auf „${slug}“ geben?`);
+      if(!username) return;
+      await api('/api/admin/project-grant','POST',{slug, username, grant:true});
+      toast('Freigabe erteilt');
+    } else if(act==='ungrant'){
+      await api('/api/admin/project-grant','POST',{slug, username:btn.dataset.g, grant:false});
+      toast('Freigabe entzogen');
+    } else if(act==='owner'){
+      const username=await pickUser(`Neuer Besitzer von „${slug}“?`);
+      if(!username) return;
+      await api('/api/admin/project-set-owner','POST',{slug, username});
+      toast('Besitzer geändert');
+    } else if(act==='community'){
+      await api('/api/admin/project-community','POST',{slug, community:btn.dataset.val==='1'});
+      toast('Community-Flag aktualisiert (wirkt nach dem nächsten Deploy des Spiels)');
+    } else if(act==='delete'){
+      if(!confirm(`Registry-Eintrag „${slug}“ löschen? Die Spieldateien bleiben erhalten; das Spiel ist danach wieder Site-Spiel bzw. (falls nicht live) unbeansprucht.`)) return;
+      await api('/api/admin/project-delete','POST',{slug});
+      toast('Eintrag gelöscht');
+    }
+    await loadProjects();
+  }catch(e){
+    const map={user_not_found:'Nutzer nicht gefunden.',project_not_found:'Projekt nicht gefunden.',invalid_slug:'Ungültiger Slug.',forbidden:'Keine Berechtigung.'};
+    toast(map[e.message]||('Fehler: '+e.message), true);
+  }
+});
+
+// ---- Ausklappbare Panels: Zustand merken ----
+(function initPanels(){
+  const KEY='brettspiele.admin.open';
+  let saved={}; try{ saved=JSON.parse(localStorage.getItem(KEY)||'{}'); }catch(e){}
+  document.querySelectorAll('details.panel').forEach(d=>{
+    if(saved[d.id]!==undefined) d.open=!!saved[d.id];
+    d.addEventListener('toggle',()=>{
+      saved[d.id]=d.open;
+      try{ localStorage.setItem(KEY, JSON.stringify(saved)); }catch(e){}
+    });
+  });
+})();
+
+// ---- Zuweisungs-Picker: durchsuchbare Liste im Overlay ----
+const picker = {
+  el:null, _onClose:null,
+  close(){
+    if(this.el){ this.el.remove(); this.el=null; }
+    if(this._onClose){ const cb=this._onClose; this._onClose=null; cb(); }
+  },
+  open({title, placeholder, loadItems, renderRow, onClick, onClose}){
+    this.close();
+    this._onClose=onClose||null;
+    const bd=document.createElement('div'); bd.className='picker-backdrop';
+    bd.innerHTML=`<div class="picker"><div class="picker-head"><strong>${esc(title)}</strong><button class="btn" data-x>✕</button></div><label class="search"><span aria-hidden="true">🔍</span><input type="search" placeholder="${esc(placeholder||'Suchen…')}" autocomplete="off"></label><div class="picker-list"><div class="empty">Laden…</div></div></div>`;
+    document.body.appendChild(bd); this.el=bd;
+    const input=bd.querySelector('input'), list=bd.querySelector('.picker-list');
+    let items=[];
+    const draw=()=>{
+      const q=input.value.trim().toLowerCase();
+      const shown=q?items.filter(it=>it._search.includes(q)):items;
+      list.innerHTML = shown.length ? shown.map(renderRow).join('') : '<div class="empty">Keine Treffer.</div>';
+    };
+    const redraw=async()=>{ items=await loadItems(); draw(); };
+    bd.addEventListener('click',(e)=>{
+      if(e.target===bd || e.target.closest('[data-x]')){ this.close(); return; }
+      if(onClick) onClick(e, {redraw});
+    });
+    input.addEventListener('input', draw);
+    (async()=>{ try{ await redraw(); }catch(err){ list.innerHTML='<div class="empty">Fehler beim Laden.</div>'; } input.focus(); })();
+  }
+};
+
+// Spiel → User: Nutzer aus durchsuchbarer Liste wählen (ersetzt prompt()).
+function pickUser(title){
+  return new Promise((resolve)=>{
+    let picked=false;
+    picker.open({
+      title, placeholder:'Benutzername oder Anzeigename…',
+      loadItems: async()=>{
+        const d=await api('/api/admin/users');
+        return (d.users||[]).map(u=>({...u, _search:(u.username+' '+(u.displayName||'')).toLowerCase()}));
+      },
+      renderRow: (u)=>`<div class="picker-row selectable" data-pick="${esc(u.username)}"><span class="name"><strong>${esc(u.displayName||u.username)}</strong><small>@${esc(u.username)}</small></span><span>${u.role==='admin'?'<span class="badge admin">Admin</span> ':''}${u.blocked?'<span class="badge blocked">Gesperrt</span>':''}</span></div>`,
+      onClick: (e)=>{
+        const row=e.target.closest('[data-pick]'); if(!row) return;
+        picked=true; picker.close(); resolve(row.dataset.pick);
+      },
+      onClose: ()=>{ if(!picked) resolve(null); }
+    });
+  });
+}
+
+// User → Spiel: alle Spiele mit Suchfeld; Freigabe togglen / Besitzer setzen.
+function openGamesFor(username, display){
+  picker.open({
+    title:`Spiele · ${display||('@'+username)}`,
+    placeholder:'Spiel suchen…',
+    loadItems: async()=>{
+      const d=await api('/api/admin/projects');
+      return (d.projects||[]).map(p=>({...p, _search:p.slug.toLowerCase()}));
+    },
+    renderRow: (p)=>{
+      if(p.unregistered){
+        return `<div class="picker-row" data-slug="${esc(p.slug)}"><span class="name"><strong>${esc(p.slug)}</strong><small><span class="badge blocked">nicht registriert</span></small></span><span class="actions"><button class="btn" data-pg="owner">Besitzer setzen</button></span></div>`;
+      }
+      const isOwner=p.owner===username, has=(p.grants||[]).includes(username);
+      return `<div class="picker-row" data-slug="${esc(p.slug)}"><span class="name"><strong>${esc(p.slug)}</strong><small>${p.owner?('Besitzer: @'+esc(p.owner)):'<span class="badge blocked">verwaist</span>'}</small></span><span class="actions">
+        <button class="btn ${has?'on':''}" data-pg="grant" data-val="${has?0:1}" ${isOwner?'disabled title="Ist bereits Besitzer"':''}>${has?'Freigabe ✓':'Freigabe'}</button>
+        <button class="btn ${isOwner?'on':''}" data-pg="owner" ${isOwner?'disabled':''}>${isOwner?'Besitzer ✓':'Besitzer'}</button>
+      </span></div>`;
+    },
+    onClick: async (e, ctl)=>{
+      const btn=e.target.closest('button[data-pg]'); if(!btn || btn.disabled) return;
+      const slug=e.target.closest('[data-slug]').dataset.slug;
+      try{
+        if(btn.dataset.pg==='grant'){
+          await api('/api/admin/project-grant','POST',{slug, username, grant:btn.dataset.val==='1'});
+          toast(btn.dataset.val==='1'?'Freigabe erteilt':'Freigabe entzogen');
+        } else {
+          if(!confirm(`@${username} als Besitzer von „${slug}“ setzen?`)) return;
+          await api('/api/admin/project-set-owner','POST',{slug, username});
+          toast('Besitzer gesetzt');
+        }
+        await ctl.redraw();
+        await loadProjects();
+      }catch(err){
+        const map={user_not_found:'Nutzer nicht gefunden.',project_not_found:'Projekt nicht gefunden.',forbidden:'Keine Berechtigung.'};
+        toast(map[err.message]||('Fehler: '+err.message), true);
+      }
+    }
+  });
+}
+
+$('rows').addEventListener('click', async (e)=>{
+  const btn = e.target.closest('button[data-act]'); if(!btn) return;
+  const tr = e.target.closest('tr'); const username = tr.dataset.u; const act = btn.dataset.act;
+  if(act==='games'){
+    const name = tr.querySelector('.name strong');
+    openGamesFor(username, name?name.textContent:null);
+    return;
+  }
+  try{
+    if(act==='creator'){
+      await api('/api/admin/set-creator','POST',{username, creator: btn.dataset.val==='1'});
+      toast('Ersteller-Recht aktualisiert');
+    } else if(act==='ai'){
+      await api('/api/admin/set-ai','POST',{username, ai: btn.dataset.val==='1'});
+      toast('KI-Recht aktualisiert');
+    } else if(act==='site'){
+      const grant = btn.dataset.val==='1';
+      // Bewusst mit Rückfrage: das Recht erlaubt, jede ausgelieferte Datei der
+      // Seite zu ändern und live zu stellen — der Unterschied zu Admin ist nur
+      // noch die Nutzerverwaltung.
+      if(grant && !confirm(`@${username} das Seiten-Recht geben?\n\nDamit darf das Konto im Terminal die GESAMTE Seite bearbeiten (Site-Dateien und alle Spiele) und site-weit deployen — also jeden ausgelieferten Inhalt ändern. Nur an Leute vergeben, denen du auch Admin geben würdest.`)) return;
+      await api('/api/admin/set-site','POST',{username, site: grant});
+      toast(grant?'Seiten-Recht vergeben':'Seiten-Recht entzogen');
+    } else if(act==='block'){
+      const block = btn.dataset.val==='1';
+      if(block && !confirm(`Konto @${username} sperren? Laufende Sitzungen werden sofort beendet.`)) return;
+      await api('/api/admin/set-blocked','POST',{username, blocked: block});
+      toast(block?'Konto gesperrt':'Konto entsperrt');
+    } else if(act==='admin'){
+      const make = btn.dataset.val==='1';
+      if(make && !confirm(`@${username} zum Admin ernennen? Der Account erhält volle Admin-Rechte (und muss vor Nutzung erst 2FA einrichten).`)) return;
+      if(!make && !confirm(`@${username} die Admin-Rechte entziehen?`)) return;
+      await api('/api/admin/set-admin','POST',{username, admin: make});
+      toast(make?'Zum Admin ernannt':'Admin-Rechte entzogen');
+    } else if(act==='resetpw'){
+      const pw = prompt(`Neues Passwort für @${username} (mind. 8 Zeichen):`);
+      if(pw===null) return;
+      if((pw||'').length < 8){ toast('Passwort zu kurz (mind. 8 Zeichen).', true); return; }
+      await api('/api/admin/reset-password','POST',{username, password: pw});
+      toast('Passwort gesetzt · Sitzungen beendet');
+    } else if(act==='remove2fa'){
+      if(!confirm(`Zwei-Faktor-Authentifizierung von @${username} entfernen? Nur zur Wiederherstellung bei Aussperrung.`)) return;
+      await api('/api/admin/remove-2fa','POST',{username});
+      toast('2FA entfernt');
+    } else if(act==='delete'){
+      if(!confirm(`Konto @${username} endgültig löschen? Das entfernt Konto, Sitzungen, Freundschaften und Errungenschaften. Nicht umkehrbar.`)) return;
+      await api('/api/admin/delete-user','POST',{username});
+      toast('Konto gelöscht');
+    }
+    await load();
+  }catch(e){
+    const map={cannot_target_self:'Das eigene Konto kann nicht geändert werden.',cannot_target_admin:'Admin-Konten sind geschützt.',user_not_found:'Nutzer nicht gefunden.',password_too_short:'Passwort zu kurz (mind. 8 Zeichen).',forbidden:'Keine Berechtigung.'};
+    toast(map[e.message]||('Fehler: '+e.message), true);
+  }
+});
+
+$('q').addEventListener('input', ()=>{ clearTimeout(searchTimer); searchTimer=setTimeout(load, 200); });
+
+(async function init(){
+  try{
+    const me = await api('/api/me');
+    if(!me.authenticated || !me.user || !me.user.isAdmin){ showGate(); return; }
+    if(me.user.twofaRequired){
+      showGate();
+      $('gate').innerHTML = '<p><strong>2FA erforderlich.</strong></p><p>Admin-Funktionen sind erst nach hinterlegter Zwei-Faktor-Authentifizierung nutzbar.</p><p><a href="/account/2fa/">→ 2FA jetzt einrichten</a></p>';
+      return;
+    }
+    ME = me.user;
+    $('whoami').textContent = 'Angemeldet als '+(ME.displayName||ME.username)+' · Nutzerverwaltung';
+    $('main').style.display='';
+    await load();
+    await loadReports();
+    await loadRequests();
+    await loadStudio();
+    await loadProjects();
+  }catch(e){ showGate(); }
+})();
+</script>
+  <script src="../assets/gamepad.js?v=20260824-pad"></script>
+</body>
+</html>

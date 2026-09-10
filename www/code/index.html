@@ -1,0 +1,1465 @@
+<!doctype html>
+<html lang="de">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta name="robots" content="noindex, nofollow" />
+  <title>~/brettspiele — claude</title>
+  <meta name="description" content="Serverseitiges Claude-Code-Terminal (nur für Admins)." />
+  <link rel="icon" href="/assets/favicon.svg?v=20260618-dice-logo" type="image/svg+xml" />
+  <link rel="stylesheet" href="/assets/vendor/xterm/xterm.css?v=20260722-xterm" />
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    /* overscroll-behavior auf html: verhindert Chromes „Ziehen = neu laden“
+       (Pull-to-Refresh) und das Gummiband am Rand — beides sonst genau das,
+       was beim Wischen im Terminal passiert. */
+    html, body { height: 100%; overscroll-behavior: none; }
+    body {
+      background: #0d1117;
+      display: flex;
+      align-items: stretch;
+      justify-content: stretch;
+      font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+      color: #c9d1d9;
+    }
+    /* Vollbild: das Terminal nimmt die ganze Seite ein — Claude Codes TUI hat
+       damit deutlich mehr Spalten/Zeilen als im früheren „Fenster“. */
+    .term {
+      width: 100%;
+      height: 100vh;
+      height: 100dvh;
+      display: flex;
+      flex-direction: column;
+      background: #161b22;
+      overflow: hidden;
+    }
+    .term-bar {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      padding: 10px 14px;
+      background: #21262d;
+      border-bottom: 1px solid #30363d;
+      user-select: none;
+      flex: none;
+    }
+    .dot { width: 12px; height: 12px; border-radius: 50%; }
+    .dot-r { background: #ff5f57; }
+    .dot-y { background: #febc2e; }
+    .dot-g { background: #28c840; }
+    .term-title {
+      flex: 1;
+      text-align: center;
+      font-size: 12px;
+      color: #8b949e;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+    .term-sessions {
+      display: none;
+      max-width: 260px;
+      font: inherit;
+      font-size: 12px;
+      color: #c9d1d9;
+      background: #161b22;
+      border: 1px solid #30363d;
+      border-radius: 6px;
+      padding: 3px 8px;
+      cursor: pointer;
+    }
+    /* Aktionen liegen in ausklappbaren Menüs, damit die Titelleiste auch mit
+       Spiel- und Site-Aktionen schmal bleibt. Sichtbarkeit steuert weiterhin
+       das JS über display (none / inline-flex). */
+    .term-actions { display: none; position: relative; align-items: center; }
+    .term-menu-btn::after { content: " ▾"; color: #8b949e; }
+    .term-actions.open .term-menu-btn { background: #30363d; border-color: #3d444d; }
+    .term-menu-pop {
+      display: none;
+      position: absolute;
+      top: calc(100% + 6px);
+      right: 0;
+      z-index: 60;
+      min-width: 250px;
+      max-width: min(320px, 82vw);
+      flex-direction: column;
+      gap: 2px;
+      padding: 6px;
+      background: #1c2128;
+      border: 1px solid #30363d;
+      border-radius: 10px;
+      box-shadow: 0 16px 40px rgba(0,0,0,.6);
+    }
+    .term-actions.open .term-menu-pop { display: flex; }
+    .term-menu-item {
+      display: block;
+      width: 100%;
+      text-align: left;
+      font: inherit;
+      font-size: 13px;
+      color: #c9d1d9;
+      background: transparent;
+      border: 1px solid transparent;
+      border-radius: 7px;
+      padding: 7px 10px;
+      cursor: pointer;
+    }
+    .term-menu-item:hover { background: #30363d; }
+    .term-menu-item small {
+      display: block;
+      font-size: 11px;
+      line-height: 1.35;
+      color: #8b949e;
+      margin-top: 2px;
+      white-space: normal;
+    }
+    .term-menu-item.primary { color: #7ee787; }
+    .term-menu-item.danger { color: #ff9d99; }
+    .term-menu-item.danger:hover { background: #48211f; }
+    .term-menu-sep { height: 1px; background: #30363d; margin: 4px 2px; }
+    .term-btn {
+      font: inherit;
+      font-size: 12px;
+      color: #c9d1d9;
+      background: #161b22;
+      border: 1px solid #30363d;
+      border-radius: 6px;
+      padding: 3px 10px;
+      cursor: pointer;
+      white-space: nowrap;
+      transition: filter .12s ease;
+    }
+    .term-btn:hover { filter: brightness(1.25); }
+    .term-btn.primary { color: #fff; background: #238636; border-color: #2ea043; }
+    .term-btn.danger { color: #ff9d99; border-color: #5a2523; }
+    .term-btn.danger:hover { color: #fff; background: #da3633; border-color: #f85149; }
+    .term-restart {
+      display: none;
+      font: inherit;
+      font-size: 12px;
+      color: #7ee787;
+      background: transparent;
+      border: 1px solid #30363d;
+      border-radius: 6px;
+      padding: 3px 10px;
+      cursor: pointer;
+    }
+    .term-restart:hover { background: #30363d; }
+    .term-body {
+      flex: 1;
+      min-height: 0;
+      padding: 8px 4px 8px 10px;
+      background: #161b22;
+      position: relative;   /* Bezug für den Ablege-Hinweis beim Datei-Ziehen */
+    }
+    /* Datei ins Terminal ziehen: Hinweisfläche liegt über der Ausgabe, ohne
+       das Layout (und damit die xterm-Größenberechnung) anzufassen. */
+    .drop-hint {
+      position: absolute; inset: 6px; z-index: 5; display: none;
+      align-items: center; justify-content: center; text-align: center;
+      border: 2px dashed #2ea043; border-radius: 10px;
+      background: rgba(35, 134, 54, .16); color: #7ee787;
+      font-size: 15px; line-height: 1.5; padding: 12px; pointer-events: none;
+    }
+    .term.dragging .drop-hint { display: flex; }
+    .term-body .xterm { height: 100%; }
+    /* xterm-Viewport an die Fensterfarbe angleichen */
+    .xterm-viewport { background-color: #161b22 !important; }
+    /* Integrierter Bestätigungsdialog (statt window.confirm) */
+    .cm-backdrop {
+      position: fixed; inset: 0; z-index: 1000;
+      background: rgba(1, 4, 9, 0.72); backdrop-filter: blur(3px);
+      display: none; align-items: center; justify-content: center; padding: 20px;
+    }
+    .cm-backdrop.open { display: flex; }
+    .cm-card {
+      width: 100%; max-width: 440px;
+      background: #161b22; border: 1px solid #30363d; border-radius: 14px;
+      box-shadow: 0 24px 60px rgba(0, 0, 0, 0.55);
+      padding: 20px 22px; color: #c9d1d9;
+      font-family: ui-sans-serif, system-ui, -apple-system, "Segoe UI", sans-serif;
+    }
+    .cm-title { display: flex; align-items: center; gap: 9px; font-size: 16px; font-weight: 700; color: #f0f6fc; margin-bottom: 8px; }
+    .cm-msg { font-size: 14px; line-height: 1.5; color: #b9c2cc; margin: 0 0 18px; }
+    .cm-actions { display: flex; justify-content: flex-end; gap: 10px; }
+    .cm-btn {
+      font: inherit; font-size: 13px; font-weight: 600; cursor: pointer;
+      border-radius: 8px; padding: 9px 16px; border: 1px solid #30363d;
+      background: #21262d; color: #c9d1d9; transition: filter .12s ease;
+    }
+    .cm-btn:hover { filter: brightness(1.18); }
+    .cm-btn.primary { background: #238636; border-color: #2ea043; color: #fff; }
+    .cm-btn.danger { background: #da3633; border-color: #f85149; color: #fff; }
+    /* Spiel-Auswahl vor dem Terminalstart */
+    .pick-list { display: flex; flex-direction: column; gap: 7px; max-height: 34vh; overflow: auto; margin-bottom: 14px; }
+    .pick-item { display: flex; align-items: center; justify-content: space-between; gap: 10px; width: 100%; text-align: left; font: inherit; font-size: 14px; cursor: pointer; border: 1px solid #30363d; border-radius: 9px; background: #21262d; color: #c9d1d9; padding: 10px 13px; transition: filter .12s ease; }
+    .pick-item:hover { filter: brightness(1.2); border-color: #3d444d; }
+    .pick-item .pi-status { font-size: 11px; color: #8b949e; white-space: nowrap; }
+    /* Laufende Sitzung: anklicken = weiterarbeiten, ✕ = endgültig schließen */
+    .pick-grants { margin: 2px 0 8px; padding: 8px 10px; border: 1px solid #30363d; border-left: 3px solid #2f81f7;
+      border-radius: 8px; background: #12161d; font-size: 12px; color: #8b949e; }
+    .pick-grants .g-row { display: flex; justify-content: space-between; align-items: center; gap: 8px; padding: 3px 0; }
+    .pick-grants .g-row + .g-row { border-top: 1px solid #21262d; }
+    .pick-grants button { background: #161b22; color: #c9d1d9; border: 1px solid #30363d; border-radius: 6px;
+      font: inherit; font-size: 12px; padding: 3px 8px; cursor: pointer; }
+    .pick-grants button:hover { border-color: #4b5563; }
+    .pick-mode { display: flex; gap: 6px; margin-bottom: 8px; }
+    .pick-mode-btn { flex: 1; padding: 9px 10px; border-radius: 8px; border: 1px solid #30363d;
+      background: #161b22; color: #c9d1d9; font: inherit; font-size: 13px; cursor: pointer; }
+    .pick-mode-btn:hover { border-color: #4b5563; }
+    .pick-mode-btn.active { border-color: #2f81f7; background: #12243c; color: #e6edf3; }
+    .pick-mode-hint { margin: 0 0 14px; color: #8b949e; font-size: 12px; line-height: 1.45; }
+    .pick-row { display: flex; align-items: stretch; gap: 6px; }
+    .pick-row .pick-item { flex: 1; min-width: 0; }
+    .pick-row .pick-item[disabled] { cursor: default; opacity: .75; }
+    .pick-row .pick-item[disabled]:hover { filter: none; border-color: #30363d; }
+    /* Die Spielauswahl ist die Hauptsache und darf breit und hoch sein; der
+       Freigabe-Knopf daneben ist Nebensache und braucht nur sein Symbol. */
+    .pick-list .pick-item { font-size: 15px; padding: 14px 16px; border-radius: 10px; }
+    .pick-share { flex: 0 0 auto; width: 44px; display: flex; align-items: center; justify-content: center;
+      font-size: 15px; line-height: 1; cursor: pointer; border: 1px solid #30363d; border-radius: 10px;
+      background: #161b22; color: #8b949e; padding: 0; transition: filter .12s ease, color .12s ease; }
+    .pick-share:hover { filter: brightness(1.25); border-color: #3d444d; color: #c9d1d9; }
+    .pick-share.has-grants { color: #7ee787; border-color: #2b4b34; }
+    .pick-x { flex: 0 0 auto; font: inherit; font-size: 14px; line-height: 1; cursor: pointer;
+      color: #ff9d99; background: #21262d; border: 1px solid #5a2523; border-radius: 9px;
+      padding: 0 13px; transition: filter .12s ease; }
+    .pick-x:hover { color: #fff; background: #da3633; border-color: #f85149; }
+    .pick-empty { font-size: 13px; color: #8b949e; padding: 8px 2px; }
+    .pick-new { display: flex; gap: 8px; }
+    .pick-new input { flex: 1; min-width: 0; font: inherit; font-size: 14px; background: #0d1117; border: 1px solid #30363d; border-radius: 8px; padding: 9px 12px; color: #c9d1d9; }
+    .pick-sep { font-size: 12px; color: #8b949e; margin-bottom: 6px; }
+    .pick-resume { width: 100%; font: inherit; font-size: 13px; background: #0d1117; border: 1px solid #30363d; border-radius: 8px; padding: 8px 10px; color: #c9d1d9; }
+    .term-newbtn { display: none; font: inherit; font-size: 12px; color: #7ee787; background: transparent; border: 1px solid #30363d; border-radius: 6px; padding: 3px 10px; cursor: pointer; white-space: nowrap; }
+    .term-newbtn:hover { background: #30363d; }
+
+    /* Touch-Tastenleiste (Esc/Tab/Ctrl-C/Pfeile) — Handy-Tastaturen haben die
+       nicht, Claude Codes TUI braucht sie aber. Standardmäßig aus, nur mobil an. */
+    .term-keys { display: none; gap: 6px; padding: 6px 8px; background: #21262d;
+      border-top: 1px solid #30363d; flex: none; overflow-x: auto;
+      -webkit-overflow-scrolling: touch; scrollbar-width: none; }
+    .term-keys::-webkit-scrollbar { display: none; }
+    .term-keys button { flex: 0 0 auto; min-width: 42px; height: 40px; font: inherit;
+      font-size: 15px; color: #c9d1d9; background: #161b22; border: 1px solid #30363d;
+      border-radius: 8px; cursor: pointer; touch-action: manipulation; }
+    .term-keys button:active { background: #30363d; }
+    /* iOS zoomt beim Fokussieren von Feldern mit <16px — xterm-Eingabefeld
+       darum auf 16px, verhindert das automatische Reinzoomen. */
+    .xterm-helper-textarea { font-size: 16px !important; }
+    /* Touch-Scrollen im Terminal macht der JS-Handler selbst (term.scrollLines).
+       touch-action: none, damit der Browser die Geste gar nicht erst übernimmt —
+       mit pan-y startete Chrome beim Wischen sein Pull-to-Refresh, das ein
+       späteres preventDefault nicht mehr abbricht. */
+    .term-body, .xterm, .xterm-viewport, .xterm-screen { touch-action: none; }
+
+    @media (max-width: 820px) {
+      body { overscroll-behavior: none; }
+      .term-bar { flex-wrap: wrap; padding: 6px 8px; gap: 5px; }
+      .dot { display: none; }
+      .term-title { flex: 1 1 100%; order: -1; text-align: left;
+        font-size: 11px; padding: 0 2px; }
+      .term-btn, .term-sessions, .term-newbtn, .term-restart {
+        font-size: 12px; padding: 7px 10px; }
+      .term-sessions { max-width: 48vw; }
+      .term-body { padding: 6px 2px 6px 6px; overscroll-behavior: none; }
+      .term-keys { display: flex; }
+    }
+  </style>
+</head>
+<body>
+  <div class="term">
+    <div class="term-bar">
+      <span class="dot dot-r"></span><span class="dot dot-y"></span><span class="dot dot-g"></span>
+      <span class="term-title" id="title">brettspiele.fun — claude</span>
+      <button class="term-btn" id="btnUpload" type="button" style="display:none"
+              title="Datei hochladen (Screenshot, Textdatei, Blender-/3D-Modell …) — landet in .uploads/ der Sitzung und wird nie mit deployt">📎 Datei</button>
+      <input type="file" id="fileInput" multiple style="display:none"
+             accept="image/*,.txt,.md,.json,.csv,.log,.xml,.yml,.yaml,.pdf,.blend,.blend1,.glb,.gltf,.obj,.mtl,.fbx,.stl,.dae" />
+      <span class="term-actions" id="gameActions">
+        <button class="term-btn term-menu-btn" id="gameMenuBtn" type="button" aria-haspopup="true" aria-expanded="false"
+                title="Aktionen für das geöffnete Spiel">🎮 Spiel</button>
+        <div class="term-menu-pop" id="gameMenuPop" role="menu" aria-labelledby="gameMenuBtn">
+          <button class="term-menu-item" id="btnDry" type="button" role="menuitem">🧪 Dry-Run
+            <small>Deploy nur simulieren — es wird nichts verändert</small></button>
+          <button class="term-menu-item primary" id="btnDeploy" type="button" role="menuitem">🚀 Deploy
+            <small>Aktuelles Spiel live stellen</small></button>
+          <div class="term-menu-sep"></div>
+          <button class="term-menu-item danger" id="btnReset" type="button" role="menuitem">↩ Reset
+            <small>Spiel auf den Live-Stand zurücksetzen</small></button>
+        </div>
+      </span>
+      <span class="term-actions" id="siteActions">
+        <button class="term-btn term-menu-btn" id="siteMenuBtn" type="button" aria-haspopup="true" aria-expanded="false"
+                title="Nur Admins: site-weite Wartung">🌐 Site</button>
+        <div class="term-menu-pop" id="siteMenuPop" role="menu" aria-labelledby="siteMenuBtn">
+          <button class="term-menu-item primary" id="btnSiteDeploy" type="button" role="menuitem">🚀 Site deployen
+            <small>Ganze Site live stellen</small></button>
+          <button class="term-menu-item" id="btnSiteFiles" type="button" role="menuitem">📄 Site-Dateien auffrischen
+            <small>Testing auf den Live-Stand bringen — Spiele bleiben unberührt</small></button>
+          <div class="term-menu-sep"></div>
+          <button class="term-menu-item danger" id="btnSiteReset" type="button" role="menuitem">↩ Testing zurücksetzen
+            <small>Ganze Testumgebung auf den Live-Stand zurücksetzen</small></button>
+        </div>
+      </span>
+      <select class="term-sessions" id="sessionSel" aria-label="Sitzung"></select>
+      <button class="term-newbtn" id="newSessionBtn" type="button" title="Neue Sitzung starten (Spiel wählen)">✚ neue Sitzung</button>
+      <button class="term-btn danger" id="endSessionBtn" type="button" style="display:none" title="Diese Sitzung endgültig beenden (gibt den Terminal-Slot frei)">✕ Sitzung beenden</button>
+      <button class="term-restart" id="restartBtn" type="button">neu verbinden</button>
+    </div>
+    <div class="term-body" id="termBody">
+      <div class="drop-hint" id="dropHint">📎 Datei hier ablegen — sie landet in <code>.uploads/</code> der Sitzung</div>
+    </div>
+    <div class="term-keys" id="termKeys" aria-label="Terminaltasten">
+      <button type="button" data-k="esc">Esc</button>
+      <button type="button" data-k="tab">Tab</button>
+      <button type="button" data-k="c-c">Ctrl-C</button>
+      <button type="button" data-k="up">↑</button>
+      <button type="button" data-k="down">↓</button>
+      <button type="button" data-k="left">←</button>
+      <button type="button" data-k="right">→</button>
+      <button type="button" data-k="enter">⏎</button>
+      <button type="button" data-k="pgup" title="Nach oben blättern">⇞</button>
+      <button type="button" data-k="pgdn" title="Nach unten blättern">⇟</button>
+      <button type="button" data-k="end" title="Ans Ende springen">⤓</button>
+      <button type="button" data-k="focus" title="Tastatur einblenden">⌨</button>
+    </div>
+  </div>
+
+  <div class="cm-backdrop" id="confirmOverlay" role="dialog" aria-modal="true" aria-labelledby="cmTitle">
+    <div class="cm-card">
+      <div class="cm-title" id="cmTitle"><span>🚀</span><span id="cmHeading">Bestätigen</span></div>
+      <p class="cm-msg" id="cmMsg"></p>
+      <div class="cm-actions">
+        <button class="cm-btn" id="cmCancel" type="button">Abbrechen</button>
+        <button class="cm-btn primary" id="cmOk" type="button">Bestätigen</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="cm-backdrop" id="pickerOverlay" role="dialog" aria-modal="true" aria-labelledby="pickTitle">
+    <div class="cm-card" style="max-width:520px">
+      <div class="cm-title" id="pickTitle"><span>🎮</span><span>Woran möchtest du arbeiten?</span></div>
+      <div id="pickerNote" style="display:none; margin-bottom:12px; padding:8px 10px; border-radius:8px; background:#3d2b16; color:#e6c07b; font-size:13px; line-height:1.45"></div>
+      <p class="cm-msg" style="margin-bottom:12px">Wähle ein bestehendes Spiel zum Bearbeiten – oder leg ein neues mit Namen an.</p>
+      <div id="pickerLiveWrap" style="display:none; margin-bottom:14px">
+        <div class="pick-sep">▶ Laufende Sitzungen (anklicken = weiterarbeiten, ✕ = beenden):</div>
+        <div id="pickerLive" class="pick-list" style="margin-bottom:0"></div>
+      </div>
+      <!-- Zwei Achsen: WOMIT arbeite ich (Claude/Shell) und WORAN (Spiel/ganze
+           Seite). Der Umschalter steht oben, weil er für jeden Eintrag darunter
+           gilt — auch fürs Wieder-Andocken nicht, das bringt seinen Modus mit. -->
+      <div class="pick-mode" id="pickerMode" role="group" aria-label="Werkzeug">
+        <button type="button" class="pick-mode-btn active" data-mode="claude">🤖 Claude</button>
+        <button type="button" class="pick-mode-btn" data-mode="shell" id="pickModeShell">⌨️ Shell</button>
+      </div>
+      <p class="pick-mode-hint" id="pickModeHint">Claude Code mit Zugriff auf das gewählte Spiel.</p>
+      <div id="pickerGames" class="pick-list"></div>
+      <div class="pick-new">
+        <input id="pickerNewName" type="text" maxlength="48" placeholder="Name des neuen Spiels …" autocomplete="off" />
+        <button class="cm-btn primary" id="pickerNewBtn" type="button">✚ Neu anlegen</button>
+      </div>
+      <div id="pickerResumeWrap" style="display:none; margin-top:16px">
+        <div class="pick-sep">… oder eine gespeicherte Claude-Sitzung fortsetzen:</div>
+        <select id="pickerResume" class="pick-resume"></select>
+      </div>
+    </div>
+  </div>
+
+  <script src="/assets/vendor/xterm/xterm.js?v=20260722-xterm"></script>
+  <script src="/assets/vendor/xterm/addon-fit.js?v=20260722-xterm"></script>
+  <script>
+    (function () {
+      var titleEl = document.getElementById("title");
+      var restartBtn = document.getElementById("restartBtn");
+      var sessionSel = document.getElementById("sessionSel");
+      var newSessionBtn = document.getElementById("newSessionBtn");
+      var endSessionBtn = document.getElementById("endSessionBtn");
+      var gameActions = document.getElementById("gameActions");
+      var siteActions = document.getElementById("siteActions");
+      // Zustand der aktuell verbundenen Sitzung (kommt aus der ready-Nachricht).
+      var currentGame = "";     // Deploy-Ziel der Buttons (Spiel-Slug, "site") bzw. ""
+      var currentMode = "claude";  // Werkzeug der LAUFENDEN Sitzung (aus ready)
+      var isAdmin = false;
+      var currentAttach = "";   // attach-ID der laufenden Sitzung (für Rejoin)
+      var term = new Terminal({
+        cursorBlink: true,
+        fontSize: 14,
+        fontFamily: "ui-monospace, SFMono-Regular, Menlo, Consolas, monospace",
+        theme: {
+          background: "#161b22",
+          foreground: "#c9d1d9",
+          cursor: "#c9d1d9",
+          selectionBackground: "#264f78",
+        },
+        scrollback: 5000,
+      });
+      var fit = new FitAddon.FitAddon();
+      term.loadAddon(fit);
+      term.open(document.getElementById("termBody"));
+      fit.fit();
+
+      var ws = null;
+      var pingTimer = null;
+      var GREEN = "\x1b[32m", RED = "\x1b[31m", DIM = "\x1b[2m", RESET = "\x1b[0m";
+
+      var who = "gast";
+      var where = "/testing";
+      function status(text) { titleEl.textContent = who + "@brettspiele.fun: " + where + " — " + text; }
+      function line(text) { term.write("\r\n" + text + "\r\n"); }
+
+      function showRestart() { restartBtn.style.display = "inline-block"; }
+      function hideRestart() { restartBtn.style.display = "none"; }
+
+      // ---- Gespeicherte Sitzungen (Dropdown zum Wieder-Öffnen) ----
+      function fmtAge(mtime) {
+        var s = Math.max(0, Math.floor(Date.now() / 1000 - mtime));
+        if (s < 3600) return "vor " + Math.max(1, Math.floor(s / 60)) + " min";
+        if (s < 86400) return "vor " + Math.floor(s / 3600) + " h";
+        return "vor " + Math.floor(s / 86400) + " d";
+      }
+
+      function fmtElapsed(sec) {
+        var s = Math.max(0, Math.floor(sec));
+        if (s < 3600) return "vor " + Math.max(1, Math.floor(s / 60)) + " min";
+        if (s < 86400) return "vor " + Math.floor(s / 3600) + " h";
+        return "vor " + Math.floor(s / 86400) + " d";
+      }
+
+      function loadSessions(keepValue) {
+        return fetch("/ws/terminal/sessions", { credentials: "same-origin" })
+          .then(function (r) { return r.json(); })
+          .then(function (data) {
+            var sessions = (data && data.sessions) || [];
+            var live = (data && data.live) || [];
+            var prev = keepValue ? sessionSel.value : "";
+            sessionSel.innerHTML = "";
+            var optNew = document.createElement("option");
+            optNew.value = "";
+            optNew.textContent = "✚ neue Sitzung";
+            sessionSel.appendChild(optNew);
+            // Laufende Sitzungen zuerst: Wieder-Andocken (Prozess läuft weiter).
+            live.forEach(function (s) {
+              var o = document.createElement("option");
+              o.value = "attach:" + s.id;
+              o.setAttribute("data-slug", s.target || "");
+              o.textContent = "▶ läuft · " + (s.title || "Sitzung") + " (" + fmtElapsed(s.age) + ")";
+              sessionSel.appendChild(o);
+            });
+            sessions.forEach(function (s) {
+              var o = document.createElement("option");
+              o.value = s.id;
+              o.textContent = fmtAge(s.mtime) + " · " + (s.title || s.id.slice(0, 8));
+              sessionSel.appendChild(o);
+            });
+            sessionSel.value = prev ? prev : "";
+            if (sessionSel.value !== prev) sessionSel.value = "";
+            sessionSel.style.display = "inline-block";
+          })
+          .catch(function () { /* Dropdown bleibt leer/versteckt */ });
+      }
+
+      // ---- Sitzung manuell beenden -----------------------------------------
+      // Eine versehentlich zu viel geöffnete Sitzung blockiert sonst einen der
+      // wenigen Terminal-Slots, bis die Nachfrist abläuft. Der Claude-Prozess
+      // wird gestoppt, der Gesprächsverlauf bleibt als gespeicherte Sitzung
+      // erhalten (--resume).
+      function closeSession(id, label) {
+        return confirmModal({
+          heading: "Sitzung beenden?", icon: "✕", okLabel: "Beenden", danger: true,
+          message: "„" + (label || "laufende Sitzung") + "“ wirklich beenden? Der laufende Claude-Prozess wird gestoppt "
+            + "und der Terminal-Slot freigegeben. Der Gesprächsverlauf bleibt gespeichert und lässt sich später fortsetzen.",
+        }).then(function (ok) {
+          if (!ok) return false;
+          return fetch("/ws/terminal/close?id=" + encodeURIComponent(id),
+                       { method: "POST", credentials: "same-origin" })
+            .then(function (r) { return r.json(); })
+            .then(function (d) { return !!(d && d.ok); })
+            .catch(function () { return false; });
+        });
+      }
+      function updateEndButton() {
+        endSessionBtn.style.display = currentAttach ? "inline-block" : "none";
+      }
+
+      function sendJson(obj) {
+        if (ws && ws.readyState === WebSocket.OPEN) ws.send(JSON.stringify(obj));
+      }
+
+      function sendResize() { sendJson({ t: "resize", cols: term.cols, rows: term.rows }); }
+
+      window.addEventListener("resize", function () {
+        fit.fit();
+        sendResize();
+      });
+      term.onData(function (data) { sendJson({ t: "input", d: data }); });
+
+      // ---- Kopieren/Einfügen ----------------------------------------------
+      // xterm reicht sonst jede Taste ans PTY (Strg+C = Programmabbruch, nicht
+      // Kopieren). Deshalb: markierten Text automatisch kopieren + explizite
+      // Shortcuts. navigator.clipboard braucht HTTPS (ist hier gegeben).
+      function copySelection() {
+        var sel = term.getSelection();
+        if (sel && navigator.clipboard && navigator.clipboard.writeText) {
+          navigator.clipboard.writeText(sel).catch(function () {});
+          return true;
+        }
+        return false;
+      }
+      function pasteClipboard() {
+        if (navigator.clipboard && navigator.clipboard.readText) {
+          navigator.clipboard.readText().then(function (txt) {
+            if (txt) sendJson({ t: "input", d: txt });
+          }).catch(function () {});
+        }
+      }
+      term.attachCustomKeyEventHandler(function (e) {
+        if (e.type !== "keydown") return true;
+        var mod = e.ctrlKey || e.metaKey;
+        // Kopieren: Strg+Shift+C (Win/Linux) oder Cmd+C (Mac) mit Auswahl.
+        if (mod && (e.key === "c" || e.key === "C") && (e.shiftKey || e.metaKey) && term.hasSelection()) {
+          copySelection();
+          return false; // nicht ans PTY weiterreichen
+        }
+        // Einfügen: Strg+Shift+V (Win/Linux) oder Cmd+V (Mac).
+        if (mod && (e.key === "v" || e.key === "V") && (e.shiftKey || e.metaKey)) {
+          pasteClipboard();
+          return false;
+        }
+        return true;
+      });
+      // Markieren kopiert automatisch (wie in vielen Terminals) — foolproof.
+      document.getElementById("termBody").addEventListener("mouseup", function () {
+        if (term.hasSelection()) copySelection();
+      });
+
+      // ---- Dateien hochladen (Screenshots & Co. für Claude) ----------------
+      // Drei Wege, ein Ziel: Knopf, Datei ins Terminal ziehen, Screenshot aus
+      // der Zwischenablage einfügen. Alles landet in .uploads/ im Arbeits-
+      // verzeichnis der Sitzung (wird nie mit deployt); danach tippen wir die
+      // Pfade in Claudes Eingabe, sodass nur noch die Frage dazu fehlt.
+      // Rückmeldung läuft bewusst über die Titelleiste statt über term.write —
+      // Claudes TUI hat den Bildschirm für sich, Fremdausgabe zerlegt sie.
+      var btnUpload = document.getElementById("btnUpload");
+      var fileInput = document.getElementById("fileInput");
+      var termEl = document.querySelector(".term");
+      var MAX_FILES = 5;
+      var uploadBusy = false;
+      var toastTimer = null;
+
+      function fmtSize(n) {
+        n = n || 0;
+        return n >= 1048576 ? (n / 1048576).toFixed(1) + " MB" : Math.max(1, Math.round(n / 1024)) + " KB";
+      }
+      function idleStatus() {
+        var tool = currentMode === "shell" ? "shell" : "claude";
+        if (currentGame === "site") return tool + " · gesamte Seite";
+        return currentGame ? tool + " · Spiel „" + currentGame + "“" : tool + " · verbunden";
+      }
+      function toast(text) {
+        status(text);
+        if (toastTimer) clearTimeout(toastTimer);
+        toastTimer = setTimeout(function () { toastTimer = null; status(idleStatus()); }, 5000);
+      }
+      function uploadError(d) {
+        var e = (d && d.error) || "";
+        if (e === "too_large" || e === "http_413") return "zu groß" + (d && d.max ? " (max. " + fmtSize(d.max) + ")" : "");
+        if (e === "bad_name") return "Dateityp nicht erlaubt";
+        if (e === "not_found") return "Sitzung läuft nicht mehr";
+        if (e === "not_yours") return "gehört einer anderen Sitzung";
+        if (e === "not_authorized") return "nicht angemeldet";
+        return e || "unbekannter Fehler";
+      }
+      function uploadOne(file) {
+        return fetch("/ws/terminal/upload?id=" + encodeURIComponent(currentAttach) +
+                     "&name=" + encodeURIComponent(file.name || "screenshot.png"), {
+          method: "POST", credentials: "same-origin", body: file,
+          headers: { "Content-Type": "application/octet-stream" },
+        }).then(function (r) {
+          // nginx antwortet auf zu große Bodys selbst — dann kommt kein JSON.
+          return r.json().catch(function () { return { ok: false, error: "http_" + r.status }; });
+        });
+      }
+      function uploadFiles(files) {
+        if (!files || !files.length) return;
+        if (!currentAttach) { toast("erst eine Sitzung öffnen"); return; }
+        if (uploadBusy) { toast("es lädt noch eine Datei …"); return; }
+        uploadBusy = true;
+        var list = Array.prototype.slice.call(files, 0, MAX_FILES);
+        var paths = [], failed = [];
+        // Nacheinander, nicht parallel: die Namensvergabe auf dem Server soll
+        // sich nicht selbst überholen, und mehrere große Bilder gleichzeitig
+        // bringen auf dem Handy nichts.
+        list.reduce(function (chain, f) {
+          return chain.then(function () {
+            status("📎 lade " + (f.name || "Datei") + " hoch …");
+            return uploadOne(f).then(function (d) {
+              if (d && d.ok) paths.push(d.path);
+              else failed.push((f.name || "Datei") + ": " + uploadError(d));
+            }).catch(function () { failed.push((f.name || "Datei") + ": Verbindung"); });
+          });
+        }, Promise.resolve()).then(function () {
+          uploadBusy = false;
+          if (paths.length) {
+            // Pfade in die Claude-Eingabe tippen (relativ zum Arbeitsverzeichnis).
+            sendJson({ t: "input", d: paths.join(" ") + " " });
+            term.focus();
+          }
+          toast(failed.length
+            ? "📎 " + failed.join(" · ")
+            : "📎 " + paths.length + (paths.length === 1 ? " Datei" : " Dateien") + " bereit — Frage dazu eintippen");
+        });
+      }
+
+      btnUpload.addEventListener("click", function () { fileInput.click(); });
+      fileInput.addEventListener("change", function () {
+        uploadFiles(fileInput.files);
+        fileInput.value = "";   // dieselbe Datei soll erneut wählbar sein
+      });
+      // Screenshot aus der Zwischenablage: Strg+V bringt eine Datei statt Text.
+      document.addEventListener("paste", function (e) {
+        var f = e.clipboardData && e.clipboardData.files;
+        if (f && f.length) { e.preventDefault(); uploadFiles(f); }
+      });
+      // Datei ins Terminal ziehen. dragenter/dragleave feuern auch für
+      // Kindelemente — deshalb zählen statt umschalten.
+      var dragDepth = 0;
+      function hasFiles(e) {
+        var t = e.dataTransfer && e.dataTransfer.types;
+        return !!t && Array.prototype.indexOf.call(t, "Files") !== -1;
+      }
+      window.addEventListener("dragenter", function (e) {
+        if (!hasFiles(e)) return;
+        e.preventDefault(); dragDepth++; termEl.classList.add("dragging");
+      });
+      window.addEventListener("dragover", function (e) {
+        if (hasFiles(e)) { e.preventDefault(); e.dataTransfer.dropEffect = "copy"; }
+      });
+      window.addEventListener("dragleave", function () {
+        if (--dragDepth <= 0) { dragDepth = 0; termEl.classList.remove("dragging"); }
+      });
+      window.addEventListener("drop", function (e) {
+        if (!hasFiles(e)) return;
+        e.preventDefault();
+        dragDepth = 0; termEl.classList.remove("dragging");
+        uploadFiles(e.dataTransfer.files);
+      });
+
+      function denyMessage(reason) {
+        hideActionButtons();
+        if (reason === "attach_gone") {
+          // Die verlinkte/laufende Sitzung existiert nicht mehr (beendet oder
+          // abgelaufen). Statt still eine neue zu starten: zurück in die
+          // Auswahl — dort stehen auch die gespeicherten Sitzungen.
+          currentAttach = "";
+          connectTarget = {};
+          syncUrl();
+          status("Sitzung nicht mehr verfügbar");
+          hideRestart();
+          term.reset();
+          newSessionBtn.style.display = "none";
+          loadSessions(false);
+          showPicker("Die verlinkte Sitzung läuft nicht mehr (beendet oder abgelaufen). Wähle unten ein Spiel oder setze eine gespeicherte Sitzung fort.");
+          return;
+        }
+        if (reason === "not_authorized") {
+          line(RED + " ✗ Kein Zugriff." + RESET);
+          term.write(DIM + " Das Terminal ist Admins und KI-Nutzern vorbehalten.\r\n" +
+                     " Auf brettspiele.fun einloggen (Profil), dann hier neu laden.\r\n" + RESET);
+        } else if (reason === "busy") {
+          // Zurück in die Auswahl: dort stehen die laufenden Sitzungen mit ihrem
+          // ✕-Knopf — genau das, was jetzt gebraucht wird, um einen Slot frei
+          // zu bekommen.
+          currentAttach = "";
+          connectTarget = {};
+          updateEndButton();
+          syncUrl();
+          status("alle Terminal-Slots belegt");
+          hideRestart();
+          term.reset();
+          newSessionBtn.style.display = "none";
+          loadSessions(false);
+          showPicker("Alle Terminal-Slots sind gerade belegt. Docke unten an eine laufende Sitzung an – oder beende eine mit ✕, um einen Slot frei zu machen.");
+          return;
+        } else if (reason === "claude_missing") {
+          line(RED + " ✗ claude-CLI auf dem Server nicht gefunden." + RESET);
+        } else if (reason === "twofa_required") {
+          line(RED + " ✗ 2FA erforderlich." + RESET);
+          term.write(DIM + " Für das Terminal ist Zwei-Faktor-Authentifizierung Pflicht.\r\n" +
+                     " Einrichten unter: " + RESET + "\x1b[4mhttps://" + location.host + "/account/2fa/\x1b[0m" + DIM + " — danach hier neu laden.\r\n" + RESET);
+        } else if (reason === "site_denied") {
+          line(RED + " ✗ Kein Recht, die gesamte Seite zu bearbeiten." + RESET);
+          term.write(DIM + " Dafür braucht es Admin-Rechte oder das vergebene Seiten-Recht.\r\n" +
+                     " Ohne das öffnest du das Terminal für ein einzelnes Spiel.\r\n" + RESET);
+        } else if (reason === "sandbox_missing") {
+          line(RED + " ✗ Shell nicht verfügbar — auf dem Server fehlt bwrap." + RESET);
+          term.write(DIM + " Eine Shell wird nur in der Sandbox gestartet; ohne sie gar nicht.\r\n" +
+                     " Claude Code funktioniert unabhängig davon.\r\n" + RESET);
+        } else if (reason === "game_denied") {
+          line(RED + " ✗ Kein Zugriff auf dieses Spiel." + RESET);
+          term.write(DIM + " Ein Terminal öffnet immer genau ein Spiel — und nur eigene bzw.\r\n" +
+                     " freigegebene Spiele. Freigaben vergibt der Admin.\r\n" + RESET);
+        } else if (reason === "game_missing" || reason === "bad_game_name" ||
+                   reason === "games_dir_missing" || reason === "game_error") {
+          line(RED + " ✗ Spiel konnte nicht geöffnet werden (" + reason + ")." + RESET);
+          term.write(DIM + " Bitte im Auswahlfenster ein anderes Spiel wählen oder neu anlegen.\r\n" + RESET);
+        } else if (reason === "session_not_found") {
+          // Gespeicherte Sitzung ist weg (abgelaufen/gelöscht) → gleiche Antwort
+          // wie bei attach_gone: zurück in die Auswahl.
+          sessionSel.value = "";
+          currentAttach = "";
+          connectTarget = {};
+          syncUrl();
+          hideRestart();
+          term.reset();
+          status("Sitzung nicht mehr verfügbar");
+          newSessionBtn.style.display = "none";
+          loadSessions(false);
+          showPicker("Die gespeicherte Sitzung wurde nicht gefunden (abgelaufen oder gelöscht). Wähle unten ein Spiel oder eine andere Sitzung.");
+          return;
+        } else {
+          line(RED + " ✗ Verbindung abgelehnt (" + (reason || "unbekannt") + ")." + RESET);
+        }
+        status("getrennt");
+        showRestart();
+      }
+
+      // ---- Spiel-Auswahl vor dem Terminalstart (auch: neue Sitzung) --------
+      var connectTarget = {};   // { game } | { newGame } | { resume } | { attach }
+      // Werkzeug der NÄCHSTEN Sitzung. Beim Wieder-Andocken irrelevant: eine
+      // laufende Sitzung bringt ihr Werkzeug mit (ready.mode).
+      var pickMode = "claude";
+      var canSite = false, canShell = false;
+      (function initModeSwitch() {
+        var wrap = document.getElementById("pickerMode");
+        var hint = document.getElementById("pickModeHint");
+        var HINTS = {
+          claude: "Claude Code mit Zugriff auf das Gewählte.",
+          shell: "Nackte Bash in einer abgeschotteten Umgebung: eigenes Konto, " +
+                 "nur das Gewählte beschreibbar, Live-Auslieferung und Deploy-Auslöser unerreichbar. " +
+                 "Deploy läuft weiter über die Knöpfe der Leiste."
+        };
+        wrap.addEventListener("click", function (ev) {
+          var btn = ev.target.closest(".pick-mode-btn");
+          if (!btn || btn.disabled) return;
+          pickMode = btn.dataset.mode;
+          Array.prototype.forEach.call(wrap.querySelectorAll(".pick-mode-btn"), function (b) {
+            b.classList.toggle("active", b === btn);
+          });
+          hint.textContent = HINTS[pickMode] || "";
+        });
+      })();
+      var pickerOverlay = document.getElementById("pickerOverlay");
+      var currentSlug = "";     // Spiel-Slug für die URL (autoritativ aus ready)
+      // Deep-Link: /code/<slug> öffnet das Spiel, /code/<slug>?s=<id> dockt an
+      // die laufende Sitzung mit dieser attach-ID wieder an. Die URL folgt dem
+      // Zustand (replaceState, kein History-Spam), damit ein Neuladen der Seite
+      // die Sitzung fortsetzt statt eine neue zu starten. newGame kennt den
+      // fertigen Slug erst nach der Serverantwort — daher best effort via slugify.
+      function slugify(name) {
+        return String(name || "").trim().toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-+|-+$/g, "").slice(0, 40).replace(/-+$/g, "");
+      }
+      function urlSlug() {
+        var m = location.pathname.match(/^\/code\/([a-z0-9_-]{1,64})\/?$/);
+        return m ? m[1] : "";
+      }
+      function urlSession() {
+        var m = location.search.match(/[?&]s=([A-Za-z0-9_-]{1,64})(?:&|$)/);
+        return m ? m[1] : "";
+      }
+      function syncUrl() {
+        var path = "/code/" + (currentSlug || "");
+        try { history.replaceState(null, "", path + (currentAttach ? "?s=" + encodeURIComponent(currentAttach) : "")); } catch (e) {}
+      }
+      function startWith(target) {
+        connectTarget = target || {};
+        // Beim Andocken/Fortsetzen bringt die Sitzung ihr Werkzeug selbst mit.
+        if (!connectTarget.attach && !connectTarget.resume && !connectTarget.mode) {
+          connectTarget.mode = pickMode;
+        }
+        currentAttach = connectTarget.attach || "";
+        // Slug für die URL vorbelegen; die ready-Nachricht korrigiert ihn gleich.
+        if (connectTarget.game) currentSlug = connectTarget.game;
+        else if (connectTarget.newGame) currentSlug = slugify(connectTarget.newGame);
+        else if (connectTarget.slug) currentSlug = connectTarget.slug;
+        else currentSlug = "";
+        syncUrl();
+        updateEndButton();
+        pickerOverlay.classList.remove("open");
+        newSessionBtn.style.display = "inline-block";
+        connect();
+      }
+      function pickStatusLabel(g) {
+        return g.status === "mine" ? "deins"
+          : g.status === "unclaimed" ? "neu, noch nicht live"
+          : g.status === "official" ? "Site-Spiel" : "";
+      }
+      /* ── Freigaben des Besitzers ──
+         Wer ein Spiel besitzt, darf andere Konten dafür freischalten, ohne
+         beim Admin nachzufragen. Eine Freigabe erlaubt Öffnen, Ändern UND
+         Deployen — deshalb die deutliche Rückfrage. Besitzerwechsel,
+         Community-Flag und Löschen bleiben beim Admin. */
+      var ownedProjects = {};   // slug → { grants: [{username, displayName}] }
+      function loadOwned() {
+        fetch("/api/projects/mine", { credentials: "same-origin" })
+          .then(function (r) { return r.ok ? r.json() : null; })
+          .then(function (d) {
+            ownedProjects = {};
+            ((d && d.projects) || []).forEach(function (p) { ownedProjects[p.slug] = p; });
+            paintOwned();
+          })
+          .catch(function () {});
+      }
+      function paintOwned() {
+        Array.prototype.forEach.call(document.querySelectorAll("[data-share]"), function (btn) {
+          var p = ownedProjects[btn.dataset.share];
+          btn.style.display = p ? "" : "none";
+          if (!p) return;
+          // Nur das Symbol; wie viele freigegeben sind, sagt der Tooltip und
+          // die Färbung — die Zeile soll dem Spielnamen gehören.
+          var n = p.grants.length;
+          btn.classList.toggle("has-grants", n > 0);
+          btn.title = n
+            ? "Freigaben verwalten — " + n + (n === 1 ? " Konto" : " Konten") + " freigegeben"
+            : "Mitarbeiter für dieses Spiel freigeben";
+        });
+      }
+      function toggleGrants(slug, row) {
+        var open = row.nextElementSibling;
+        if (open && open.classList.contains("pick-grants")) { open.remove(); return; }
+        var box = document.createElement("div");
+        box.className = "pick-grants";
+        row.parentNode.insertBefore(box, row.nextSibling);
+        renderGrants(slug, box);
+      }
+      function renderGrants(slug, box) {
+        var p = ownedProjects[slug];
+        if (!p) { box.textContent = "Nur der Besitzer kann freigeben."; return; }
+        box.innerHTML = "";
+        var head = document.createElement("div");
+        head.style.marginBottom = "4px";
+        head.textContent = p.grants.length
+          ? "Freigegeben für — darf öffnen, ändern und live stellen:"
+          : "Noch niemand freigegeben.";
+        box.appendChild(head);
+        p.grants.forEach(function (g) {
+          var r = document.createElement("div");
+          r.className = "g-row";
+          var n = document.createElement("span");
+          n.textContent = g.displayName + " (@" + g.username + ")";
+          var x = document.createElement("button");
+          x.type = "button"; x.textContent = "✕ entziehen";
+          x.addEventListener("click", function () {
+            if (!confirm("Freigabe für @" + g.username + " auf „" + slug + "\u201c entziehen?")) return;
+            setGrant(slug, g.username, false, box);
+          });
+          r.appendChild(n); r.appendChild(x); box.appendChild(r);
+        });
+        var add = document.createElement("button");
+        add.type = "button"; add.style.marginTop = "6px"; add.textContent = "＋ Konto freigeben";
+        add.addEventListener("click", function () {
+          var name = (prompt("Benutzername, der an „" + slug + "\u201c mitarbeiten darf:") || "").trim();
+          if (!name) return;
+          if (!confirm("@" + name + " für „" + slug + "\u201c freigeben?\n\nDas Konto darf das Spiel danach im Terminal öffnen, ändern und live stellen.")) return;
+          setGrant(slug, name, true, box);
+        });
+        box.appendChild(add);
+      }
+      function setGrant(slug, username, grant, box) {
+        fetch("/api/projects/grant", {
+          method: "POST", credentials: "same-origin",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ slug: slug, username: username, grant: grant })
+        }).then(function (r) { return r.json().then(function (d) { return { ok: r.ok, d: d }; }); })
+          .then(function (res) {
+            if (!res.ok) {
+              var map = {
+                user_not_found: "Es gibt kein Konto mit diesem Namen.",
+                user_blocked: "Dieses Konto ist gesperrt.",
+                user_without_terminal: "Dieses Konto hat keinen Terminal-Zugang — eine Freigabe würde nichts bewirken. Der Admin muss es zuerst freischalten.",
+                is_owner: "Dir gehört das Spiel bereits.",
+                not_owner: "Nur der Besitzer darf freigeben.",
+                project_not_found: "Das Spiel ist noch nicht registriert — einmal deployen, dann geht es."
+              };
+              box.insertAdjacentHTML("afterbegin",
+                '<div style="color:#f0883e;margin-bottom:6px">' + (map[res.d.error] || ("Fehlgeschlagen: " + res.d.error)) + "</div>");
+              return;
+            }
+            loadOwned();
+            var g = (res.d.project && res.d.project.grants) || [];
+            ownedProjects[slug] = { slug: slug, grants: g.map(function (u) { return { username: u, displayName: u }; }) };
+            renderGrants(slug, box);
+          })
+          .catch(function () { box.insertAdjacentHTML("afterbegin", '<div style="color:#f0883e">Server nicht erreichbar.</div>'); });
+      }
+
+      function showPicker(note) {
+        var noteEl = document.getElementById("pickerNote");
+        noteEl.textContent = note || "";
+        noteEl.style.display = note ? "block" : "none";
+        var box = document.getElementById("pickerGames");
+        box.innerHTML = '<div class="pick-empty">Lade Spiele …</div>';
+        pickerOverlay.classList.add("open");
+        document.getElementById("pickerNewName").focus();
+        fetch("/ws/terminal/games", { credentials: "same-origin" })
+          .then(function (r) { return r.json(); })
+          .then(function (data) {
+            var games = (data && data.games) || [];
+            canSite = !!(data && data.canSite);
+            canShell = !!(data && data.canShell);
+            // Ohne bwrap auf dem Server gibt es keine Shell — dann gar nicht
+            // erst anbieten (der Server lehnt sonst mit sandbox_missing ab).
+            var shellBtn = document.getElementById("pickModeShell");
+            if (shellBtn) {
+              shellBtn.disabled = !canShell;
+              shellBtn.title = canShell ? "" : "Auf diesem Server nicht verfügbar (keine Sandbox installiert).";
+              shellBtn.style.opacity = canShell ? "" : ".45";
+            }
+            box.innerHTML = "";
+            // Wer ein Spiel BESITZT, darf Mitarbeiter dafür freigeben. Die
+            // Spielliste oben unterscheidet das nicht (Status „mine" umfasst
+            // eigene UND freigegebene) — deshalb der eigene Aufruf.
+            loadOwned();
+            // Ganze Seite: Site-Dateien UND alle Spiele in einem Arbeitsbereich.
+            // Nur für Admins bzw. das vergebene Seiten-Recht (caps.site).
+            if (canSite) {
+              var sb = document.createElement("button");
+              sb.type = "button"; sb.className = "pick-item";
+              sb.innerHTML = '<span>🌐 Gesamte Seite</span><span class="pi-status">Site-Dateien + alle Spiele</span>';
+              sb.addEventListener("click", function () { startWith({ game: "site" }); });
+              box.appendChild(sb);
+            }
+            if (!games.length && !canSite) { box.innerHTML = '<div class="pick-empty">Noch keine Spiele – leg unten dein erstes an.</div>'; return; }
+            games.forEach(function (g) {
+              var row = document.createElement("div");
+              row.className = "pick-row";
+              row.dataset.slug = g.id;
+              var b = document.createElement("button");
+              b.type = "button"; b.className = "pick-item";
+              var mark = pickStatusLabel(g);
+              b.innerHTML = '<span>✏️ ' + g.id + '</span>' + (mark ? '<span class="pi-status">' + mark + '</span>' : '');
+              b.addEventListener("click", function () { startWith({ game: g.id }); });
+              row.appendChild(b);
+              var share = document.createElement("button");
+              share.type = "button"; share.className = "pick-share";
+              share.setAttribute("aria-label", "Freigaben für " + g.id);
+              share.textContent = "👥";
+              share.style.display = "none";           // erst zeigen, wenn Besitz feststeht
+              share.dataset.share = g.id;
+              share.addEventListener("click", function (ev) { ev.stopPropagation(); toggleGrants(g.id, row); });
+              row.appendChild(share);
+              box.appendChild(row);
+            });
+            paintOwned();
+          })
+          .catch(function () { box.innerHTML = '<div class="pick-empty">Spieleliste nicht erreichbar.</div>'; });
+        // Laufende Sitzungen (Wieder-Andocken) + gespeicherte (Fortsetzen).
+        var liveWrap = document.getElementById("pickerLiveWrap");
+        var liveBox = document.getElementById("pickerLive");
+        liveWrap.style.display = "none"; liveBox.innerHTML = "";
+        fetch("/ws/terminal/sessions", { credentials: "same-origin" })
+          .then(function (r) { return r.json(); })
+          .then(function (data) {
+            var live = (data && data.live) || [];
+            var others = (data && data.others) || [];   // nur Admins: fremde Sitzungen
+            // Jede Zeile: anklicken = weiterarbeiten, ✕ = Sitzung beenden
+            // (Slot freigeben, wenn eine zu viel offen ist).
+            function liveRow(s, foreign) {
+              var row = document.createElement("div");
+              row.className = "pick-row";
+              var b = document.createElement("button");
+              b.type = "button"; b.className = "pick-item";
+              var label = s.title || "laufende Sitzung";
+              b.innerHTML = '<span>▶ ' + (foreign ? (s.user || "?") + " · " : "") + label + '</span>'
+                + '<span class="pi-status">läuft · ' + fmtElapsed(s.age) + (s.attached ? " · aktiv" : "") + '</span>';
+              if (foreign) b.disabled = true;   // fremde Sitzung: nur beenden, kein Andocken
+              else b.addEventListener("click", function () { startWith({ attach: s.id, slug: s.target }); });
+              var x = document.createElement("button");
+              x.type = "button"; x.className = "pick-x"; x.title = "Sitzung beenden"; x.textContent = "✕";
+              x.addEventListener("click", function () {
+                closeSession(s.id, foreign ? label + " (" + (s.user || "?") + ")" : label).then(function (ok) {
+                  if (!ok) return;
+                  row.remove();
+                  if (!liveBox.children.length) liveWrap.style.display = "none";
+                  if (s.id === currentAttach) { currentAttach = ""; connectTarget = {}; updateEndButton(); syncUrl(); }
+                  loadSessions(false);
+                });
+              });
+              row.appendChild(b); row.appendChild(x);
+              return row;
+            }
+            live.forEach(function (s) { liveBox.appendChild(liveRow(s, false)); });
+            others.forEach(function (s) { liveBox.appendChild(liveRow(s, true)); });
+            liveWrap.style.display = (live.length || others.length) ? "block" : "none";
+            var sessions = (data && data.sessions) || [];
+            if (!sessions.length) return;
+            var wrap = document.getElementById("pickerResumeWrap");
+            var sel = document.getElementById("pickerResume");
+            sel.innerHTML = '<option value="">– gespeicherte Sitzung wählen –</option>';
+            sessions.forEach(function (s) {
+              var o = document.createElement("option");
+              o.value = s.id; o.textContent = fmtAge(s.mtime) + " · " + (s.title || s.id.slice(0, 8));
+              sel.appendChild(o);
+            });
+            wrap.style.display = "block";
+            sel.onchange = function () { if (sel.value) startWith({ resume: sel.value }); };
+          })
+          .catch(function () {});
+      }
+      document.getElementById("pickerNewBtn").addEventListener("click", function () {
+        var el = document.getElementById("pickerNewName");
+        var name = el.value.trim();
+        if (!name) { el.focus(); return; }
+        startWith({ newGame: name });
+      });
+      document.getElementById("pickerNewName").addEventListener("keydown", function (e) {
+        if (e.key === "Enter") { e.preventDefault(); document.getElementById("pickerNewBtn").click(); }
+      });
+      // „✚ neue Sitzung“ öffnet die Auswahl erneut, ohne die Seite zu verlassen.
+      newSessionBtn.addEventListener("click", function () { hideActionButtons(); loadSessions(true); showPicker(); });
+
+      // Auto-Reattach: Auf dem Handy kappt ein App-Wechsel den WebSocket, die
+      // Sitzung läuft aber serverseitig weiter. Sobald die Seite wieder sichtbar
+      // /online ist, docken wir automatisch per attach-ID wieder an.
+      var reconnectPending = false;
+      var reconnectTimer = null;
+      function scheduleReconnect() {
+        if (reconnectTimer || !currentAttach) return;
+        if (navigator.onLine === false) { reconnectPending = true; return; }
+        reconnectTimer = setTimeout(function () {
+          reconnectTimer = null;
+          if (!currentAttach) return;
+          if (ws && (ws.readyState === WebSocket.CONNECTING || ws.readyState === WebSocket.OPEN)) return;
+          if (document.visibilityState !== "visible") { reconnectPending = true; return; }
+          connect();
+        }, 800);
+      }
+
+      function connect() {
+        if (ws) {
+          // absichtlicher Wechsel: alte Verbindung still schließen
+          ws.onclose = null; ws.onmessage = null;
+          try { ws.close(); } catch (e) {}
+          if (pingTimer) { clearInterval(pingTimer); pingTimer = null; }
+        }
+        hideRestart();
+        term.reset();
+        fit.fit();
+        status("verbinde …");
+        var q = [], label = "";
+        // currentAttach hat Vorrang: laufende Sitzung wieder aufgreifen (Rejoin).
+        if (currentAttach) { q.push("attach=" + encodeURIComponent(currentAttach)); label = "laufende Sitzung"; }
+        else if (connectTarget.attach) { q.push("attach=" + encodeURIComponent(connectTarget.attach)); label = "laufende Sitzung"; }
+        else if (connectTarget.resume) { q.push("resume=" + encodeURIComponent(connectTarget.resume)); label = "gespeicherte Sitzung"; }
+        else if (connectTarget.game) { q.push("game=" + encodeURIComponent(connectTarget.game)); where = connectTarget.game; label = "Spiel „" + connectTarget.game + "“"; }
+        else if (connectTarget.newGame) { q.push("newGame=" + encodeURIComponent(connectTarget.newGame)); label = "neues Spiel „" + connectTarget.newGame + "“"; }
+        // Werkzeug nur bei NEUEN Sitzungen mitschicken — attach/resume erben es.
+        if (!currentAttach && !connectTarget.attach && !connectTarget.resume && connectTarget.mode === "shell") {
+          q.push("mode=shell");
+          label = "Shell · " + (label || "Terminal");
+        }
+        term.write(DIM + " ⌨ Text markieren kopiert automatisch · Einfügen mit Strg+Shift+V (Cmd+V am Mac)\r\n" + RESET);
+        term.write(DIM + " 📎 Screenshot einfügen (Strg+V), Datei herziehen oder „📎 Datei“ — landet in .uploads/\r\n" + RESET);
+        term.write(DIM + " 🧊 Auch Blender- und 3D-Dateien (.blend, .glb, .gltf, .obj, .fbx, .stl)\r\n" + RESET);
+        term.write(DIM + " ⏺ " + (label ? "Öffne " + label + " …" : "Verbinde mit dem Server-Terminal …") + "\r\n" + RESET);
+
+        var proto = location.protocol === "https:" ? "wss://" : "ws://";
+        ws = new WebSocket(proto + location.host + "/ws/terminal" + (q.length ? "?" + q.join("&") : ""));
+        ws.binaryType = "arraybuffer";
+        var gotDeny = false;
+
+        ws.onopen = function () {
+          sendResize();
+        };
+        ws.onmessage = function (ev) {
+          if (typeof ev.data === "string") {
+            var msg;
+            try { msg = JSON.parse(ev.data); } catch (e) { return; }
+            if (msg.t === "ready") {
+              currentGame = msg.game || "";
+              currentMode = msg.mode === "shell" ? "shell" : "claude";
+              isAdmin = !!msg.isAdmin;
+              if (msg.attach) { currentAttach = msg.attach; connectTarget = { attach: msg.attach }; }
+              // URL trägt Spiel UND attach-ID: Neuladen dockt wieder an, statt
+              // eine zweite Sitzung zu starten.
+              currentSlug = currentGame;
+              syncUrl();
+              reconnectPending = false;
+              updateActionButtons();
+              status(idleStatus());
+              term.focus();
+            } else if (msg.t === "denied") {
+              gotDeny = true;
+              denyMessage(msg.reason);
+            } else if (msg.t === "exit") {
+              gotDeny = true;
+              // Sitzung ist wirklich beendet — die laufende Sitzung ist weg, ein
+              // „neu verbinden" öffnet daher wieder frisch dasselbe Spiel.
+              currentAttach = "";
+              connectTarget = currentGame ? { game: currentGame } : {};
+              syncUrl();   // ?s= raus — die ID zeigt auf nichts mehr
+              hideActionButtons();
+              line(DIM + " ⏹ Sitzung beendet (exit " + msg.code + ")." + RESET);
+              status("beendet");
+              showRestart();
+              loadSessions(true);
+            }
+            return;
+          }
+          term.write(new Uint8Array(ev.data));
+        };
+        ws.onclose = function () {
+          if (pingTimer) { clearInterval(pingTimer); pingTimer = null; }
+          if (gotDeny) return;
+          if (currentAttach) {
+            // Laufende Sitzung existiert serverseitig weiter → automatisch wieder
+            // andocken (Handy-App-Wechsel kappt den WebSocket). Sichtbar? gleich
+            // versuchen; im Hintergrund erst beim Zurückkehren (visibilitychange).
+            status("Verbindung verloren – docke wieder an …");
+            showRestart();
+            if (document.visibilityState === "visible") scheduleReconnect();
+            else reconnectPending = true;
+            return;
+          }
+          line(RED + " ✗ Verbindung getrennt." + RESET);
+          status("getrennt");
+          showRestart();
+          loadSessions(true);
+        };
+        ws.onerror = function () { /* onclose übernimmt die Meldung */ };
+
+        // Keepalive für Proxies; zählt serverseitig nicht als Aktivität.
+        pingTimer = setInterval(function () { sendJson({ t: "ping" }); }, 30000);
+      }
+
+      restartBtn.addEventListener("click", function () { reconnectPending = false; connect(); });
+
+      // „✕ Sitzung beenden“: die gerade offene Sitzung wirklich stoppen (statt
+      // sie nur loszulassen — losgelöst läuft sie sonst bis zur Nachfrist weiter
+      // und hält ihren Slot).
+      endSessionBtn.addEventListener("click", function () {
+        var id = currentAttach;
+        if (!id) return;
+        closeSession(id, currentGame ? "Spiel " + currentGame : "laufende Sitzung").then(function (ok) {
+          if (!ok) return;
+          currentAttach = "";
+          connectTarget = {};
+          currentSlug = "";
+          reconnectPending = false;
+          syncUrl();
+          if (ws) {   // Verbindung selbst kappen, sonst greift der Auto-Rejoin
+            ws.onclose = null; ws.onmessage = null;
+            try { ws.close(); } catch (e) {}
+            ws = null;
+          }
+          if (pingTimer) { clearInterval(pingTimer); pingTimer = null; }
+          hideActionButtons();
+          hideRestart();
+          term.reset();
+          newSessionBtn.style.display = "none";
+          status("Sitzung beendet");
+          loadSessions(false);
+          showPicker("Sitzung beendet. Wähle ein Spiel oder docke an eine andere laufende Sitzung an.");
+        });
+      });
+
+      // --- Mobile: automatisch wieder andocken, wenn die Seite zurückkommt ----
+      document.addEventListener("visibilitychange", function () {
+        if (document.visibilityState !== "visible") return;
+        fit.fit(); sendResize();
+        if (currentAttach && (!ws || ws.readyState !== WebSocket.OPEN)) {
+          reconnectPending = false; scheduleReconnect();
+        }
+      });
+      window.addEventListener("online", function () {
+        if (currentAttach && (!ws || ws.readyState !== WebSocket.OPEN)) scheduleReconnect();
+      });
+      window.addEventListener("pageshow", function () {
+        if (currentAttach && (!ws || ws.readyState !== WebSocket.OPEN)) scheduleReconnect();
+      });
+      // Software-Tastatur ändert das Viewport → Terminal neu einpassen.
+      if (window.visualViewport) {
+        window.visualViewport.addEventListener("resize", function () { fit.fit(); sendResize(); });
+      }
+
+      // --- Touch-Tastenleiste: Tasten, die Handy-Tastaturen nicht haben --------
+      var KEYSEQ = { esc: "\x1b", tab: "\t", "c-c": "\x03", enter: "\r",
+                     up: "\x1b[A", down: "\x1b[B", left: "\x1b[D", right: "\x1b[C" };
+      Array.prototype.forEach.call(document.querySelectorAll("#termKeys button"), function (b) {
+        // pointerdown + preventDefault: Fokus bleibt am Terminal, die
+        // Software-Tastatur klappt beim Tastendruck nicht weg.
+        b.addEventListener("pointerdown", function (e) {
+          e.preventDefault();
+          var k = b.getAttribute("data-k");
+          if (k === "focus") { term.focus(); return; }
+          // Blättern: wie das Mausrad (siehe scrollBy) — NICHT als Tastendruck,
+          // sonst würde Claude die Tasten als Eingabe verstehen.
+          var page = Math.max(3, Math.floor(term.rows / 2));
+          if (k === "pgup") { scrollBy(-page); return; }
+          if (k === "pgdn") { scrollBy(page); return; }
+          if (k === "end") { scrollBy(Math.max(10, term.rows * 2)); return; }
+          var seq = KEYSEQ[k];
+          if (seq) { sendJson({ t: "input", d: seq }); term.focus(); }
+        });
+      });
+
+      // --- Scrollen im Terminal (Wischen + Blätter-Knöpfe) ---------------------
+      // Claude Codes TUI läuft im Alternate Screen (ESC[?1049h) MIT Maus-Tracking
+      // (ESC[?1000/1002/1003/1006h). Heißt: xterm hat gar keinen Scrollback zum
+      // Scrollen — die Ansicht gehört dem Programm, und gescrollt wird dort mit
+      // dem Mausrad. Deshalb übersetzen wir Wischen/Blättern in synthetische
+      // Wheel-Events auf dem xterm-Element: xterm macht daraus je nach Lage
+      // selbst das Richtige (Mausrad-Meldung ans Programm, Pfeiltasten im
+      // Alternate Screen ohne Maus-Tracking, sonst Puffer-Scroll).
+      function wheelStep(dir, x, y) {
+        var el = term.element;
+        if (!el) return;
+        var box = el.getBoundingClientRect();
+        el.dispatchEvent(new WheelEvent("wheel", {
+          deltaY: dir, deltaMode: 1,        // 1 = DOM_DELTA_LINE
+          clientX: x == null ? box.left + box.width / 2 : x,
+          clientY: y == null ? box.top + box.height / 2 : y,
+          bubbles: true, cancelable: true,
+        }));
+      }
+      // Ein Wheel-Event = ein Scrollschritt des Programms, darum einzeln
+      // wiederholen statt ein großes deltaY zu schicken.
+      function scrollBy(lines, x, y) {
+        var n = Math.min(Math.abs(lines), 40), dir = lines < 0 ? -1 : 1;
+        for (var i = 0; i < n; i++) wheelStep(dir, x, y);
+      }
+      var termBody = document.getElementById("termBody");
+      var touchY = null, touchAcc = 0, touchMoved = false;
+      function rowHeight() {
+        var h = termBody.clientHeight / Math.max(1, term.rows);
+        return h > 4 ? h : 18;   // Fallback, falls noch nichts gerendert ist
+      }
+      termBody.addEventListener("touchstart", function (e) {
+        if (e.touches.length !== 1) { touchY = null; return; }
+        touchY = e.touches[0].clientY;
+        touchAcc = 0;
+        touchMoved = false;
+      }, { capture: true, passive: true });
+      termBody.addEventListener("touchmove", function (e) {
+        if (touchY === null || e.touches.length !== 1) return;
+        // Sofort abfangen (nicht erst ab der Schwelle): sonst startet der
+        // Browser seine eigene Geste — Pull-to-Refresh lädt die Seite neu und
+        // lässt sich später nicht mehr zurücknehmen.
+        e.preventDefault();
+        e.stopPropagation();
+        var y = e.touches[0].clientY;
+        touchAcc += touchY - y;
+        touchY = y;
+        if (!touchMoved && Math.abs(touchAcc) < 8) return;   // Tippen bleibt Tippen
+        touchMoved = true;
+        var lines = touchAcc / rowHeight();
+        lines = lines > 0 ? Math.floor(lines) : Math.ceil(lines);
+        if (lines) {
+          scrollBy(lines, e.touches[0].clientX, e.touches[0].clientY);
+          touchAcc -= lines * rowHeight();
+        }
+      }, { capture: true, passive: false });
+      termBody.addEventListener("touchend", function () { touchY = null; }, { capture: true, passive: true });
+
+      // Tippen ins Terminal fokussiert es (blendet die Software-Tastatur ein) —
+      // nach einer Wischgeste aber nicht, sonst springt die Tastatur beim
+      // Scrollen auf.
+      termBody.addEventListener("click", function () {
+        if (touchMoved) { touchMoved = false; return; }
+        if (!term.hasSelection()) term.focus();
+      });
+
+      sessionSel.addEventListener("change", function () {
+        var v = sessionSel.value;
+        if (!v) return;
+        // "attach:<id>" = an eine laufende Sitzung andocken; sonst gespeicherte
+        // Sitzung per --resume fortsetzen.
+        if (v.indexOf("attach:") === 0) {
+          var opt = sessionSel.options[sessionSel.selectedIndex];
+          startWith({ attach: v.slice(7), slug: opt ? opt.getAttribute("data-slug") : "" });
+        } else startWith({ resume: v });
+      });
+
+      // ---- Deploy-/Reset-Buttons ----
+      // Das Deploy-Ziel steht mit der geöffneten Sitzung fest (currentGame) — es
+      // braucht keine Dropdowns mehr. Der Server prüft die Rechte frisch vor
+      // jeder Ausführung. Die drei Spiel-Buttons erscheinen nur, wenn ein Spiel
+      // geöffnet ist; die site-weiten Aktionen bleiben Admins vorbehalten.
+      function updateActionButtons() {
+        // Eine Seiten-Sitzung hat kein einzelnes Deploy-Ziel — für sie sind die
+        // site-weiten Aktionen die richtigen, die Spiel-Knöpfe wären sinnlos
+        // („brettspiele-deploy site" gibt es nicht).
+        var siteSession = currentGame === "site";
+        gameActions.style.display = (currentGame && !siteSession) ? "inline-flex" : "none";
+        siteActions.style.display = (isAdmin || siteSession) ? "inline-flex" : "none";
+        btnUpload.style.display = currentAttach ? "inline-block" : "none";
+        updateEndButton();
+      }
+      function hideActionButtons() {
+        closeMenus();
+        gameActions.style.display = "none";
+        siteActions.style.display = "none";
+        btnUpload.style.display = "none";
+        endSessionBtn.style.display = "none";
+      }
+
+      // ---- Ausklappmenüs der Titelleiste -----------------------------------
+      // Beide Aktionsgruppen (Spiel bzw. Site) hängen an einem Knopf, damit die
+      // Leiste schmal bleibt. Ein Klick daneben, Escape oder die Auswahl eines
+      // Eintrags schließen das Menü wieder.
+      function closeMenus(except) {
+        [gameActions, siteActions].forEach(function (wrap) {
+          if (wrap === except) return;
+          wrap.classList.remove("open");
+          var btn = wrap.querySelector(".term-menu-btn");
+          if (btn) btn.setAttribute("aria-expanded", "false");
+        });
+      }
+      [["gameMenuBtn", gameActions], ["siteMenuBtn", siteActions]].forEach(function (pair) {
+        var btn = document.getElementById(pair[0]), wrap = pair[1];
+        btn.addEventListener("click", function (e) {
+          e.stopPropagation();
+          var willOpen = !wrap.classList.contains("open");
+          closeMenus(wrap);
+          wrap.classList.toggle("open", willOpen);
+          btn.setAttribute("aria-expanded", willOpen ? "true" : "false");
+        });
+        wrap.addEventListener("click", function (e) {
+          // Auswahl getroffen → Menü zu (der eigentliche Handler läuft weiter).
+          if (e.target.closest(".term-menu-item")) closeMenus();
+        });
+      });
+      document.addEventListener("click", function (e) {
+        if (!e.target.closest(".term-actions")) closeMenus();
+      });
+      document.addEventListener("keydown", function (e) {
+        if (e.key === "Escape") closeMenus();
+      });
+
+      // ---- Integrierter Bestätigungsdialog (ersetzt window.confirm) --------
+      var _cmResolve = null;
+      var cmOverlay = document.getElementById("confirmOverlay");
+      function confirmModal(opts) {
+        // opts: { heading, message, icon, okLabel, danger }
+        document.getElementById("cmHeading").textContent = opts.heading || "Bestätigen";
+        document.getElementById("cmTitle").firstElementChild.textContent = opts.icon || "🚀";
+        document.getElementById("cmMsg").textContent = opts.message || "";
+        var ok = document.getElementById("cmOk");
+        ok.textContent = opts.okLabel || "Bestätigen";
+        ok.className = "cm-btn " + (opts.danger ? "danger" : "primary");
+        cmOverlay.classList.add("open");
+        ok.focus();
+        return new Promise(function (resolve) { _cmResolve = resolve; });
+      }
+      function closeConfirm(result) {
+        cmOverlay.classList.remove("open");
+        var r = _cmResolve; _cmResolve = null;
+        if (r) r(result);
+      }
+      document.getElementById("cmOk").addEventListener("click", function () { closeConfirm(true); });
+      document.getElementById("cmCancel").addEventListener("click", function () { closeConfirm(false); });
+      cmOverlay.addEventListener("click", function (e) { if (e.target === cmOverlay) closeConfirm(false); });
+      document.addEventListener("keydown", function (e) {
+        if (!cmOverlay.classList.contains("open")) return;
+        if (e.key === "Escape") { e.preventDefault(); closeConfirm(false); }
+        else if (e.key === "Enter") { e.preventDefault(); closeConfirm(true); }
+      });
+
+      function sendCmd(name, target, confirmOpts) {
+        if (!ws || ws.readyState !== WebSocket.OPEN) {
+          line(RED + " ⚙ Nicht verbunden — erst Sitzung starten." + RESET);
+          return;
+        }
+        if (!confirmOpts) { sendJson({ t: "cmd", name: name, target: target }); return; }
+        confirmModal(confirmOpts).then(function (ok) {
+          if (!ok) return;
+          // Ein echter Deploy einzelner Spiele stellt Inhalt öffentlich —
+          // dafür ist die Rechte-Zusicherung fällig, und zwar jedes Mal. Der
+          // Server verlangt sie ohnehin (siehe cmd-Zweig in codeterm.py);
+          // hier wird sie gestellt. „all"/„site" sind Wartung des Betreibers.
+          var needsTerms = name === "deploy" && target && target !== "all" && target !== "site";
+          if (!needsTerms) { sendJson({ t: "cmd", name: name, target: target }); return; }
+          confirmModal({
+            heading: "Rechte-Zusicherung", icon: "⚖", okLabel: "Zusichern und live stellen",
+            message: "Ich versichere, dass ich über alle erforderlichen Rechte an „" + target +
+                     "“ und an allen darin verwendeten Inhalten verfüge — Grafiken, Symbole, Texte, " +
+                     "Klänge, Schriften —, sei es weil ich sie selbst erstellt habe, sei es aufgrund " +
+                     "einer Lizenz, die die Nutzung auf brettspiele.fun deckt. Es gelten die " +
+                     "Nutzungsbedingungen (brettspiele.fun/nutzungsbedingungen/). " +
+                     "Zeitpunkt und Fassung werden am Spiel festgehalten."
+          }).then(function (agreed) {
+            if (agreed) sendJson({ t: "cmd", name: name, target: target, terms: true });
+            else line(DIM + " ⚙ Ohne Rechte-Zusicherung wird nichts veröffentlicht." + RESET);
+          });
+        });
+      }
+
+      // --- Spiel-Buttons: Ziel ist immer das geöffnete Spiel (currentGame) ---
+      document.getElementById("btnDry").addEventListener("click", function () {
+        if (!currentGame) return;
+        sendCmd("deploy-dry", currentGame, null);   // Simulation, keine Rückfrage
+      });
+      document.getElementById("btnDeploy").addEventListener("click", function () {
+        if (!currentGame) return;
+        sendCmd("deploy", currentGame, {
+          heading: "Live stellen?", icon: "🚀", okLabel: "Live stellen",
+          message: "Möchtest du das Spiel „" + currentGame + "“ wirklich live stellen? Der aktuelle Testing-Stand wird für alle Besucher übernommen.",
+        });
+      });
+      document.getElementById("btnReset").addEventListener("click", function () {
+        if (!currentGame) return;
+        sendCmd("reset", currentGame, {
+          heading: "Zurücksetzen?", icon: "↩", okLabel: "Zurücksetzen", danger: true,
+          message: "Spiel „" + currentGame + "“ in Testing auf den Live-Stand zurücksetzen? Nicht deployte Änderungen gehen verloren!",
+        });
+      });
+
+      // --- Site-Buttons (nur Admins): globale Wartung ---
+      document.getElementById("btnSiteDeploy").addEventListener("click", function () {
+        sendCmd("deploy", "all", {
+          heading: "Ganze Site live stellen?", icon: "🌐", okLabel: "Live stellen",
+          message: "Möchtest du die ganze Site live stellen? Der aktuelle Testing-Stand wird komplett für alle Besucher übernommen.",
+        });
+      });
+      document.getElementById("btnSiteFiles").addEventListener("click", function () {
+        sendCmd("reset", "site", {
+          heading: "Site-Dateien auffrischen?", icon: "📄", okLabel: "Auffrischen",
+          message: "Site-Dateien in Testing auf den Live-Stand bringen? (Spiele bleiben unberührt — üblicher Schritt nach einem Ansible-Deploy.)",
+        });
+      });
+      document.getElementById("btnSiteReset").addEventListener("click", function () {
+        sendCmd("reset", "all", {
+          heading: "Ganze Testumgebung zurücksetzen?", icon: "🌐", okLabel: "Zurücksetzen", danger: true,
+          message: "Testing komplett auf den Live-Stand zurücksetzen? Alle Änderungen in der Testumgebung gehen verloren!",
+        });
+      });
+
+      // Erst Login prüfen — unangemeldeten Besuchern direkt sagen, woran es liegt.
+      status("prüfe Anmeldung …");
+      fetch("/api/me", { credentials: "same-origin" })
+        .then(function (r) { return r.json(); })
+        .then(function (data) {
+          var user = (data && data.user) || {};
+          var caps = user.caps || {};
+          if (data && data.authenticated && (user.isAdmin || caps.ai || caps.creator)) {
+            who = user.username || who;
+            isAdmin = !!user.isAdmin;
+            if (!user.isAdmin) where = "~/work"; // eigener Arbeitsbereich (nur eigene Spiele)
+            loadSessions(false);
+            var deep = urlSlug(), sess = urlSession();
+            // ?s=<attach-ID>: laufende Sitzung fortsetzen (Neuladen/Bookmark).
+            // Ist sie weg, antwortet der Server mit attach_gone → Auswahlmenü.
+            if (sess) startWith({ attach: sess, slug: deep });
+            else if (deep) startWith({ game: deep });   // Deep-Link /code/<slug>: direkt öffnen
+            else showPicker();   // erst Spiel wählen / neues anlegen, dann verbinden
+          } else {
+            denyMessage("not_authorized");
+          }
+        })
+        .catch(function () {
+          // API nicht erreichbar → trotzdem die Auswahl zeigen; der Daemon prüft selbst.
+          showPicker();
+        });
+    })();
+  </script>
+</body>
+</html>

@@ -1,0 +1,3000 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Korinthenkacker</title>
+<link rel="stylesheet" href="../../assets/fonts/nitpicker.css?v=20260904-selfhost" />
+<style>
+  :root{
+    --night-1:#221a45; --night-2:#140f2c;
+    --card:#2b2356; --card-2:#332a63;
+    --line:rgba(255,255,255,.12);
+    --ink:#f4f0ff; --ink-soft:#b7add9;
+    --gold:#ffc24b; --correct:#43d99a; --wrong:#ff6b7a;
+    --shadow:0 18px 40px -18px rgba(0,0,0,.7); --r:20px;
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  html,body{height:100%}
+  body{
+    font-family:"Instrument Sans",system-ui,sans-serif;color:var(--ink);
+    background:radial-gradient(1200px 600px at 50% -10%, rgba(255,194,75,.10), transparent 60%),
+      linear-gradient(160deg,var(--night-1),var(--night-2));
+    min-height:100dvh;
+    padding:clamp(14px,3vw,40px) clamp(12px,3vw,24px) 60px;-webkit-font-smoothing:antialiased;
+  }
+  .stage{width:100%;max-width:680px;position:relative;margin:0 auto}
+  h1,h2,h3,.display{font-family:"Bricolage Grotesque",sans-serif}
+  .num{font-family:"Space Grotesk",monospace;font-variant-numeric:tabular-nums}
+
+  .wordmark{text-align:center;margin-bottom:22px}
+  .wordmark .kicker{font-family:"Space Grotesk",monospace;letter-spacing:.34em;text-transform:uppercase;font-size:11px;color:var(--gold);margin-bottom:6px}
+  .wordmark h1{font-size:clamp(38px,10vw,58px);line-height:.92;font-weight:800;letter-spacing:-.02em}
+  .wordmark h1 span{color:var(--gold)}
+  .wordmark p{color:var(--ink-soft);margin-top:10px;font-size:15px}
+
+  .panel{background:linear-gradient(180deg,var(--card),var(--card-2));border:1px solid var(--line);border-radius:var(--r);box-shadow:var(--shadow);padding:clamp(18px,4vw,26px)}
+
+  .btn{font-family:"Bricolage Grotesque",sans-serif;font-weight:700;font-size:17px;border:none;border-radius:14px;padding:15px 20px;color:#241a08;background:var(--gold);cursor:pointer;width:100%;transition:transform .08s ease, filter .15s ease, box-shadow .15s ease;box-shadow:0 6px 0 rgba(0,0,0,.28)}
+  .btn:hover{filter:brightness(1.05)}
+  .btn:active{transform:translateY(4px);box-shadow:0 2px 0 rgba(0,0,0,.28)}
+  .btn.ghost{background:transparent;color:var(--ink);border:1px solid var(--line);box-shadow:none}
+  .btn.ghost:active{transform:translateY(2px)}
+  .btn:disabled{opacity:.45;cursor:not-allowed}
+  .btn:focus-visible,input:focus-visible,button:focus-visible{outline:3px solid var(--gold);outline-offset:2px}
+
+  .section-label{font-family:"Space Grotesk",monospace;font-size:12px;letter-spacing:.18em;text-transform:uppercase;color:var(--ink-soft);margin:4px 0 12px}
+  .player-row{display:flex;align-items:center;gap:12px;margin-bottom:10px}
+  .dot{width:16px;height:16px;border-radius:50%;flex:none;box-shadow:0 0 0 4px rgba(255,255,255,.06)}
+  .player-row input{flex:1;background:rgba(0,0,0,.22);border:1px solid var(--line);border-radius:12px;padding:13px 14px;color:var(--ink);font-size:16px;font-family:inherit}
+  .player-row input::placeholder{color:var(--ink-soft)}
+  .remove{background:transparent;border:1px solid var(--line);color:var(--ink-soft);width:40px;height:40px;border-radius:11px;cursor:pointer;flex:none;font-size:18px;line-height:1;transition:.15s}
+  .remove:hover{color:var(--wrong);border-color:var(--wrong)}
+  .add-player{margin-top:4px}
+  .rounds{display:flex;gap:10px;margin-top:4px}
+  .chip{flex:1;text-align:center;padding:14px 8px;border-radius:13px;cursor:pointer;border:1px solid var(--line);background:rgba(0,0,0,.16);font-family:"Bricolage Grotesque",sans-serif;font-weight:700;transition:.15s}
+  .chip small{display:block;font-family:"Instrument Sans";font-weight:400;font-size:11px;color:var(--ink-soft);margin-top:2px}
+  .chip.on{background:var(--gold);color:#241a08;border-color:var(--gold)}
+  .chip.on small{color:#5a4408}
+  .divider{height:1px;background:var(--line);margin:22px 0}
+
+  /* HUD */
+  .hud{margin-bottom:14px}
+  .hud-top{display:flex;justify-content:space-between;align-items:baseline;margin-bottom:12px}
+  .hud-top .lbl{font-family:"Bricolage Grotesque";font-weight:800;font-size:20px}
+  .turn-meta{font-family:"Space Grotesk";font-size:13px;color:var(--ink-soft)}
+  .hud-right{display:flex;align-items:center;gap:10px}
+  .icon-btn{width:38px;height:38px;border-radius:11px;border:1px solid var(--line);background:rgba(0,0,0,.2);color:var(--ink);font-size:17px;line-height:1;cursor:pointer;display:grid;place-items:center;transition:.15s}
+  .icon-btn:hover{background:rgba(255,255,255,.08)}
+  .icon-btn.off{opacity:.55}
+  .voice-select{width:100%;background:rgba(0,0,0,.22);border:1px solid var(--line);border-radius:12px;padding:13px 14px;color:var(--ink);font-family:inherit;font-size:15px;margin-top:12px}
+  .voice-select option{color:#141020}
+  .voice-row{display:flex;align-items:center;gap:14px;margin:12px 0}
+  .voice-row label{font-family:"Space Grotesk";font-size:12px;letter-spacing:.14em;text-transform:uppercase;color:var(--ink-soft);white-space:nowrap}
+  .voice-row input[type=range]{flex:1;accent-color:var(--gold);height:6px}
+  .vs-overlay{position:fixed;inset:0;z-index:3000;background:rgba(6,4,16,.62);backdrop-filter:blur(4px);display:flex;align-items:center;justify-content:center;padding:20px}
+  .vs-overlay.hidden{display:none!important}
+  /* ==== Verlassen-Abfrage – im Spiel-Design (Panel/Gold/Nacht) ==== */
+  .np-modal{position:fixed;inset:0;z-index:6000;background:rgba(6,4,16,.66);backdrop-filter:blur(5px);-webkit-backdrop-filter:blur(5px);display:flex;align-items:center;justify-content:center;padding:20px}
+  .np-modal.hidden{display:none!important}
+  .np-modal-card{background:linear-gradient(180deg,var(--card),var(--card-2));border:1px solid var(--line);border-radius:var(--r);box-shadow:var(--shadow);padding:26px 24px 22px;max-width:380px;width:100%;text-align:center}
+  .np-modal-emoji{font-size:40px;line-height:1;margin-bottom:10px}
+  .np-modal-card h2{font-family:"Bricolage Grotesque",sans-serif;font-size:22px;font-weight:800;letter-spacing:-.01em;margin-bottom:10px}
+  .np-modal-card p{color:var(--ink-soft);font-size:15px;line-height:1.5;margin-bottom:22px}
+  .np-modal-actions{display:flex;gap:10px}
+  .np-modal-actions .btn{width:auto;flex:1;font-size:16px;padding:13px 16px}
+  .vs-panel{background:linear-gradient(180deg,var(--card),var(--card-2));border:1px solid var(--line);border-radius:18px;box-shadow:var(--shadow);padding:22px;width:100%;max-width:360px}
+  .vs-h{font-family:"Space Grotesk";font-size:16px;font-weight:700;color:var(--ink);margin-bottom:16px;text-align:center}
+  .vs-sub{font-family:"Space Grotesk";font-size:12px;letter-spacing:.14em;text-transform:uppercase;color:var(--ink-soft);margin-top:14px}
+  .vs-toggle{display:flex;align-items:center;gap:11px;color:var(--ink);font-size:15px;cursor:pointer}
+  .vs-toggle input{width:19px;height:19px;accent-color:var(--gold)}
+
+  .choose-head{text-align:center;margin-bottom:20px}
+  .round-badge{display:inline-block;font-family:"Space Grotesk";font-size:12px;letter-spacing:.18em;text-transform:uppercase;color:var(--gold);border:1px solid var(--line);border-radius:99px;padding:6px 14px;margin-bottom:14px}
+  .choose-title{font-family:"Bricolage Grotesque";font-weight:800;font-size:clamp(22px,5.2vw,30px);letter-spacing:-.01em;line-height:1.12}
+  .choose-sub{color:var(--ink-soft);margin-top:8px;font-size:14px}
+  .area-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+  .area-card{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:10px;padding:30px 14px;border-radius:16px;border:1px solid var(--line);background:rgba(0,0,0,.2);color:var(--ink);cursor:pointer;transition:transform .08s, background .15s, border-color .15s;min-height:140px}
+  .area-card:hover{background:rgba(255,255,255,.07);border-color:var(--gold)}
+  .area-card:active{transform:translateY(3px)}
+  .area-emoji{font-size:44px;line-height:1}
+  .area-name{font-family:"Bricolage Grotesque";font-weight:700;font-size:17px;text-align:center;line-height:1.15}
+  @media (max-width:380px){.area-grid{grid-template-columns:1fr}}
+
+  .cat-grid{display:grid;grid-template-columns:1fr 1fr;gap:9px}
+  .cat-chip{display:flex;align-items:center;gap:10px;padding:13px 14px;border-radius:13px;border:1px solid var(--line);background:rgba(0,0,0,.16);color:var(--ink-soft);cursor:pointer;font-family:"Instrument Sans";font-weight:500;font-size:14px;transition:.15s;text-align:left}
+  .cat-chip .ce{font-size:20px;line-height:1;flex:none}
+  .cat-chip .cl{line-height:1.12}
+  .cat-chip.on{background:rgba(255,194,75,.14);border-color:var(--gold);color:var(--ink)}
+  .cat-chip:active{transform:translateY(2px)}
+  .reveal-card{display:flex;flex-direction:column;align-items:center;gap:12px;padding:36px 16px;border-radius:16px;border:1px solid var(--gold);background:rgba(255,194,75,.10)}
+  @media (max-width:380px){.cat-grid{grid-template-columns:1fr}}
+
+  .risk-head{display:flex;justify-content:space-between;align-items:baseline;gap:12px;margin-bottom:6px;flex-wrap:wrap}
+  .risk-player{font-family:"Bricolage Grotesque";font-weight:800;font-size:22px}
+  .risk-rules{font-family:"Space Grotesk";font-size:12px;color:var(--ink-soft)}
+  .risk-prompt{font-family:"Bricolage Grotesque";font-weight:700;font-size:clamp(18px,4.2vw,24px);line-height:1.2;margin:6px 0 10px}
+  .risk-status{font-family:"Space Grotesk";font-size:14px;color:var(--gold);margin-bottom:14px;min-height:18px}
+  .risk-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(88px,1fr));gap:8px}
+  .tile{font-family:"Instrument Sans";font-weight:500;font-size:13px;min-height:54px;padding:8px 6px;border-radius:11px;border:1px solid var(--line);background:rgba(0,0,0,.22);color:var(--ink);cursor:pointer;display:flex;align-items:center;justify-content:center;text-align:center;line-height:1.15;transition:transform .06s, background .15s, border-color .15s}
+  .tile:not(:disabled):hover{background:rgba(255,255,255,.08);border-color:rgba(255,255,255,.28)}
+  .tile:not(:disabled):active{transform:translateY(2px)}
+  .tile:disabled{cursor:default}
+  .tile.correct{background:rgba(67,217,154,.18);border-color:var(--correct);color:#eafff5}
+  .tile.wrong{background:rgba(255,107,122,.22);border-color:var(--wrong);color:#ffecef}
+  .tile.reveal-ok{border-color:rgba(67,217,154,.45);color:#bfefd9}
+  .tile.reveal-no{opacity:.35}
+  .progress{height:8px;border-radius:99px;background:rgba(0,0,0,.28);overflow:hidden}
+  .progress > i{display:block;height:100%;width:0;border-radius:99px;background:var(--gold);transition:width .4s ease}
+  .scoreboard{display:flex;flex-wrap:wrap;gap:8px;margin-top:14px}
+  .score-chip{display:flex;align-items:center;gap:8px;background:rgba(0,0,0,.2);border:1px solid var(--line);border-radius:99px;padding:7px 13px 7px 9px;font-size:14px}
+  .score-chip .dot{width:11px;height:11px;box-shadow:none}
+  .score-chip .nm{color:var(--ink-soft);max-width:120px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+  .score-chip .sc{font-family:"Space Grotesk";font-weight:700;color:var(--ink)}
+
+  /* Timer */
+  .timer{height:6px;border-radius:99px;background:rgba(0,0,0,.28);overflow:hidden;margin-bottom:16px}
+  .timer > i{display:block;height:100%;width:100%;background:var(--gold);transition:width .95s linear, background .3s}
+  .timer.low > i{background:var(--wrong)}
+
+  /* Question */
+  .badges{display:flex;gap:8px;margin-bottom:16px;flex-wrap:wrap}
+  .badge{font-family:"Space Grotesk";font-size:11px;letter-spacing:.12em;text-transform:uppercase;padding:6px 11px;border-radius:99px;border:1px solid var(--line);color:var(--ink-soft)}
+  .badge.type{color:#241a08;background:var(--gold);border-color:var(--gold);font-weight:700}
+  .question{font-family:"Bricolage Grotesque";font-weight:700;font-size:clamp(21px,4.6vw,27px);line-height:1.2;letter-spacing:-.01em;margin-bottom:20px}
+
+  .legend{display:grid;gap:9px;margin-bottom:6px}
+  .leg{display:flex;align-items:center;gap:12px;padding:13px 15px;border-radius:13px;background:rgba(0,0,0,.2);border:1px solid var(--line);font-size:16px}
+  .leg .k{flex:none;width:28px;height:28px;border-radius:8px;display:grid;place-items:center;font-family:"Space Grotesk";font-weight:700;font-size:14px;background:rgba(255,255,255,.08);color:var(--ink-soft)}
+  .leg.correct{background:rgba(67,217,154,.16);border-color:var(--correct);color:#eafff5}
+  .leg.correct .k{background:var(--correct);color:#04331f}
+  .leg.second{border-color:rgba(255,194,75,.6)}
+  .leg.second .k{background:rgba(255,194,75,.5);color:#3a2b06}
+  .leg .tag{margin-left:auto;font-family:"Space Grotesk";font-size:12px;color:var(--gold)}
+
+  .reveal-detail{text-align:center;color:var(--ink-soft);font-size:14px;margin-top:12px;min-height:8px}
+
+  /* Player pads */
+  .pads{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:11px;margin-top:18px}
+  .pad{background:rgba(0,0,0,.2);border:1px solid var(--line);border-left:4px solid var(--pc);border-radius:14px;padding:12px 13px;transition:.2s}
+  .pad .pname{font-family:"Bricolage Grotesque";font-weight:700;font-size:15px;color:var(--pc);margin-bottom:9px;display:flex;align-items:center;justify-content:space-between;gap:8px}
+  .pad .pname .pscore{font-family:"Space Grotesk";color:var(--ink-soft);font-size:13px}
+  .keys{display:flex;gap:6px}
+  .key-btn{flex:1;font-family:"Space Grotesk";font-weight:700;font-size:16px;border:1px solid var(--line);background:rgba(255,255,255,.06);color:var(--ink);border-radius:10px;padding:12px 0;cursor:pointer;transition:transform .06s, background .15s}
+  .key-btn:hover{background:rgba(255,255,255,.12)}
+  .key-btn:active{transform:translateY(2px)}
+  .ready{font-family:"Bricolage Grotesque";font-weight:700;text-align:center;padding:12px 0;border-radius:10px;background:color-mix(in srgb, var(--pc) 22%, transparent);color:var(--pc);border:1px solid var(--pc)}
+  .result-line{text-align:center;padding:11px 0;border-radius:10px;font-family:"Bricolage Grotesque";font-weight:700;font-size:15px}
+  .result-line.good{background:rgba(67,217,154,.16);color:var(--correct);border:1px solid var(--correct)}
+  .result-line.bad{background:rgba(255,107,122,.14);color:var(--wrong);border:1px solid var(--wrong)}
+  .result-line small{display:block;font-family:"Instrument Sans";font-weight:400;font-size:12px;color:var(--ink-soft);margin-top:2px}
+  .pad.answered{border-left-color:var(--pc)}
+
+  .actions{margin-top:20px;display:flex;gap:10px}
+  .actions .btn{margin:0}
+
+  /* Results */
+  .results{text-align:center}
+  .trophy{font-size:56px;margin-bottom:4px}
+  .results h2{font-size:clamp(26px,6vw,34px);font-weight:800;margin-bottom:2px}
+  .results .champ{color:var(--gold)}
+  .results .lead{color:var(--ink-soft);margin-bottom:22px;font-family:"Space Grotesk";font-size:14px}
+  .standings{display:flex;flex-direction:column;gap:10px;margin-bottom:24px;text-align:left}
+  .stand{display:flex;align-items:center;gap:13px;padding:14px 16px;border-radius:14px;background:rgba(0,0,0,.2);border:1px solid var(--line)}
+  .stand .rank{font-family:"Space Grotesk";font-weight:700;width:26px;color:var(--ink-soft)}
+  .stand .nm{flex:1;font-family:"Bricolage Grotesque";font-weight:700;font-size:17px}
+  .stand .sc{font-family:"Space Grotesk";font-weight:700;font-size:18px}
+  .stand.first{border-color:var(--gold);background:rgba(255,194,75,.12)}
+  .stand.first .rank{color:var(--gold)}
+  .result-actions{display:flex;gap:10px}
+  .result-actions .btn{margin:0}
+
+  .hidden{display:none!important}
+  @keyframes rise{from{opacity:0;transform:translateY(14px)}to{opacity:1;transform:none}}
+  .anim{animation:rise .32s ease both}
+
+  /* ==== Zusätzliche Animationen (Spielfluss & Moderator) ==== */
+  @keyframes popIn{0%{opacity:0;transform:translateY(10px) scale(.97)}100%{opacity:1;transform:none}}
+  @keyframes correctPulse{0%{box-shadow:0 0 0 0 rgba(67,217,154,.55)}70%{box-shadow:0 0 0 12px rgba(67,217,154,0)}100%{box-shadow:0 0 0 0 rgba(67,217,154,0)}}
+  @keyframes shakeX{0%,100%{transform:translateX(0)}20%{transform:translateX(-6px)}40%{transform:translateX(5px)}60%{transform:translateX(-4px)}80%{transform:translateX(3px)}}
+  @keyframes bounceIn{0%{opacity:0;transform:scale(.4)}55%{transform:scale(1.12)}100%{opacity:1;transform:scale(1)}}
+  @keyframes floaty{0%,100%{transform:translateY(0)}50%{transform:translateY(-7px)}}
+  @keyframes trophyBob{0%,100%{transform:translateY(0) rotate(-4deg)}50%{transform:translateY(-9px) rotate(4deg)}}
+  @keyframes scorePop{0%{transform:scale(1)}40%{transform:scale(1.4)}100%{transform:scale(1)}}
+  @keyframes confFall{0%{transform:translateY(-12vh) rotate(0);opacity:1}100%{transform:translateY(112vh) rotate(680deg);opacity:.85}}
+  @keyframes speakerPing{0%,100%{transform:scale(1)}50%{transform:scale(1.16)}}
+
+  .pop-in{animation:popIn .42s cubic-bezier(.2,.8,.3,1) both}
+  .leg.correct.flash{animation:correctPulse .85s ease 1}
+  .leg.wrongpick.flash{animation:shakeX .45s ease 1}
+  .reveal-card.pop{animation:bounceIn .55s cubic-bezier(.2,.9,.3,1.25) both}
+  .area-emoji.floaty{animation:floaty 2.6s ease-in-out infinite}
+  .trophy.bob{animation:trophyBob 1.7s ease-in-out infinite}
+  .score-chip.bump .sc,.ns.bump{animation:scorePop .5s ease 1}
+  #settingsBtn.talking{animation:speakerPing .6s ease-in-out infinite}
+  .ready{animation:popIn .3s ease both}
+  .result-line{animation:popIn .34s ease both}
+
+  /* Konfetti beim Sieger */
+  .conf-piece{position:fixed;top:-6vh;width:9px;height:14px;border-radius:2px;z-index:4000;pointer-events:none;will-change:transform;animation:confFall linear forwards}
+
+  /* Dezenter, driftender Hintergrund-Schimmer hinter der Bühne */
+  body::before{content:"";position:fixed;inset:-25% -25% auto -25%;height:75vh;pointer-events:none;z-index:0;
+    background:radial-gradient(620px 320px at 28% 18%, rgba(255,194,75,.09), transparent 68%),
+      radial-gradient(520px 280px at 76% 8%, rgba(167,139,250,.11), transparent 70%);
+    animation:floaty 10s ease-in-out infinite}
+  .stage{z-index:1}
+
+  @media (prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}.conf-piece{display:none!important}}
+  /* ==== Online lobby / room UI ==== */
+  .online-box{border:1px solid var(--gold);background:rgba(255,194,75,.06);border-radius:16px;padding:14px 14px 12px;margin-bottom:6px}
+  .online-input{width:100%;background:rgba(0,0,0,.28);border:1px solid var(--line);color:var(--ink);border-radius:12px;padding:12px 13px;font:inherit;font-size:15px;margin-bottom:10px;outline:none}
+  .online-input:focus{border-color:var(--gold)}
+  .online-row{display:flex;gap:8px;margin-bottom:8px}
+  .online-row .btn{flex:1}
+  .online-row .online-input{margin-bottom:0;flex:1}
+  .online-hint{font-size:13px;color:var(--ink-soft);line-height:1.5;min-height:4px;margin-top:2px}
+  .online-hint.err{color:var(--wrong)}
+  .lobby-code{font-family:"Space Grotesk",monospace;font-size:15px;color:var(--ink-soft)}
+  .lobby-code b{color:var(--gold);letter-spacing:.22em;font-size:22px}
+  .lobby-players{display:flex;flex-direction:column;gap:8px}
+  .lobby-players .lp{display:flex;align-items:center;gap:10px;padding:10px 12px;border-radius:12px;background:rgba(0,0,0,.22);border:1px solid var(--line)}
+  .lobby-players .lp .dot{width:14px;height:14px;border-radius:50%;flex:none}
+  .lobby-players .lp .lp-name{flex:1;font-weight:600}
+  .lobby-players .lp .lp-tag{font-size:11px;color:var(--ink-soft)}
+  /* Online question view */
+  .net-status{display:flex;flex-wrap:wrap;gap:6px;margin-top:12px}
+  .net-status .ns{display:flex;align-items:center;gap:6px;padding:5px 9px;border-radius:999px;background:rgba(0,0,0,.24);border:1px solid var(--line);font-size:12px}
+  .net-status .ns .dot{width:9px;height:9px;border-radius:50%}
+  .net-status .ns.answered{border-color:var(--correct)}
+  .net-note{text-align:center;color:var(--ink-soft);font-size:14px;margin-top:12px}
+  /* ==== Setup-Startauswahl (Erstellen / Beitreten / Lokal) ==== */
+  .mode-select{display:flex;flex-direction:column;gap:10px;margin-top:4px}
+  .mode-btn{width:100%;text-align:center;font-size:16px;padding:16px 14px}
+  .back-link{margin:0 0 12px;padding:8px 12px}
+  .setup-heading{font-size:15px;color:var(--gold)}
+  /* ==== Direkt-klickbare Antworten (online: Legende = Antwort-Button) ==== */
+  .leg-btn{width:100%;font:inherit;text-align:left;cursor:pointer;color:var(--ink);
+    transition:transform .08s,border-color .15s,background .15s}
+  .leg-btn .leg-txt{flex:1}
+  .leg-btn:hover:not(:disabled){border-color:var(--gold);transform:translateY(-1px)}
+  .leg-btn:disabled{cursor:default}
+  .leg.mine{border-color:var(--gold);background:rgba(255,194,75,.16)}
+  .leg.mine .k{background:var(--gold);color:#241a08}
+  .leg.wrongpick{border-color:var(--wrong);background:rgba(255,107,122,.16)}
+  /* ==== Lokal: Antwort direkt anklickbar (Buchstabe + voller Text) ==== */
+  .keys-text{flex-direction:column;gap:7px}
+  .key-answer{display:flex;align-items:center;gap:10px;text-align:left;padding:11px 12px;font-size:15px}
+  .key-answer .kk{flex:none;width:24px;height:24px;border-radius:7px;display:grid;place-items:center;
+    font-family:"Space Grotesk";font-weight:700;font-size:13px;background:rgba(255,255,255,.12);color:var(--ink-soft)}
+  .key-answer .kt{flex:1}
+  /* ==== Schnappjagd: geschnappte Objekte sind für alle anderen gesperrt ==== */
+  .leg .leg-txt{flex:1}
+  .leg-val{flex:none;font-family:"Space Grotesk";font-size:13px;color:var(--ink-soft);white-space:nowrap}
+  .leg-who{flex:none;max-width:10ch;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;
+    font-family:"Instrument Sans";font-weight:600;font-size:12px;color:#241a08;padding:3px 9px;border-radius:99px}
+  .leg.taken{opacity:.6;border-color:var(--tc,var(--line))}
+  .leg.taken .k{background:var(--tc,rgba(255,255,255,.08));color:#241a08}
+  .key-btn.taken{opacity:.4;border-color:var(--tc,var(--line));cursor:not-allowed}
+  .key-btn.taken .kk{background:var(--tc,rgba(255,255,255,.12));color:#241a08}
+  /* Zeitstrahl: schon eingereihte Ereignisse tragen ihre Position statt des Buchstabens */
+  .key-btn.picked{opacity:.75;border-color:var(--pc,var(--gold))}
+  .key-btn.picked .kk{background:var(--pc,var(--gold));color:#241a08}
+  /* ==== Schätz-Eingabe (freie Zahl) ==== */
+  .est-in{display:flex;gap:7px;align-items:stretch}
+  .est-field{flex:1;background:rgba(0,0,0,.28);border:1px solid var(--line);color:var(--ink);
+    border-radius:10px;padding:11px 12px;font:inherit;font-size:16px;outline:none;min-width:0}
+  .est-field:focus{border-color:var(--gold)}
+  .est-ok{flex:none;width:auto;padding:0 16px}
+  .net-est{display:flex;gap:8px;align-items:stretch;margin-top:4px}
+  .net-est .est-field{font-size:18px;padding:14px 14px}
+  .net-est-ok{flex:none;margin:0;width:auto;padding:0 20px}
+  /* ==== SLF-style shared chrome spacing ==== */
+  .stage{padding-top:52px}
+  .wordmark .hero-logo{width:76px;height:76px;border-radius:20px;display:block;margin:0 auto 14px;box-shadow:0 14px 30px rgba(0,0,0,.5)}
+  .game-top-actions .game-language-select{width:auto;margin:0}
+  /* ==== Privatsphäre-Button (von consent.js erzeugt) – untere rechte Ecke,
+         optisch wie die geteilte Site-Chrome-Pille der anderen Spiele ==== */
+  .privacy-floating-button{
+    position:fixed;
+    bottom:max(18px, env(safe-area-inset-bottom));
+    right:max(18px, env(safe-area-inset-right));
+    z-index:79;
+    padding:10px 13px;
+    border-radius:999px;
+    color:#f8fafc;
+    background:rgba(15,23,42,.76);
+    border:1px solid rgba(255,255,255,.18);
+    box-shadow:0 12px 34px rgba(0,0,0,.25);
+    backdrop-filter:blur(12px);
+    -webkit-backdrop-filter:blur(12px);
+    font:800 13px/1 system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;
+    white-space:nowrap;
+    cursor:pointer;
+    display:inline-flex;
+    align-items:center;
+    justify-content:center;
+    transition:filter .15s;
+  }
+  .privacy-floating-button:hover{filter:brightness(1.12)}
+  html[data-theme="light"] .privacy-floating-button{
+    color:#18140f;
+    background:rgba(255,251,243,.82);
+    border-color:rgba(21,20,15,.16);
+    box-shadow:0 12px 34px rgba(84,58,24,.14);
+  }
+  /* Auf schmalen Screens sitzt die geteilte Aktionsleiste selbst unten rechts;
+     Button darüber stapeln, damit sich beide nicht überlagern. */
+  @media (max-width:680px){
+    .privacy-floating-button{
+      bottom:calc(max(12px, env(safe-area-inset-bottom)) + 52px);
+      right:max(12px, env(safe-area-inset-right));
+    }
+    /* Die fixe Aktionsleiste unten rechts überdeckt sonst das letzte Element im
+       Fluss (z. B. den „Antworten gelesen"-Button). Unten genug Platz lassen. */
+    body{padding-bottom:calc(max(12px, env(safe-area-inset-bottom)) + 84px)}
+  }
+  /* ==== Privatsphäre-Dialog (von consent.js erzeugt) – als schwebende Karte
+         über dem Button aufklappen statt unter dem Spiel ==== */
+  .consent-banner{
+    position:fixed;
+    right:max(18px, env(safe-area-inset-right));
+    bottom:calc(max(18px, env(safe-area-inset-bottom)) + 56px);
+    z-index:200;
+    width:min(360px, calc(100vw - 32px));
+    max-height:min(80vh, 560px);
+    overflow:auto;
+    display:flex;
+    flex-direction:column;
+    gap:14px;
+    padding:18px 18px 16px;
+    border-radius:16px;
+    background:linear-gradient(180deg,var(--card),var(--card-2));
+    color:var(--ink);
+    border:1px solid var(--line);
+    box-shadow:0 24px 60px rgba(0,0,0,.5);
+    font-size:14px;
+  }
+  .consent-banner .consent-copy strong{display:block;font-family:"Bricolage Grotesque",sans-serif;font-weight:800;font-size:16px;margin-bottom:6px}
+  .consent-banner .consent-copy p{color:var(--ink-soft);line-height:1.5;font-size:13px}
+  .consent-banner .consent-options{display:flex;flex-direction:column;gap:8px}
+  .consent-banner .consent-options label{display:flex;align-items:center;gap:9px;font-size:13px;color:var(--ink)}
+  .consent-banner .consent-options input{accent-color:var(--gold);width:17px;height:17px;flex:none}
+  .consent-banner .consent-actions{display:flex;flex-wrap:wrap;gap:8px}
+  .consent-banner .consent-actions button{flex:1 1 auto;min-width:96px;padding:10px 12px;border-radius:999px;border:1px solid var(--line);background:rgba(255,255,255,.06);color:var(--ink);font:700 13px/1 "Bricolage Grotesque",system-ui,sans-serif;cursor:pointer;transition:filter .15s, border-color .15s}
+  .consent-banner .consent-actions button:hover{filter:brightness(1.1);border-color:var(--gold)}
+  .consent-banner .consent-actions button.primary{background:var(--gold);color:#241a08;border-color:var(--gold)}
+  @media (max-width:680px){
+    .consent-banner{
+      left:max(12px, env(safe-area-inset-left));
+      right:max(12px, env(safe-area-inset-right));
+      width:auto;
+      bottom:calc(max(12px, env(safe-area-inset-bottom)) + 108px);
+    }
+  }
+</style>
+<!-- ==== brettspiele.fun shared site chrome ==== -->
+<script>try{let m=localStorage.getItem('brettspiele.themeMode')||'auto';let d=matchMedia('(prefers-color-scheme: dark)').matches;document.documentElement.dataset.theme=m==='auto'?(d?'dark':'light'):m;document.documentElement.dataset.themeMode=m;}catch(e){document.documentElement.dataset.theme='dark'}</script>
+<script src="../../assets/runtime-config.js?v=20260905-donation-on"></script>
+<script src="../../assets/i18n/de.js?v=20260824-i18n-gaps"></script><script src="../../assets/i18n/en.js?v=20260824-i18n-gaps"></script><script src="../../assets/i18n/fr.js?v=20260824-i18n-gaps"></script><script src="../../assets/i18n/es.js?v=20260824-i18n-gaps"></script><script src="../../assets/i18n/it.js?v=20260824-i18n-gaps"></script><script src="../../assets/i18n/ru.js?v=20260824-i18n-gaps"></script><script src="../../assets/i18n/zh.js?v=20260824-i18n-gaps"></script><script src="../../assets/i18n/ja.js?v=20260824-i18n-gaps"></script>
+<script src="i18n/de.js?v=20260721-minefield"></script><script src="i18n/en.js?v=20260721-minefield"></script><script src="i18n/fr.js?v=20260721-minefield"></script><script src="i18n/es.js?v=20260721-minefield"></script><script src="i18n/it.js?v=20260721-minefield"></script><script src="i18n/ru.js?v=20260721-minefield"></script><script src="i18n/zh.js?v=20260721-minefield"></script><script src="i18n/ja.js?v=20260721-minefield"></script>
+<script src="../../assets/i18n.js?v=20260824-i18n-gaps"></script>
+<script src="../../assets/auth.js?v=20260904-oauth-link"></script>
+<script src="../../assets/consent.js?v=20260603-chrome"></script>
+<link rel="stylesheet" href="../../assets/game-chrome.css?v=20260708-nohscroll">
+  <link rel="stylesheet" href="../../assets/gamepad.css?v=20260824-pad" />
+</head>
+<body>
+<!-- Fixed site chrome -->
+<div class="game-top-actions">
+  <select class="game-language-select" data-language-select data-i18n-aria="np.ui.langAria" aria-label="Sprache"></select>
+  <button class="game-theme-toggle" id="settingsBtn" type="button" aria-label="Sprachausgabe-Einstellungen" data-i18n-aria="np.voice.settingsAria" title="Sprachausgabe" data-i18n-title="np.voice.settingsTitle">🔊</button>
+  <button class="game-theme-toggle" id="themeToggle" type="button">Theme</button>
+</div>
+
+<div class="stage">
+
+  <div class="wordmark">
+    <img class="hero-logo" src="./button.svg" alt="" aria-hidden="true">
+    <div class="kicker" data-i18n="np.hero.kicker">Party-Quiz für 2–6</div>
+    <h1 data-i18n-html="np.hero.title">Korinthen<span>kacker</span></h1>
+    <p data-i18n="np.hero.sub">Alle spielen gleichzeitig · gemischte Themen · 3 Fragetypen</p>
+  </div>
+
+  <!-- SETUP -->
+  <section id="setup" class="panel">
+
+    <!-- Startauswahl: Was willst du tun? -->
+    <div id="setupMode">
+      <div class="section-label" data-i18n="np.setup.what">Was willst du tun?</div>
+      <div class="mode-select">
+        <button class="btn mode-btn" id="modeHostBtn" data-i18n="np.setup.modeHost">🌐 Als Host ein Spiel erstellen</button>
+        <button class="btn ghost mode-btn" id="modeJoinBtn" data-i18n="np.setup.modeJoin">🔑 Einem Spiel beitreten</button>
+      </div>
+    </div>
+
+    <!-- Zurück-Leiste (in den Untersichten) -->
+    <div id="setupBack" class="hidden">
+      <button class="btn ghost back-link" id="setupBackBtn" data-i18n="np.common.back">◀ Zurück</button>
+      <div class="section-label setup-heading" id="setupHeading"></div>
+      <div class="divider"></div>
+    </div>
+
+    <!-- Name (Host + Beitreten) -->
+    <div id="nameBlock" class="hidden">
+      <div class="section-label" data-i18n="np.setup.yourName">Dein Name</div>
+      <input type="text" id="onlineName" class="online-input" maxlength="16" placeholder="Dein Name" data-i18n-placeholder="np.setup.namePh">
+      <div class="online-hint" id="onlineHint"></div>
+    </div>
+
+    <!-- Beitreten: Raumcode -->
+    <div id="joinBlock" class="hidden">
+      <div class="divider"></div>
+      <div class="section-label" data-i18n="np.setup.hostCode">Raumcode des Hosts</div>
+      <div class="online-row">
+        <input type="text" id="joinCode" class="online-input" maxlength="8" placeholder="Raumcode" data-i18n-placeholder="np.setup.codePh" autocomplete="off" autocapitalize="characters">
+        <button class="btn" id="joinRoomBtn" data-i18n="np.setup.join">Beitreten</button>
+      </div>
+    </div>
+
+    <!-- Einstellungen (Host) -->
+    <div id="settingsBlock" class="hidden">
+      <div class="divider"></div>
+      <div class="section-label" data-i18n="np.setup.formats">Formate – in dieser Reihenfolge werden die Runden gespielt</div>
+      <div class="cat-grid" id="catGrid"></div>
+
+      <div class="divider"></div>
+      <div class="section-label" data-i18n="np.setup.rounds">Runden</div>
+      <div class="rounds" id="roundsSel">
+        <div class="chip" data-r="3">3<small data-i18n="np.setup.chipShort">kurz</small></div>
+        <div class="chip on" data-r="5">5<small data-i18n="np.setup.chipNormal">normal</small></div>
+        <div class="chip" data-r="8">8<small data-i18n="np.setup.chipLong">lang</small></div>
+      </div>
+
+      <div class="divider"></div>
+      <div class="section-label" data-i18n="np.setup.qpr">Fragen pro Runde</div>
+      <div class="rounds" id="qprSel">
+        <div class="chip" data-q="3">3</div>
+        <div class="chip on" data-q="4">4</div>
+        <div class="chip" data-q="5">5</div>
+      </div>
+
+      <div class="divider"></div>
+      <div class="section-label" data-i18n="np.setup.timer">Timer pro Frage</div>
+      <div class="rounds" id="timers">
+        <div class="chip" data-t="0"><span data-i18n="np.setup.timerOff">Aus</span><small data-i18n="np.setup.timerOffSub">ohne Zeit</small></div>
+        <div class="chip on" data-t="20">20 <span data-i18n="np.setup.secShort">Sek.</span><small data-i18n="np.setup.timerFastSub">flott</small></div>
+        <div class="chip" data-t="40">40 <span data-i18n="np.setup.secShort">Sek.</span><small data-i18n="np.setup.timerRelaxedSub">entspannt</small></div>
+      </div>
+
+    </div>
+
+    <!-- Aktionen je Modus -->
+    <div id="hostActions" class="hidden">
+      <div class="divider"></div>
+      <button class="btn" id="createRoomBtn" data-i18n-html="np.setup.createRoom">🌐 Raum erstellen &amp; Mitspieler einladen</button>
+    </div>
+  </section>
+
+  <!-- ONLINE-LOBBY -->
+  <section id="lobby" class="panel hidden">
+    <div class="section-label" data-i18n="np.lobby.title">Online-Raum</div>
+    <div class="lobby-code"><span data-i18n="np.lobby.code">Raumcode:</span> <b id="lobbyCode">—</b></div>
+    <div class="section-label" style="margin-top:16px" data-i18n="np.lobby.invite">Beitrittslink</div>
+    <div class="online-row">
+      <input type="text" id="inviteLink" class="online-input" readonly onclick="this.select()">
+      <button class="btn ghost" id="copyLinkBtn" data-i18n="np.lobby.copy">Link kopieren</button>
+    </div>
+    <div class="section-label" style="margin-top:16px" data-i18n="np.lobby.players">Mitspieler</div>
+    <div id="lobbyPlayers" class="lobby-players"></div>
+    <div id="lobbyHostBox">
+      <div class="divider"></div>
+      <button class="btn" id="lobbyStartBtn" data-i18n="np.setup.start">Spiel starten</button>
+    </div>
+    <div id="lobbyGuestWait" class="online-hint hidden" data-i18n="np.lobby.guestWait">Warte auf den Host … das Spiel startet gleich.</div>
+    <button class="btn ghost" id="lobbyLeaveBtn" style="margin-top:10px" data-i18n="np.lobby.leave">Raum verlassen</button>
+  </section>
+
+  <!-- RUNDEN-INTRO (zufällige Kategorie) -->
+  <section id="choose" class="panel hidden">
+    <div class="choose-head">
+      <div class="round-badge" id="roundBadge">Runde 1 von 5</div>
+      <p class="choose-sub" style="margin-top:14px" data-i18n="np.choose.sub">Die Kategorie dieser Runde ist …</p>
+    </div>
+    <div class="reveal-card">
+      <span class="area-emoji" id="revealEmoji">🌍</span>
+      <span class="area-name" id="revealName">Geografie</span>
+    </div>
+    <button class="btn" id="startRoundBtn" style="margin-top:18px" data-i18n="np.choose.go">Los geht's</button>
+  </section>
+
+  <!-- GAME -->
+  <section id="game" class="hidden">
+    <div class="panel hud">
+      <div class="hud-top">
+        <div class="lbl" id="hudArea">Alle antworten</div>
+        <div class="hud-right">
+          <div class="turn-meta" id="turnMeta">Frage 1 von 12</div>
+        </div>
+      </div>
+      <div class="progress"><i id="progressBar"></i></div>
+      <div class="scoreboard" id="scoreboard"></div>
+    </div>
+
+    <div class="panel" id="qCard" style="margin-top:14px">
+      <div class="timer hidden" id="timer"><i id="timerBar"></i></div>
+      <div class="badges">
+        <span class="badge type" id="typeBadge">Multiple Choice</span>
+        <span class="badge" id="catBadge">Kategorie</span>
+      </div>
+      <div class="question" id="qText">…</div>
+      <div class="legend" id="legend"></div>
+      <div class="reveal-detail" id="revealDetail"></div>
+      <div class="pads" id="pads"></div>
+      <div class="actions" id="actions"></div>
+    </div>
+  </section>
+
+  <!-- MINENFELD -->
+  <section id="risk" class="hidden">
+    <div class="panel hud">
+      <div class="hud-top">
+        <div class="lbl" data-i18n="np.risk.title">💣 Minenfeld</div>
+        <div class="turn-meta" id="riskMeta">Runde 1/5</div>
+      </div>
+      <div class="progress"><i id="riskProgress"></i></div>
+      <div class="scoreboard" id="riskScore"></div>
+    </div>
+    <div class="panel" id="riskCard" style="margin-top:14px">
+      <div class="risk-head">
+        <div class="risk-player" id="riskPlayer">Name</div>
+        <div class="risk-rules" data-i18n="np.risk.rules">Richtig +100 · Falsch = Bust · max. 5</div>
+      </div>
+      <div class="risk-prompt" id="riskPrompt">…</div>
+      <div class="risk-status" id="riskStatus">Gefunden: 0/5 · Zug-Punkte: 0</div>
+      <div class="risk-grid" id="riskGrid"></div>
+      <div class="actions" id="riskActions"></div>
+    </div>
+  </section>
+
+  <!-- RESULTS -->
+  <section id="results" class="panel results hidden">
+    <div class="trophy">🏆</div>
+    <h2 id="champLine"><span class="champ">—</span> gewinnt!</h2>
+    <div class="lead" id="resultLead">—</div>
+    <div class="standings" id="standings"></div>
+    <div class="result-actions">
+      <button class="btn ghost" id="newGameBtn" data-i18n="np.results.newGame">Neues Spiel</button>
+      <button class="btn" id="rematchBtn" data-i18n="np.results.rematch">Nochmal</button>
+    </div>
+  </section>
+
+</div>
+
+<!-- Sprachausgabe-Einstellungen (pro Gerät) -->
+<div id="voiceSettingsOverlay" class="vs-overlay hidden">
+  <div class="vs-panel">
+    <div class="vs-h" data-i18n="np.voice.h">🔊 Sprachausgabe</div>
+    <label class="vs-toggle"><input type="checkbox" id="voiceOnChk"><span data-i18n="np.voice.readAloud">Vorlesen (Fragen &amp; Antworten)</span></label>
+    <label class="vs-toggle" style="margin-top:12px"><input type="checkbox" id="modOnChk"><span data-i18n="np.voice.moderator">🎙️ Moderator-Kommentare</span></label>
+    <div class="voice-row" style="margin-top:14px"><label data-i18n="np.voice.volume">Lautstärke</label><input type="range" id="voiceVol" min="0" max="1" step="0.05" aria-label="Lautstärke" data-i18n-aria="np.voice.volume"></div>
+    <div class="vs-sub" data-i18n="np.voice.voiceLabel">Stimme</div>
+    <select id="voiceSelect" class="voice-select" aria-label="Stimme wählen" data-i18n-aria="np.voice.selectAria"></select>
+    <button class="btn ghost" id="voiceTest" style="margin-top:12px" data-i18n="np.voice.test">🔊 Stimme testen</button>
+    <button class="btn" id="voiceSettingsClose" style="margin-top:10px;width:100%" data-i18n="np.voice.close">Schließen</button>
+  </div>
+</div>
+
+<!-- Verlassen-Abfrage (im Spiel-Design) -->
+<div id="leaveConfirm" class="np-modal hidden" role="dialog" aria-labelledby="leaveConfirmTitle">
+  <div class="np-modal-card">
+    <div class="np-modal-emoji" aria-hidden="true">🚪</div>
+    <h2 id="leaveConfirmTitle" data-i18n="np.leave.title">Spiel wirklich verlassen?</h2>
+    <p data-i18n="np.leave.text">Der aktuelle Spielstand geht dabei verloren.</p>
+    <div class="np-modal-actions">
+      <button class="btn ghost" id="leaveCancelBtn" data-i18n="np.leave.cancel">Abbrechen</button>
+      <button class="btn" id="leaveConfirmBtn" data-i18n="np.leave.confirm">Ja, verlassen</button>
+    </div>
+  </div>
+</div>
+
+<script>
+"use strict";
+const PLAYER_COLORS = ["#ff7a85","#45cec4","#ffc24b","#a78bfa","#7dd87d","#6bb6ff"];
+
+/* Jede Runde ist ein Format; die Themen mischen sich innerhalb der Fragen.
+   Die Rundenreihenfolge steht in ROUND_ORDER. */
+const AREAS = [
+  {id:"mconly", label:"Multiple Choice",       emoji:"🔤"},
+  {id:"schaetz",label:"Let's schätz",          emoji:"🎯"},
+  {id:"schnell",label:"Schnellerwisser",       emoji:"⚡"},
+  {id:"schnapp",label:"Schnappjagd",           emoji:"🤏"},
+  {id:"luege",  label:"Genau eine Lüge",       emoji:"🤥"},
+  {id:"hilo",   label:"Höher oder tiefer",     emoji:"📈"},
+  {id:"zeit",   label:"Zeitstrahl",            emoji:"🕰️"},
+  {id:"risiko", label:"Minenfeld",             emoji:"💣"},
+];
+
+const BANK = [
+  {type:"mc", cat:"Allgemeinwissen", q:"Wie viele Bundesländer hat Deutschland?", options:["14","15","16","17"], correct:2},
+  {type:"mc", cat:"Geografie", q:"Wie heißt die Hauptstadt von Australien?", options:["Sydney","Melbourne","Canberra","Perth"], correct:2},
+  {type:"mc", cat:"Geografie", q:"Durch welche Stadt fließt die Seine?", options:["London","Rom","Paris","Wien"], correct:2},
+  {type:"mc", cat:"Filme", q:"Aus welcher Filmreihe stammt der Satz „Ich bin dein Vater“?", options:["Star Wars","Herr der Ringe","Matrix","Titanic"], correct:0},
+  {type:"mc", cat:"Biologie", q:"Wie viele Herzen hat ein Oktopus?", options:["1","2","3","8"], correct:2},
+  {type:"mc", cat:"Geschichte", q:"In welchem Jahr fiel die Berliner Mauer?", options:["1987","1989","1991","1993"], correct:1},
+  {type:"mc", cat:"Chemie", q:"Welches Element hat das Symbol „Au“?", options:["Silber","Gold","Aluminium","Argon"], correct:1},
+  {type:"mc", cat:"Musik", q:"Wie viele Saiten hat eine klassische Gitarre?", options:["4","5","6","7"], correct:2},
+  {type:"mc", cat:"Sport", q:"Wie viele Feldspieler stehen pro Team gleichzeitig beim Fußball auf dem Platz?", options:["9","10","11","12"], correct:2},
+  {type:"mc", cat:"Astronomie", q:"Welcher Planet ist der Sonne am nächsten?", options:["Venus","Merkur","Mars","Erde"], correct:1},
+  {type:"mc", cat:"Kunst", q:"Wer malte die „Mona Lisa“?", options:["Michelangelo","Leonardo da Vinci","Raffael","van Gogh"], correct:1},
+  {type:"mc", cat:"Allgemeinwissen", q:"Aus wie vielen Farben besteht der klassische Regenbogen?", options:["5","6","7","9"], correct:2},
+  {type:"mc", cat:"Geografie", q:"Auf welchem Kontinent liegt die Sahara?", options:["Asien","Afrika","Australien","Südamerika"], correct:1},
+  {type:"mc", cat:"Biologie", q:"Welches ist das größte Organ des menschlichen Körpers?", options:["Leber","Gehirn","Haut","Lunge"], correct:2},
+  {type:"mc", cat:"Physik", q:"Was misst man in der Einheit „Volt“?", options:["Stromstärke","Spannung","Widerstand","Leistung"], correct:1},
+  {type:"mc", cat:"Technik", q:"Wofür steht die Abkürzung „CPU“?", options:["Central Processing Unit","Computer Power Unit","Central Program Utility","Core Process Unifier"], correct:0},
+  {type:"mc", cat:"Sprache", q:"Welche Sprache hat weltweit die meisten Muttersprachler?", options:["Englisch","Spanisch","Mandarin-Chinesisch","Hindi"], correct:2},
+  {type:"mc", cat:"Essen", q:"Aus welchem Land stammt die Pizza ursprünglich?", options:["Griechenland","Italien","Spanien","Frankreich"], correct:1},
+  {type:"mc", cat:"Geografie", q:"Welcher Ozean ist der größte der Erde?", options:["Atlantik","Pazifik","Indischer","Arktischer"], correct:1},
+  {type:"mc", cat:"Geschichte", q:"Wer betrat als erster Mensch den Mond?", options:["Neil Armstrong","Buzz Aldrin","Juri Gagarin","Michael Collins"], correct:0},
+  {type:"mc", cat:"Biologie", q:"Welches ist das größte lebende Tier der Erde?", options:["Afrik. Elefant","Blauwal","Giraffe","Walhai"], correct:1},
+  {type:"mc", cat:"Geografie", q:"Welches Land ist flächenmäßig das größte der Welt?", options:["China","USA","Kanada","Russland"], correct:3},
+
+  {type:"tf", cat:"Biologie", q:"Eine Spinne ist ein Insekt.", answer:false},
+  {type:"tf", cat:"Astronomie", q:"Die Sonne ist ein Stern.", answer:true},
+  {type:"tf", cat:"Geografie", q:"Der Mount Everest ist der höchste Berg über dem Meeresspiegel.", answer:true},
+  {type:"tf", cat:"Allgemeinwissen", q:"Menschen und Dinosaurier lebten gleichzeitig auf der Erde.", answer:false},
+  {type:"tf", cat:"Chemie", q:"Wasser besteht aus Wasserstoff und Sauerstoff.", answer:true},
+  {type:"tf", cat:"Geografie", q:"Australien ist zugleich ein Land und ein Kontinent.", answer:true},
+  {type:"tf", cat:"Biologie", q:"Fledermäuse sind vollständig blind.", answer:false},
+  {type:"tf", cat:"Geschichte", q:"Die Chinesische Mauer ist mit bloßem Auge aus dem Weltall zu sehen.", answer:false},
+  {type:"tf", cat:"Physik", q:"Ein Blitz schlägt nie zweimal an derselben Stelle ein.", answer:false},
+  {type:"tf", cat:"Astronomie", q:"Auf der Venus dauert ein Tag länger als ein Jahr.", answer:true},
+  {type:"tf", cat:"Essen", q:"Honig kann tausende Jahre haltbar sein, ohne zu verderben.", answer:true},
+  {type:"tf", cat:"Geografie", q:"Afrika ist der größte Kontinent der Erde.", answer:false},
+  {type:"tf", cat:"Musik", q:"Beethoven war am Ende seines Lebens taub.", answer:true},
+  {type:"tf", cat:"Biologie", q:"Der menschliche Körper besteht zu über der Hälfte aus Wasser.", answer:true},
+  {type:"tf", cat:"Biologie", q:"Neugeborene haben mehr Knochen als Erwachsene.", answer:true},
+  {type:"tf", cat:"Astronomie", q:"Der Mond leuchtet mit eigenem Licht.", answer:false},
+  {type:"tf", cat:"Allgemeinwissen", q:"Die Farbe Orange wurde nach der Frucht benannt.", answer:true},
+  {type:"tf", cat:"Sport", q:"Ein Marathonlauf ist etwa 42 Kilometer lang.", answer:true},
+
+  {type:"est", cat:"Geografie", q:"Wie hoch ist der Eiffelturm mit Antenne ungefähr?", options:[250,300,330,380], unit:" m", value:330},
+  {type:"est", cat:"Biologie", q:"Wie viele Knochen hat ein erwachsener Mensch?", options:[186,206,226,246], unit:"", value:206},
+  {type:"est", cat:"Allgemeinwissen", q:"Wie viele Länder gibt es ungefähr auf der Erde?", options:[150,170,195,220], unit:"", value:195},
+  {type:"est", cat:"Geschichte", q:"In welchem Jahr endete der Zweite Weltkrieg in Europa?", options:[1943,1945,1947,1949], unit:"", value:1945},
+  {type:"est", cat:"Biologie", q:"Wie viele Zähne hat ein Erwachsener inkl. Weisheitszähnen?", options:[28,30,32,36], unit:"", value:32},
+  {type:"est", cat:"Physik", q:"Bei wie viel Grad Celsius kocht Wasser auf Meereshöhe?", options:[80,100,110,120], unit:" °C", value:100},
+  {type:"est", cat:"Geografie", q:"Wie lang ist die Chinesische Mauer mit allen Abschnitten ungefähr?", options:[2000,8000,21000,50000], unit:" km", value:21000},
+  {type:"est", cat:"Astronomie", q:"Wie lange braucht das Licht von der Sonne bis zur Erde ungefähr?", options:[8,80,480,4800], unit:" Sek.", value:500},
+  {type:"est", cat:"Musik", q:"Wie viele Tasten hat ein Standard-Klavier?", options:[76,88,96,108], unit:"", value:88},
+  {type:"est", cat:"Geografie", q:"Wie viele Standard-Zeitzonen gibt es weltweit?", options:[12,18,24,30], unit:"", value:24},
+  {type:"est", cat:"Biologie", q:"Wie schnell kann ein Gepard maximal rennen?", options:[80,100,120,150], unit:" km/h", value:112},
+  {type:"est", cat:"Chemie", q:"Wie viele chemische Elemente sind derzeit bekannt?", options:[92,108,118,130], unit:"", value:118},
+  {type:"est", cat:"Geografie", q:"Wie tief ist die tiefste Stelle der Ozeane ungefähr?", options:[4,7,11,15], unit:" km", value:11},
+  {type:"est", cat:"Astronomie", q:"Wie viele Planeten hat unser Sonnensystem?", options:[7,8,9,10], unit:"", value:8},
+  {type:"est", cat:"Allgemeinwissen", q:"Wie viele Sekunden hat ein Tag?", options:[3600,43200,86400,100000], unit:"", value:86400},
+
+  // ---- Geschichte (erweitert) ----
+  {type:"mc", cat:"Geschichte", q:"Welches Volk erbaute die Pyramiden von Gizeh?", options:["Römer","Ägypter","Griechen","Perser"], correct:1},
+  {type:"mc", cat:"Geschichte", q:"Wer war der erste Bundeskanzler der Bundesrepublik Deutschland?", options:["Willy Brandt","Konrad Adenauer","Helmut Kohl","Ludwig Erhard"], correct:1},
+  {type:"mc", cat:"Geschichte", q:"Welche antike Stadt wurde 79 n. Chr. vom Vesuv verschüttet?", options:["Pompeji","Troja","Karthago","Athen"], correct:0},
+  {type:"tf", cat:"Geschichte", q:"Die Französische Revolution begann im Jahr 1789.", answer:true},
+  {type:"tf", cat:"Geschichte", q:"Die Stadt Rom wurde von Julius Cäsar gegründet.", answer:false},
+  {type:"est", cat:"Geschichte", q:"In welchem Jahr begann der Erste Weltkrieg?", options:[1910,1914,1918,1920], unit:"", value:1914},
+  {type:"est", cat:"Geschichte", q:"In welchem Jahr entdeckte Kolumbus Amerika?", options:[1392,1492,1592,1692], unit:"", value:1492},
+  {type:"est", cat:"Geschichte", q:"Wie lange dauerte der Hundertjährige Krieg tatsächlich ungefähr?", options:[76,100,116,150], unit:" Jahre", value:116},
+
+  // ---- Kultur (erweitert) ----
+  {type:"mc", cat:"Musik", q:"Wer komponierte die Oper „Die Zauberflöte“?", options:["Mozart","Bach","Beethoven","Wagner"], correct:0},
+  {type:"mc", cat:"Musik", q:"Aus welchem Land stammt die Pop-Gruppe ABBA?", options:["Schweden","Norwegen","Dänemark","Finnland"], correct:0},
+  {type:"mc", cat:"Kunst", q:"Welcher Maler schnitt sich der Legende nach ein Ohr ab?", options:["Picasso","Monet","van Gogh","Dalí"], correct:2},
+  {type:"mc", cat:"Filme", q:"Wie heißt der junge Zauberer in den Romanen von J. K. Rowling?", options:["Harry Potter","Frodo Beutlin","Percy Jackson","Bilbo"], correct:0},
+  {type:"mc", cat:"Sprache", q:"„Bonjour“ ist eine Begrüßung in welcher Sprache?", options:["Spanisch","Französisch","Italienisch","Portugiesisch"], correct:1},
+  {type:"tf", cat:"Kunst", q:"„Romeo und Julia“ wurde von William Shakespeare geschrieben.", answer:true},
+  {type:"tf", cat:"Filme", q:"Der Film „Titanic“ basiert auf einem echten Schiffsunglück.", answer:true},
+
+  // ---- Let's schätz (reine Schätzfragen) ----
+  {type:"est", cat:"Let's schätz", q:"Wie hoch ist der Mount Everest ungefähr?", options:[6000,7000,8848,10000], unit:" m", value:8848},
+  {type:"est", cat:"Let's schätz", q:"Wie viele Menschen leben ungefähr auf der Erde?", options:[4,6,8,10], unit:" Milliarden", value:8},
+  {type:"est", cat:"Let's schätz", q:"Wie weit ist der Mond im Durchschnitt von der Erde entfernt?", options:[38000,384000,3800000,38000000], unit:" km", value:384000},
+  {type:"est", cat:"Let's schätz", q:"Wie viel Blut hat ein erwachsener Mensch ungefähr?", options:[2,5,8,12], unit:" Liter", value:5},
+  {type:"est", cat:"Let's schätz", q:"Wie schnell fährt ein ICE-Zug maximal ungefähr?", options:[150,200,300,400], unit:" km/h", value:300},
+  {type:"est", cat:"Let's schätz", q:"Wie oft schlägt ein Menschenherz ungefähr pro Tag?", options:[10000,50000,100000,500000], unit:"", value:100000},
+  {type:"est", cat:"Let's schätz", q:"Wie viele Sprachen werden weltweit ungefähr gesprochen?", options:[700,3000,7000,20000], unit:"", value:7000},
+  {type:"est", cat:"Let's schätz", q:"Wie lang ist der Amazonas ungefähr?", options:[2000,4000,6400,9000], unit:" km", value:6400},
+  {type:"est", cat:"Let's schätz", q:"Wie heiß ist die Oberfläche der Sonne ungefähr?", options:[1000,5500,15000,100000], unit:" °C", value:5500},
+  {type:"est", cat:"Let's schätz", q:"Wie viele Tage braucht der Mond ungefähr für eine Erdumrundung?", options:[7,27,90,365], unit:" Tage", value:27},
+  {type:"est", cat:"Let's schätz", q:"Wie viele Muskeln hat der menschliche Körper ungefähr?", options:[200,400,600,800], unit:"", value:600},
+  {type:"est", cat:"Let's schätz", q:"Wie viele Eier legt ein Huhn ungefähr pro Jahr?", options:[50,150,300,500], unit:"", value:300},
+
+  /* Schnappjagd: aus `items` werden Spielerzahl+1 Objekte gezeigt. Gewertet wird
+     der echte Rang des geschnappten Objekts — `best` sagt, welches Ende gewinnt
+     ("low" = kleinster Wert zuerst). `vfmt:"year"` zeigt Jahre mit v./n. Chr. */
+  {type:"rank", cat:"Geschichte", best:"low", vfmt:"year", unit:"",
+   q:"Schnapp dir das älteste Bauwerk!", items:[
+    {l:"Stonehenge", v:-3000}, {l:"Cheops-Pyramide", v:-2560}, {l:"Petra", v:-300},
+    {l:"Kolosseum", v:80}, {l:"Hagia Sophia", v:537}, {l:"Machu Picchu", v:1450},
+    {l:"Taj Mahal", v:1653}, {l:"Eiffelturm", v:1889}]},
+  {type:"rank", cat:"Geografie", best:"high", vfmt:"num", unit:" km²",
+   q:"Schnapp dir das flächenmäßig größte Land!", items:[
+    {l:"Russland", v:17098242}, {l:"Kanada", v:9984670}, {l:"China", v:9596961},
+    {l:"USA", v:9525067}, {l:"Brasilien", v:8515767}, {l:"Australien", v:7692024},
+    {l:"Indien", v:3287263}, {l:"Argentinien", v:2780400}]},
+  {type:"rank", cat:"Biologie", best:"high", vfmt:"num", unit:" km/h",
+   q:"Schnapp dir das schnellste Tier!", items:[
+    {l:"Wanderfalke", v:320}, {l:"Gepard", v:112}, {l:"Gabelbock", v:89},
+    {l:"Löwe", v:80}, {l:"Pferd", v:70}, {l:"Feldhase", v:68},
+    {l:"Mensch", v:45}, {l:"Elefant", v:40}]},
+  {type:"rank", cat:"Technik", best:"low", vfmt:"year", unit:"",
+   q:"Schnapp dir die älteste Erfindung!", items:[
+    {l:"Buchdruck", v:1450}, {l:"Dampfmaschine", v:1712}, {l:"Telefon", v:1876},
+    {l:"Glühbirne", v:1879}, {l:"Automobil", v:1886}, {l:"Fernsehen", v:1926},
+    {l:"Computer", v:1941}, {l:"Internet", v:1969}]},
+  {type:"rank", cat:"Geografie", best:"high", vfmt:"num", unit:"",
+   q:"Schnapp dir die größte Stadt nach Einwohnern!", items:[
+    {l:"Tokio", v:37000000}, {l:"Delhi", v:33000000}, {l:"Shanghai", v:29000000},
+    {l:"Dhaka", v:23200000}, {l:"São Paulo", v:22600000}, {l:"Mexiko-Stadt", v:22200000},
+    {l:"Kairo", v:22100000}, {l:"New York", v:18900000}]},
+  {type:"rank", cat:"Astronomie", best:"high", vfmt:"num", unit:" km",
+   q:"Schnapp dir den größten Planeten!", items:[
+    {l:"Jupiter", v:139820}, {l:"Saturn", v:116460}, {l:"Uranus", v:50724},
+    {l:"Neptun", v:49244}, {l:"Erde", v:12742}, {l:"Venus", v:12104},
+    {l:"Mars", v:6779}, {l:"Merkur", v:4879}]},
+  {type:"rank", cat:"Geografie", best:"high", vfmt:"num", unit:" m",
+   q:"Schnapp dir den höchsten Berg!", items:[
+    {l:"Mount Everest", v:8849}, {l:"K2", v:8611}, {l:"Kilimandscharo", v:5895},
+    {l:"Mont Blanc", v:4808}, {l:"Matterhorn", v:4478}, {l:"Fudschijama", v:3776},
+    {l:"Ätna", v:3357}, {l:"Zugspitze", v:2962}]},
+  {type:"rank", cat:"Sprache", best:"high", vfmt:"num", unit:"",
+   q:"Schnapp dir die Sprache mit den meisten Muttersprachlern!", items:[
+    {l:"Mandarin-Chinesisch", v:940000000}, {l:"Spanisch", v:485000000}, {l:"Englisch", v:380000000},
+    {l:"Hindi", v:345000000}, {l:"Arabisch", v:335000000}, {l:"Portugiesisch", v:236000000},
+    {l:"Bengalisch", v:234000000}, {l:"Russisch", v:148000000}]},
+
+  /* Genau eine Lüge: vier Aussagen, drei stimmen. `correct` zeigt auf die Lüge.
+     Datenform wie mc — der Unterschied liegt nur in der Wertung (Fehlgriff kostet). */
+  {type:"lie", cat:"Astronomie", q:"Welche Aussage über unser Sonnensystem ist gelogen?", correct:2, options:[
+    "Der Mars hat zwei kleine Monde.",
+    "Die Venus dreht sich entgegen der Richtung der meisten Planeten.",
+    "Der Saturn ist der einzige Planet mit Ringen.",
+    "Auf dem Jupiter tobt ein Sturm seit Jahrhunderten."]},
+  {type:"lie", cat:"Biologie", q:"Welche Aussage über den menschlichen Körper ist gelogen?", correct:3, options:[
+    "Die Magenschleimhaut erneuert sich ständig.",
+    "Das Herz schlägt rund 100.000 Mal am Tag.",
+    "Ein Erwachsener hat 206 Knochen.",
+    "Die Leber kann nicht nachwachsen."]},
+  {type:"lie", cat:"Geografie", q:"Welche Aussage über die Ozeane ist gelogen?", correct:2, options:[
+    "Der Pazifik ist der größte Ozean der Erde.",
+    "Der Marianengraben ist über 10 Kilometer tief.",
+    "Meerwasser gefriert bei genau 0 °C.",
+    "Ein großer Teil unseres Sauerstoffs stammt aus dem Meer."]},
+  {type:"lie", cat:"Geschichte", q:"Welche Aussage über das antike Rom ist gelogen?", correct:1, options:[
+    "Aquädukte brachten Wasser über viele Kilometer in die Stadt.",
+    "Julius Caesar war der erste römische Kaiser.",
+    "Im Kolosseum fanden Gladiatorenkämpfe statt.",
+    "Latein war die Amtssprache des Reiches."]},
+  {type:"lie", cat:"Sprache", q:"Welche Aussage über Sprachen ist gelogen?", correct:1, options:[
+    "Isländisch hat sich seit dem Mittelalter nur wenig verändert.",
+    "Finnisch ist eng mit dem Schwedischen verwandt.",
+    "Im Deutschen werden alle Substantive großgeschrieben.",
+    "Im Chinesischen werden Verben nicht nach Zeitform gebeugt."]},
+  {type:"lie", cat:"Biologie", q:"Welche Aussage über Tiere ist gelogen?", correct:2, options:[
+    "Oktopusse haben blaues Blut.",
+    "Kolibris können rückwärts fliegen.",
+    "Elefanten sind die einzigen Tiere, die nicht springen können.",
+    "Bei Seepferdchen trägt das Männchen den Nachwuchs aus."]},
+  {type:"lie", cat:"Geografie", q:"Welche Aussage über die Erde ist gelogen?", correct:2, options:[
+    "Der Äquator ist rund 40.000 Kilometer lang.",
+    "Russland grenzt an 14 Länder.",
+    "Die Sahara ist die größte Wüste der Erde.",
+    "Nil und Amazonas streiten um den Titel des längsten Flusses."]},
+  {type:"lie", cat:"Technik", q:"Welche Aussage über Technik ist gelogen?", correct:2, options:[
+    "Das erste Mobiltelefon wog über ein Kilogramm.",
+    "WLAN und Bluetooth nutzen dasselbe Frequenzband.",
+    "Ein Bit kann drei verschiedene Zustände annehmen.",
+    "Ada Lovelace gilt als erste Programmiererin."]},
+
+  /* Höher oder tiefer: nur „mehr" oder „weniger". Richtig ist 0, wenn av > bv.
+     av/bv liefern zugleich die Auflösung; al/bl sind die Namen dahinter. */
+  {type:"hilo", cat:"Geografie", q:"Hat Island mehr Einwohner als Malta?", unit:"",
+   al:"Island", av:394000, bl:"Malta", bv:542000},
+  {type:"hilo", cat:"Geografie", q:"Ist der Rhein länger als die Elbe?", unit:" km",
+   al:"Rhein", av:1230, bl:"Elbe", bv:1094},
+  {type:"hilo", cat:"Geografie", q:"Ist die Zugspitze höher als der Ätna?", unit:" m",
+   al:"Zugspitze", av:2962, bl:"Ätna", bv:3357},
+  {type:"hilo", cat:"Astronomie", q:"Hat der Mars einen größeren Durchmesser als der Merkur?", unit:" km",
+   al:"Mars", av:6779, bl:"Merkur", bv:4879},
+  {type:"hilo", cat:"Geografie", q:"Ist Australien flächenmäßig größer als Brasilien?", unit:" km²",
+   al:"Australien", av:7692024, bl:"Brasilien", bv:8515767},
+  {type:"hilo", cat:"Geografie", q:"Ist der Pazifik größer als alle Landflächen der Erde zusammen?", unit:" km²",
+   al:"Pazifik", av:165250000, bl:"Landfläche der Erde", bv:148940000},
+  {type:"hilo", cat:"Biologie", q:"Wiegt ein Blauwal mehr als 20 Elefanten?", unit:" kg",
+   al:"Blauwal", av:150000, bl:"20 Elefanten", bv:120000},
+  {type:"hilo", cat:"Astronomie", q:"Gibt es in der Milchstraße mehr Sterne als Bäume auf der Erde?", unit:"",
+   al:"Sterne in der Milchstraße", av:200000000000, bl:"Bäume auf der Erde", bv:3040000000000},
+
+  /* Zeitstrahl: vier Ereignisse, aufsteigend nach v die richtige Reihenfolge.
+     Angezeigt werden sie gemischt; Punkte je korrekt platzierter Position. */
+  {type:"order", cat:"Technik", q:"Bring die Erfindungen in die richtige Reihenfolge – die älteste zuerst!", vfmt:"year", items:[
+    {l:"Buchdruck", v:1450}, {l:"Dampfmaschine", v:1712}, {l:"Telefon", v:1876}, {l:"Fernsehen", v:1926}]},
+  {type:"order", cat:"Geschichte", q:"Bring die Ereignisse in die richtige Reihenfolge – das älteste zuerst!", vfmt:"year", items:[
+    {l:"Ende des Zweiten Weltkriegs", v:1945}, {l:"Erste Mondlandung", v:1969},
+    {l:"Fall der Berliner Mauer", v:1989}, {l:"Einführung des Euro", v:2002}]},
+  {type:"order", cat:"Geschichte", q:"Bring die Bauwerke in die richtige Reihenfolge – das älteste zuerst!", vfmt:"year", items:[
+    {l:"Cheops-Pyramide", v:-2560}, {l:"Kolosseum", v:80}, {l:"Machu Picchu", v:1450}, {l:"Eiffelturm", v:1889}]},
+  {type:"order", cat:"Technik", q:"Bring die Erfindungen in die richtige Reihenfolge – die älteste zuerst!", vfmt:"year", items:[
+    {l:"Das Rad", v:-3500}, {l:"Papier", v:105}, {l:"Kompass", v:1040}, {l:"Glühbirne", v:1879}]},
+  {type:"order", cat:"Geschichte", q:"Bring die Entdeckungen in die richtige Reihenfolge – die älteste zuerst!", vfmt:"year", items:[
+    {l:"Kolumbus erreicht Amerika", v:1492}, {l:"Erste Weltumsegelung", v:1522},
+    {l:"Entdeckung des Penicillins", v:1928}, {l:"Entschlüsselung des Erbguts", v:2003}]},
+  {type:"order", cat:"Geschichte", q:"Bring die Herrscher in die richtige Reihenfolge – den ältesten zuerst!", vfmt:"year", items:[
+    {l:"Tutanchamun", v:-1330}, {l:"Julius Caesar", v:-44}, {l:"Karl der Große", v:800}, {l:"Napoleon", v:1804}]},
+  {type:"order", cat:"Musik", q:"Bring die Musikstile in die richtige Reihenfolge – den ältesten zuerst!", vfmt:"year", items:[
+    {l:"Barock", v:1600}, {l:"Wiener Klassik", v:1750}, {l:"Jazz", v:1900}, {l:"Hip-Hop", v:1975}]},
+  {type:"order", cat:"Geschichte", q:"Bring die Ereignisse in die richtige Reihenfolge – das älteste zuerst!", vfmt:"year", items:[
+    {l:"Französische Revolution", v:1789}, {l:"Beginn des Ersten Weltkriegs", v:1914},
+    {l:"Erster Mensch im All", v:1961}, {l:"Erstes iPhone", v:2007}]},
+
+  // ---- Multiple Choice (Nachschub) ----
+  {type:"mc", cat:"Sport", q:"Wie viele Ringe hat das olympische Symbol?", options:["4","5","6","7"], correct:1},
+  {type:"mc", cat:"Sport", q:"Wie viele Spieler einer Mannschaft stehen beim Volleyball gleichzeitig auf dem Feld?", options:["5","6","7","8"], correct:1},
+  {type:"mc", cat:"Filme", q:"Wie heißt der kleine blau-weiße Roboter aus „Star Wars“?", options:["C-3PO","BB-8","R2-D2","K-2SO"], correct:2},
+  {type:"mc", cat:"Filme", q:"Welcher Schauspieler spielte James Bond als Erster im Kino?", options:["Roger Moore","Sean Connery","Daniel Craig","Pierce Brosnan"], correct:1},
+  {type:"mc", cat:"Musik", q:"Aus welcher Stadt stammen die Beatles?", options:["Liverpool","London","Manchester","Dublin"], correct:0},
+  {type:"mc", cat:"Kunst", q:"Wer schuf die Skulptur „Der Denker“?", options:["Michelangelo","Auguste Rodin","Donatello","Alberto Giacometti"], correct:1},
+  {type:"mc", cat:"Essen", q:"Welches Gewürz gilt als das teuerste der Welt?", options:["Vanille","Kardamom","Zimt","Safran"], correct:3},
+  {type:"mc", cat:"Essen", q:"Aus den Samen welcher Pflanze wird Schokolade hergestellt?", options:["Kakaobaum","Kaffeestrauch","Sojabohne","Vanilleorchidee"], correct:0},
+  {type:"mc", cat:"Physik", q:"Welche Kraft hält die Planeten auf ihrer Bahn um die Sonne?", options:["Reibung","Magnetismus","Gravitation","Auftrieb"], correct:2},
+  {type:"mc", cat:"Physik", q:"Wie heißt die Einheit der Kraft?", options:["Joule","Watt","Pascal","Newton"], correct:3},
+  {type:"mc", cat:"Chemie", q:"Welches Gas macht den größten Teil der Erdatmosphäre aus?", options:["Stickstoff","Sauerstoff","Kohlendioxid","Argon"], correct:0},
+  {type:"mc", cat:"Technik", q:"Wofür steht die Abkürzung „HTML“?", options:["High Tech Modern Language","HyperText Markup Language","Home Tool Markup Layer","Hyper Transfer Media Link"], correct:1},
+  {type:"mc", cat:"Sprache", q:"In welcher Schrift wird Russisch geschrieben?", options:["Lateinisch","Griechisch","Arabisch","Kyrillisch"], correct:3},
+  {type:"mc", cat:"Geografie", q:"Welches Land hat heute die meisten Einwohner?", options:["Indien","China","USA","Indonesien"], correct:0},
+  {type:"mc", cat:"Astronomie", q:"Wie heißt die Galaxie, in der sich unser Sonnensystem befindet?", options:["Andromeda","Milchstraße","Sombrero-Galaxie","Dreiecksnebel"], correct:1},
+
+  // ---- Wahr/Falsch (Nachschub) ----
+  {type:"tf", cat:"Biologie", q:"Ein Kolibri kann rückwärts fliegen.", answer:true},
+  {type:"tf", cat:"Geografie", q:"Der Titicacasee liegt in Europa.", answer:false},
+  {type:"tf", cat:"Astronomie", q:"Jupiter ist der größte Planet unseres Sonnensystems.", answer:true},
+  {type:"tf", cat:"Physik", q:"Schall breitet sich auch im luftleeren Raum aus.", answer:false},
+  {type:"tf", cat:"Chemie", q:"Diamant und Graphit bestehen aus demselben Element.", answer:true},
+  {type:"tf", cat:"Geschichte", q:"Die ersten Olympischen Spiele der Neuzeit fanden 1896 in Athen statt.", answer:true},
+  {type:"tf", cat:"Essen", q:"Tomaten sind botanisch gesehen Beeren.", answer:true},
+  {type:"tf", cat:"Technik", q:"Das Internet und das World Wide Web sind dasselbe.", answer:false},
+  {type:"tf", cat:"Sport", q:"Beim Basketball zählt ein Freiwurf zwei Punkte.", answer:false},
+  {type:"tf", cat:"Biologie", q:"Haie sind Säugetiere.", answer:false},
+
+  // ---- Schaetzfragen (Nachschub) ----
+  {type:"est", cat:"Allgemeinwissen", q:"Wie viele Sterne hat die Flagge der USA?", options:[13,48,50,52], unit:"", value:50},
+  {type:"est", cat:"Biologie", q:"Wie viele Chromosomenpaare hat der Mensch?", options:[21,23,25,46], unit:"", value:23},
+  {type:"est", cat:"Astronomie", q:"Wie lange dauert ein Jahr auf dem Mars in Erdtagen?", options:[365,500,687,900], unit:" Tage", value:687},
+  {type:"est", cat:"Geschichte", q:"In welchem Jahr wurde die Berliner Mauer gebaut?", options:[1949,1955,1961,1967], unit:"", value:1961},
+  {type:"est", cat:"Geschichte", q:"In welchem Jahr sank die Titanic?", options:[1901,1912,1918,1925], unit:"", value:1912},
+  {type:"est", cat:"Technik", q:"In welchem Jahr kam das erste iPhone auf den Markt?", options:[2003,2005,2007,2009], unit:"", value:2007},
+  {type:"est", cat:"Physik", q:"Wie schnell breitet sich Schall in der Luft ungefähr aus?", options:[340,750,1235,2000], unit:" km/h", value:1235},
+  {type:"est", cat:"Chemie", q:"Bei wie viel Grad Celsius schmilzt Eisen?", options:[900,1538,2200,3000], unit:" °C", value:1538},
+  {type:"est", cat:"Let's schätz", q:"Wie viel Wasser fasst eine normale Badewanne ungefähr?", options:[80,150,300,500], unit:" Liter", value:150},
+  {type:"est", cat:"Let's schätz", q:"Wie viele Haare hat ein Mensch ungefähr auf dem Kopf?", options:[10000,100000,1000000,10000000], unit:"", value:100000},
+  {type:"est", cat:"Let's schätz", q:"Wie schwer ist ein ausgewachsener Afrikanischer Elefant ungefähr?", options:[2000,4000,6000,10000], unit:" kg", value:6000},
+  {type:"est", cat:"Let's schätz", q:"Wie lang ist der Nil ungefähr?", options:[4000,5500,6650,8000], unit:" km", value:6650},
+  {type:"est", cat:"Let's schätz", q:"Wie lange dauert eine Schwangerschaft beim Menschen ungefähr?", options:[180,240,280,340], unit:" Tage", value:280},
+  {type:"est", cat:"Allgemeinwissen", q:"Wie viele Minuten hat eine Woche?", options:[1440,10080,20160,43200], unit:"", value:10080},
+  {type:"est", cat:"Sport", q:"Wie viele Löcher hat eine volle Runde Golf?", options:[9,12,18,24], unit:"", value:18},
+
+  // ---- Schnappjagd (Nachschub) ----
+  {type:"rank", cat:"Geografie", best:"high", vfmt:"num", unit:" km",
+   q:"Schnapp dir den längsten Fluss!", items:[
+    {l:"Nil", v:6650}, {l:"Amazonas", v:6400}, {l:"Jangtse", v:6300}, {l:"Mississippi", v:6275}, {l:"Jenissei", v:5539}, {l:"Gelber Fluss", v:5464}, {l:"Ob", v:5410}, {l:"Kongo", v:4700}]},
+  {type:"rank", cat:"Astronomie", best:"high", vfmt:"num", unit:"",
+   q:"Schnapp dir den Himmelskörper mit den meisten Monden!", items:[
+    {l:"Saturn", v:146}, {l:"Jupiter", v:95}, {l:"Uranus", v:28}, {l:"Neptun", v:16}, {l:"Pluto", v:5}, {l:"Mars", v:2}, {l:"Erde", v:1}, {l:"Venus", v:0}]},
+  {type:"rank", cat:"Biologie", best:"high", vfmt:"num", unit:" Jahre",
+   q:"Schnapp dir das Tier mit der höchsten Lebenserwartung!", items:[
+    {l:"Grönlandwal", v:200}, {l:"Riesenschildkröte", v:150}, {l:"Mensch", v:80}, {l:"Elefant", v:70}, {l:"Papagei", v:60}, {l:"Pferd", v:30}, {l:"Hund", v:13}, {l:"Maus", v:3}]},
+  {type:"rank", cat:"Geschichte", best:"low", vfmt:"year", unit:"",
+   q:"Schnapp dir die älteste Universität!", items:[
+    {l:"Bologna", v:1088}, {l:"Oxford", v:1096}, {l:"Salamanca", v:1218}, {l:"Sorbonne (Paris)", v:1257}, {l:"Coimbra", v:1290}, {l:"Heidelberg", v:1386}, {l:"Harvard", v:1636}, {l:"Moskau", v:1755}]},
+  {type:"rank", cat:"Musik", best:"low", vfmt:"year", unit:"",
+   q:"Schnapp dir den ältesten Komponisten (Geburtsjahr)!", items:[
+    {l:"Monteverdi", v:1567}, {l:"Vivaldi", v:1678}, {l:"Bach", v:1685}, {l:"Mozart", v:1756}, {l:"Beethoven", v:1770}, {l:"Chopin", v:1810}, {l:"Tschaikowsky", v:1840}, {l:"Strawinsky", v:1882}]},
+  {type:"rank", cat:"Technik", best:"low", vfmt:"year", unit:"",
+   q:"Schnapp dir das älteste Videospiel!", items:[
+    {l:"Pong", v:1972}, {l:"Space Invaders", v:1978}, {l:"Pac-Man", v:1980}, {l:"Tetris", v:1984}, {l:"Super Mario Bros.", v:1985}, {l:"Doom", v:1993}, {l:"Minecraft", v:2011}, {l:"Fortnite", v:2017}]},
+  {type:"rank", cat:"Technik", best:"high", vfmt:"num", unit:" m",
+   q:"Schnapp dir das höchste Gebäude!", items:[
+    {l:"Burj Khalifa", v:828}, {l:"Merdeka 118", v:679}, {l:"Shanghai Tower", v:632}, {l:"Abraj Al Bait", v:601}, {l:"Ping An Finance Center", v:599}, {l:"Lotte World Tower", v:555}, {l:"One World Trade Center", v:541}, {l:"Taipei 101", v:508}]},
+  {type:"rank", cat:"Essen", best:"high", vfmt:"num", unit:"",
+   q:"Schnapp dir die schärfste Schote (Schärfegrade)!", items:[
+    {l:"Carolina Reaper", v:1600000}, {l:"Bhut Jolokia", v:1000000}, {l:"Habanero", v:350000}, {l:"Thai-Chili", v:100000}, {l:"Cayennepfeffer", v:40000}, {l:"Jalapeño", v:5000}, {l:"Peperoncini", v:500}, {l:"Gemüsepaprika", v:0}]},
+
+  // ---- Genau eine Luege (Nachschub) ----
+  {type:"lie", cat:"Geschichte", q:"Welche Aussage über das Mittelalter ist gelogen?", correct:1, options:[
+    "Die Pest raffte im 14. Jahrhundert einen großen Teil Europas dahin.",
+    "Ritter waren in ihrer Rüstung so schwer, dass sie ohne Kran nicht aufs Pferd kamen.",
+    "Gebildete Menschen wussten damals, dass die Erde eine Kugel ist.",
+    "Die ersten europäischen Universitäten entstanden im Mittelalter."]},
+  {type:"lie", cat:"Physik", q:"Welche Aussage über Licht und Schall ist gelogen?", correct:2, options:[
+    "Licht ist deutlich schneller als Schall.",
+    "Im Weltall breitet sich Schall nicht aus.",
+    "Licht ist im Wasser genauso schnell wie im Vakuum.",
+    "Ein Regenbogen entsteht, wenn Licht in Wassertropfen gebrochen wird."]},
+  {type:"lie", cat:"Musik", q:"Welche Aussage über Musik ist gelogen?", correct:3, options:[
+    "Eine Oktave umfasst zwölf Halbtonschritte.",
+    "Mozart starb mit nur 35 Jahren.",
+    "Ein Konzertflügel hat 88 Tasten.",
+    "Eine Violine hat fünf Saiten."]},
+  {type:"lie", cat:"Sport", q:"Welche Aussage über Sport ist gelogen?", correct:2, options:[
+    "Ein Marathon ist gut 42 Kilometer lang.",
+    "Beim Tennis zählt man 15, 30, 40.",
+    "Die Olympischen Sommerspiele finden alle drei Jahre statt.",
+    "Ein Fußballtor ist 7,32 Meter breit."]},
+  {type:"lie", cat:"Essen", q:"Welche Aussage über Lebensmittel ist gelogen?", correct:1, options:[
+    "Käse entsteht, indem Milch gerinnt.",
+    "Bananen wachsen an Bäumen.",
+    "Die Kartoffel stammt ursprünglich aus Südamerika.",
+    "Pasta wird meist aus Hartweizengrieß gemacht."]},
+  {type:"lie", cat:"Chemie", q:"Welche Aussage über Stoffe ist gelogen?", correct:2, options:[
+    "Wasser hat die Formel H2O.",
+    "Kochsalz besteht aus Natrium und Chlor.",
+    "Reines Gold rostet mit der Zeit.",
+    "Helium ist leichter als Luft."]},
+  {type:"lie", cat:"Geografie", q:"Welche Aussage über Europa ist gelogen?", correct:3, options:[
+    "Der Vatikan ist der kleinste Staat der Welt.",
+    "Norwegens Küste ist von Fjorden durchzogen.",
+    "Portugal grenzt an Land nur an Spanien.",
+    "Island ist Mitglied der Europäischen Union."]},
+  {type:"lie", cat:"Allgemeinwissen", q:"Welche Aussage über den Alltag ist gelogen?", correct:0, options:[
+    "Glas ist eine zähe Flüssigkeit und fließt in alten Fenstern nach unten.",
+    "Ein Blatt Papier lässt sich in der Praxis nur wenige Male falten.",
+    "Der Reißverschluss wurde schon vor dem Ersten Weltkrieg erfunden.",
+    "Die Mikrowelle erhitzt Essen, indem sie Wassermoleküle in Schwingung versetzt."]},
+
+  // ---- Hoeher oder tiefer (Nachschub) ----
+  {type:"hilo", cat:"Geografie", q:"Hat Polen mehr Einwohner als Kanada?", unit:"",
+   al:"Polen", av:36800000, bl:"Kanada", bv:41000000},
+  {type:"hilo", cat:"Geografie", q:"Ist die Wolga länger als die Donau?", unit:" km",
+   al:"Wolga", av:3531, bl:"Donau", bv:2857},
+  {type:"hilo", cat:"Astronomie", q:"Ist es auf der Venus heißer als auf dem Merkur?", unit:" °C",
+   al:"Venus", av:464, bl:"Merkur", bv:167},
+  {type:"hilo", cat:"Biologie", q:"Wird ein Grönlandwal älter als eine Riesenschildkröte?", unit:" Jahre",
+   al:"Grönlandwal", av:200, bl:"Riesenschildkröte", bv:150},
+  {type:"hilo", cat:"Biologie", q:"Hat ein Pferd mehr Knochen als ein Mensch?", unit:"",
+   al:"Pferd", av:205, bl:"Mensch", bv:206},
+  {type:"hilo", cat:"Geografie", q:"Ist Island flächenmäßig größer als Irland?", unit:" km²",
+   al:"Island", av:103000, bl:"Irland", bv:84421},
+  {type:"hilo", cat:"Geografie", q:"Ist die Freiheitsstatue höher als der Kölner Dom?", unit:" m",
+   al:"Freiheitsstatue", av:93, bl:"Kölner Dom", bv:157},
+  {type:"hilo", cat:"Physik", q:"Wiegt ein Kubikmeter Wasser mehr als ein Kubikmeter Eis?", unit:" kg",
+   al:"Wasser", av:1000, bl:"Eis", bv:917},
+
+  // ---- Zeitstrahl (Nachschub) ----
+  {type:"order", cat:"Astronomie", q:"Bring die Raumfahrt-Meilensteine in die richtige Reihenfolge – den ältesten zuerst!", vfmt:"year", items:[
+    {l:"Sputnik im Orbit", v:1957}, {l:"Erster Mensch im All", v:1961}, {l:"Erste Mondlandung", v:1969}, {l:"Baubeginn der ISS", v:1998}]},
+  {type:"order", cat:"Technik", q:"Bring die Technik-Meilensteine in die richtige Reihenfolge – den ältesten zuerst!", vfmt:"year", items:[
+    {l:"Erste E-Mail", v:1971}, {l:"Erstes Mobiltelefon im Handel", v:1983}, {l:"World Wide Web erfunden", v:1989}, {l:"Erstes iPhone", v:2007}]},
+  {type:"order", cat:"Geschichte", q:"Bring die Ereignisse in die richtige Reihenfolge – das älteste zuerst!", vfmt:"year", items:[
+    {l:"Magna Carta", v:1215}, {l:"Kolumbus erreicht Amerika", v:1492}, {l:"Unabhängigkeitserklärung der USA", v:1776}, {l:"Sturm auf die Bastille", v:1789}]},
+  {type:"order", cat:"Kunst", q:"Bring die Kunstepochen in die richtige Reihenfolge – die älteste zuerst!", vfmt:"year", items:[
+    {l:"Renaissance", v:1400}, {l:"Barock", v:1600}, {l:"Impressionismus", v:1870}, {l:"Pop-Art", v:1955}]},
+  {type:"order", cat:"Filme", q:"Bring die Filme in die richtige Reihenfolge – den ältesten zuerst!", vfmt:"year", items:[
+    {l:"Der Zauberer von Oz", v:1939}, {l:"Psycho", v:1960}, {l:"Star Wars", v:1977}, {l:"Titanic", v:1997}]},
+  {type:"order", cat:"Sport", q:"Bring die Sport-Premieren in die richtige Reihenfolge – die älteste zuerst!", vfmt:"year", items:[
+    {l:"Erste Olympische Spiele der Neuzeit", v:1896}, {l:"Erste Fußball-Weltmeisterschaft", v:1930}, {l:"Erste Formel-1-Weltmeisterschaft", v:1950}, {l:"Erster Super Bowl", v:1967}]},
+  {type:"order", cat:"Musik", q:"Bring die Tonträger in die richtige Reihenfolge – den ältesten zuerst!", vfmt:"year", items:[
+    {l:"Langspielplatte", v:1948}, {l:"Musikkassette", v:1963}, {l:"Compact Disc", v:1982}, {l:"MP3", v:1993}]},
+  {type:"order", cat:"Geschichte", q:"Bring die Entdeckungsreisen in die richtige Reihenfolge – die älteste zuerst!", vfmt:"year", items:[
+    {l:"Marco Polo bricht nach Asien auf", v:1271}, {l:"Kolumbus segelt nach Westen", v:1492}, {l:"Magellans Weltumsegelung startet", v:1519}, {l:"James Cooks erste Südsee-Reise", v:1768}]},
+
+  // ==== Batch 2026-07-30 — Deutsch zuerst; i18n-Übersetzungen folgen (Fallback greift bis dahin) ====
+  // ---- Multiple Choice ----
+  {type:"mc", cat:"Geografie", q:"Wie heißt die Hauptstadt von Kanada?", options:["Toronto","Ottawa","Vancouver","Montreal"], correct:1},
+  {type:"mc", cat:"Geografie", q:"Welches Land hat die Form eines Stiefels?", options:["Italien","Griechenland","Spanien","Portugal"], correct:0},
+  {type:"mc", cat:"Allgemeinwissen", q:"Wie viele Kontinente gibt es?", options:["5","6","7","8"], correct:2},
+  {type:"mc", cat:"Biologie", q:"Wie viele Beine hat eine Spinne?", options:["6","8","10","12"], correct:1},
+  {type:"mc", cat:"Chemie", q:"Welches Element hat das chemische Symbol „O“?", options:["Gold","Osmium","Sauerstoff","Ozon"], correct:2},
+  {type:"mc", cat:"Physik", q:"Was misst ein Thermometer?", options:["Druck","Temperatur","Gewicht","Zeit"], correct:1},
+  {type:"mc", cat:"Astronomie", q:"Welcher Planet wird auch „Roter Planet“ genannt?", options:["Venus","Mars","Jupiter","Saturn"], correct:1},
+  {type:"mc", cat:"Physik", q:"Wer entwickelte die Relativitätstheorie?", options:["Isaac Newton","Albert Einstein","Niels Bohr","Stephen Hawking"], correct:1},
+  {type:"mc", cat:"Kunst", q:"Wer malte das Deckenfresko der Sixtinischen Kapelle?", options:["Michelangelo","Raffael","Leonardo da Vinci","Botticelli"], correct:0},
+  {type:"mc", cat:"Musik", q:"Aus wie vielen Musikern besteht ein klassisches Streichquartett?", options:["3","4","5","6"], correct:1},
+  {type:"mc", cat:"Sport", q:"In welcher Sportart erzielt man einen „Touchdown“?", options:["Rugby","American Football","Basketball","Eishockey"], correct:1},
+  {type:"mc", cat:"Filme", q:"Wie heißt der graue Zauberer in „Der Herr der Ringe“?", options:["Gandalf","Dumbledore","Merlin","Aragorn"], correct:0},
+  {type:"mc", cat:"Sprache", q:"Wie viele Buchstaben hat das deutsche Grundalphabet (ohne Umlaute und ß)?", options:["24","26","28","30"], correct:1},
+  {type:"mc", cat:"Essen", q:"Aus welcher Zutat besteht Guacamole hauptsächlich?", options:["Avocado","Erbse","Gurke","Spinat"], correct:0},
+  {type:"mc", cat:"Technik", q:"Wofür steht die Abkürzung „www“?", options:["World Wide Web","World Web Wide","Wide World Web","Web World Wide"], correct:0},
+
+  // ---- Wahr/Falsch ----
+  {type:"tf", cat:"Geografie", q:"Die Antarktis ist der kälteste Kontinent der Erde.", answer:true},
+  {type:"tf", cat:"Biologie", q:"Ein Schmetterling schmeckt mit seinen Füßen.", answer:true},
+  {type:"tf", cat:"Astronomie", q:"Ein Lichtjahr ist eine Zeiteinheit.", answer:false},
+  {type:"tf", cat:"Physik", q:"Metall dehnt sich bei Erwärmung aus.", answer:true},
+  {type:"tf", cat:"Chemie", q:"Gold ist ein chemisches Element.", answer:true},
+  {type:"tf", cat:"Geschichte", q:"Die Wikinger trugen Hörner an ihren Helmen.", answer:false},
+  {type:"tf", cat:"Sport", q:"Beim Schach macht immer Weiß den ersten Zug.", answer:true},
+  {type:"tf", cat:"Essen", q:"Erdnüsse sind botanisch gesehen Nüsse.", answer:false},
+  {type:"tf", cat:"Allgemeinwissen", q:"Ein Jahrhundert umfasst 100 Jahre.", answer:true},
+  {type:"tf", cat:"Musik", q:"Die Trompete gehört zu den Blechblasinstrumenten.", answer:true},
+
+  // ---- Schätzfragen ----
+  {type:"est", cat:"Geografie", q:"Wie viele Sterne hat die Flagge der Europäischen Union?", options:[10,12,15,27], unit:"", value:12},
+  {type:"est", cat:"Physik", q:"Wie schnell breitet sich Licht im Vakuum ungefähr aus (in km/s)?", options:[3000,30000,300000,3000000], unit:"", value:300000},
+  {type:"est", cat:"Biologie", q:"Wie viele Tage kann ein Mensch ungefähr ohne Wasser überleben?", options:[3,7,14,30], unit:" Tage", value:3},
+  {type:"est", cat:"Geschichte", q:"In welchem Jahr wurde die Bundesrepublik Deutschland gegründet?", options:[1945,1949,1955,1961], unit:"", value:1949},
+  {type:"est", cat:"Sport", q:"Wie viele Minuten dauert ein reguläres Fußballspiel ohne Nachspielzeit?", options:[80,90,100,120], unit:"", value:90},
+  {type:"est", cat:"Technik", q:"Wie viele Bit ergeben ein Byte?", options:[4,8,16,32], unit:"", value:8},
+  {type:"est", cat:"Geografie", q:"An wie viele Länder grenzt Deutschland?", options:[7,9,11,13], unit:"", value:9},
+  {type:"est", cat:"Allgemeinwissen", q:"Wie viele Karten hat ein deutsches Skatblatt?", options:[32,36,52,54], unit:"", value:32},
+  {type:"est", cat:"Musik", q:"Aus wie vielen Halbtonschritten besteht eine Oktave?", options:[7,8,12,13], unit:"", value:12},
+  {type:"est", cat:"Chemie", q:"Welchen pH-Wert hat neutrales Wasser?", options:[5,7,9,14], unit:"", value:7},
+
+  // ---- Schnappjagd ----
+  {type:"rank", cat:"Geografie", best:"high", vfmt:"num", unit:" km²",
+   q:"Schnapp dir die flächenmäßig größte Insel!", items:[
+    {l:"Grönland", v:2166086}, {l:"Neuguinea", v:785753}, {l:"Borneo", v:748168},
+    {l:"Madagaskar", v:587041}, {l:"Baffininsel", v:507451}, {l:"Sumatra", v:473481},
+    {l:"Honshū", v:225800}, {l:"Großbritannien", v:209331}]},
+  {type:"rank", cat:"Biologie", best:"high", vfmt:"num", unit:" kg",
+   q:"Schnapp dir das schwerste Landtier!", items:[
+    {l:"Afrikanischer Elefant", v:6000}, {l:"Breitmaulnashorn", v:2300}, {l:"Flusspferd", v:1500},
+    {l:"Giraffe", v:1200}, {l:"Wasserbüffel", v:900}, {l:"Eisbär", v:600},
+    {l:"Pferd", v:500}, {l:"Rothirsch", v:200}]},
+
+  // ---- Genau eine Lüge ----
+  {type:"lie", cat:"Astronomie", q:"Welche Aussage über die Sonne ist gelogen?", correct:2, options:[
+    "Die Sonne besteht hauptsächlich aus Wasserstoff.",
+    "Die Sonne ist ein Stern mittlerer Größe.",
+    "Die Sonne ist ein fester Gesteinskörper wie die Erde.",
+    "Ohne die Sonne gäbe es kein Leben auf der Erde."]},
+  {type:"lie", cat:"Geografie", q:"Welche Aussage über Flüsse ist gelogen?", correct:3, options:[
+    "Der Nil fließt in Richtung Norden.",
+    "Der Amazonas führt mehr Wasser als jeder andere Fluss.",
+    "Die Donau durchquert mehr Länder als jeder andere Fluss.",
+    "Der Rhein mündet ins Schwarze Meer."]},
+
+  // ---- Höher oder tiefer ----
+  {type:"hilo", cat:"Geografie", q:"Ist Frankreich flächenmäßig größer als Deutschland?", unit:" km²",
+   al:"Frankreich", av:551695, bl:"Deutschland", bv:357588},
+  {type:"hilo", cat:"Biologie", q:"Ist ein Blauwal schwerer als ein Afrikanischer Elefant?", unit:" kg",
+   al:"Blauwal", av:150000, bl:"Afrik. Elefant", bv:6000},
+  {type:"hilo", cat:"Astronomie", q:"Hat der Jupiter einen größeren Durchmesser als der Saturn?", unit:" km",
+   al:"Jupiter", av:139820, bl:"Saturn", bv:116460},
+
+  // ---- Zeitstrahl ----
+  {type:"order", cat:"Technik", q:"Bring die Erfindungen in die richtige Reihenfolge – die älteste zuerst!", vfmt:"year", items:[
+    {l:"Fotografie", v:1826}, {l:"Telefon", v:1876}, {l:"Radio", v:1895}, {l:"Fernsehen", v:1926}]},
+  {type:"order", cat:"Geschichte", q:"Bring die Kriege in die richtige Reihenfolge – den ältesten zuerst!", vfmt:"year", items:[
+    {l:"Dreißigjähriger Krieg", v:1618}, {l:"Amerikanische Revolution", v:1775}, {l:"Erster Weltkrieg", v:1914}, {l:"Zweiter Weltkrieg", v:1939}]},
+  {type:"mc", cat:"Geografie", q:"Wie heißt die Hauptstadt von Kanada?", options:["Toronto","Vancouver","Ottawa","Montreal"], correct:2},
+  {type:"est", cat:"Geografie", q:"Wie viele Kontinente gibt es auf der Erde?", options:[5,6,7,8], unit:"", value:7},
+  {type:"mc", cat:"Geschichte", q:"Wer gilt als der erste römische Kaiser?", options:["Augustus","Nero","Julius Cäsar","Trajan"], correct:0},
+  {type:"est", cat:"Geschichte", q:"In welchem Jahr eroberten die Osmanen Konstantinopel?", options:[1353,1453,1553,1653], unit:"", value:1453},
+  {type:"mc", cat:"Biologie", q:"Wie viele Beine hat eine Spinne?", options:["6","8","10","12"], correct:1},
+  {type:"tf", cat:"Biologie", q:"Wale sind Säugetiere.", answer:true},
+  {type:"mc", cat:"Astronomie", q:"Welcher ist der größte Planet unseres Sonnensystems?", options:["Erde","Jupiter","Saturn","Neptun"], correct:1},
+  {type:"est", cat:"Astronomie", q:"Wie viele Monde hat der Planet Mars?", options:[0,1,2,4], unit:"", value:2},
+  {type:"mc", cat:"Technik", q:"Wofür steht die Abkürzung „HTML“?", options:["HyperText Markup Language","High Text Machine Language","Home Tool Markup Logic","Hyperlink Text Module Language"], correct:0},
+  {type:"tf", cat:"Technik", q:"Ein Byte besteht aus 8 Bit.", answer:true},
+  {type:"mc", cat:"Physik", q:"Was misst man in der Einheit „Ampere“?", options:["Spannung","Stromstärke","Leistung","Widerstand"], correct:1},
+  {type:"est", cat:"Physik", q:"Wie schnell ist das Licht ungefähr (im Vakuum)?", options:[3000,30000,300000,3000000], unit:" km/s", value:300000},
+  {type:"mc", cat:"Musik", q:"Aus wie vielen Musikern besteht ein Streichquartett?", options:["3","4","5","6"], correct:1},
+  {type:"mc", cat:"Musik", q:"Welches dieser Instrumente gehört zu den Blasinstrumenten?", options:["Geige","Klavier","Trompete","Harfe"], correct:2},
+  {type:"est", cat:"Allgemeinwissen", q:"Wie viele Minuten hat ein Tag?", options:[1200,1440,1600,2400], unit:"", value:1440},
+  {type:"mc", cat:"Allgemeinwissen", q:"Welche Farbe entsteht, wenn man Blau und Gelb mischt?", options:["Grün","Orange","Lila","Braun"], correct:0},
+  {type:"mc", cat:"Sport", q:"Wie viele Ringe zeigt das olympische Symbol?", options:["4","5","6","7"], correct:1},
+  {type:"tf", cat:"Sport", q:"Beim Basketball zählt ein normaler Korb aus dem Spiel 3 Punkte.", answer:false},
+  {type:"mc", cat:"Chemie", q:"Welches chemische Symbol steht für Sauerstoff?", options:["O","Os","Ox","S"], correct:0},
+  {type:"est", cat:"Chemie", q:"Welchen pH-Wert hat reines, neutrales Wasser?", options:[5,6,7,8], unit:"", value:7},
+  {type:"mc", cat:"Essen", q:"Aus welcher Bohne wird Schokolade hergestellt?", options:["Kakaobohne","Kaffeebohne","Sojabohne","Vanilleschote"], correct:0},
+  {type:"tf", cat:"Essen", q:"Eine Tomate ist botanisch gesehen eine Frucht.", answer:true},
+  {type:"mc", cat:"Filme", q:"Wer führte Regie beim Film „Titanic“ (1997)?", options:["Steven Spielberg","James Cameron","Martin Scorsese","Christopher Nolan"], correct:1},
+  {type:"mc", cat:"Filme", q:"Aus welcher Filmreihe stammt der Satz „Möge die Macht mit dir sein“?", options:["Star Trek","Star Wars","Alien","Avatar"], correct:1},
+  {type:"mc", cat:"Sprache", q:"„Hola“ ist eine Begrüßung in welcher Sprache?", options:["Italienisch","Spanisch","Portugiesisch","Französisch"], correct:1},
+  {type:"tf", cat:"Sprache", q:"Latein gilt heute als „tote Sprache“, da es keine Muttersprachler mehr hat.", answer:true},
+  {type:"mc", cat:"Kunst", q:"Wer schuf die berühmten Deckenfresken der Sixtinischen Kapelle?", options:["Michelangelo","Leonardo da Vinci","Raffael","Botticelli"], correct:0},
+  {type:"tf", cat:"Kunst", q:"Das Gemälde „Mona Lisa“ hängt im Louvre in Paris.", answer:true},
+  {type:"mc", cat:"Geografie", q:"Welcher ist der längste Fluss der Welt?", options:["Jangtse","Mississippi","Nil","Amazonas"], correct:2},
+  {type:"mc", cat:"Geografie", q:"Wie heißt die Hauptstadt von Japan?", options:["Osaka","Kyoto","Tokio","Nagoya"], correct:2},
+  {type:"est", cat:"Geografie", q:"Aus wie vielen Bundesstaaten bestehen die USA?", options:[48,50,52,54], unit:"", value:50},
+  {type:"mc", cat:"Geschichte", q:"Welches berühmte Passagierschiff sank 1912 auf seiner Jungfernfahrt?", options:["Lusitania","Titanic","Bismarck","Queen Mary"], correct:1},
+  {type:"tf", cat:"Geschichte", q:"Die Berliner Mauer fiel im Jahr 1989.", answer:true},
+  {type:"mc", cat:"Biologie", q:"Welches Organ pumpt das Blut durch den Körper?", options:["Lunge","Herz","Leber","Niere"], correct:1},
+  {type:"est", cat:"Biologie", q:"Wie viele Chromosomenpaare hat ein Mensch normalerweise?", options:[21,22,23,24], unit:"", value:23},
+  {type:"mc", cat:"Astronomie", q:"Welcher Stern ist der Erde am nächsten?", options:["Sirius","Die Sonne","Proxima Centauri","Polarstern"], correct:1},
+  {type:"tf", cat:"Astronomie", q:"Der Mars wird wegen seiner Färbung auch „der rote Planet“ genannt.", answer:true},
+  {type:"mc", cat:"Technik", q:"Wer war ein Mitgründer des Unternehmens Microsoft?", options:["Steve Jobs","Bill Gates","Mark Zuckerberg","Elon Musk"], correct:1},
+  {type:"est", cat:"Technik", q:"In welchem Jahr wurde das erste iPhone vorgestellt?", options:[2005,2007,2009,2011], unit:"", value:2007},
+  {type:"mc", cat:"Physik", q:"Welche Kraft zieht Gegenstände zur Erde?", options:["Reibung","Magnetismus","Gravitation","Trägheit"], correct:2},
+  {type:"tf", cat:"Physik", q:"Schall kann sich im Vakuum nicht ausbreiten.", answer:true},
+  {type:"mc", cat:"Musik", q:"In welchem heutigen Land wurde Wolfgang Amadeus Mozart geboren?", options:["Deutschland","Österreich","Italien","Schweiz"], correct:1},
+  {type:"est", cat:"Musik", q:"Wie viele Saiten hat eine Standard-Violine?", options:[3,4,5,6], unit:"", value:4},
+  {type:"mc", cat:"Allgemeinwissen", q:"Wie viele Sekunden hat eine Stunde?", options:["360","3600","6000","36000"], correct:1},
+  {type:"tf", cat:"Allgemeinwissen", q:"Ein Jahrzehnt umfasst zehn Jahre.", answer:true},
+  {type:"mc", cat:"Sport", q:"Wie viele Spieler einer Volleyball-Mannschaft stehen gleichzeitig auf dem Feld?", options:["5","6","7","11"], correct:1},
+  {type:"est", cat:"Sport", q:"Wie viele Minuten dauert eine reguläre Halbzeit im Profifußball?", options:[30,40,45,60], unit:" Min.", value:45},
+  {type:"mc", cat:"Chemie", q:"Welches Gas benötigt der Mensch beim Einatmen zum Überleben?", options:["Stickstoff","Sauerstoff","Kohlendioxid","Helium"], correct:1},
+  {type:"tf", cat:"Chemie", q:"Gold ist ein chemisches Element.", answer:true},
+  {type:"mc", cat:"Essen", q:"Welche Frucht ist die Hauptzutat von Guacamole?", options:["Tomate","Avocado","Gurke","Paprika"], correct:1},
+  {type:"est", cat:"Essen", q:"Bei wie viel Grad Celsius gefriert Wasser (auf Meereshöhe)?", options:[-10,0,5,10], unit:" °C", value:0},
+  {type:"mc", cat:"Filme", q:"Welches Studio produzierte den Zeichentrickfilm „Der König der Löwen“ (1994)?", options:["Pixar","Disney","DreamWorks","Studio Ghibli"], correct:1},
+  {type:"tf", cat:"Filme", q:"„Der Herr der Ringe“ basiert auf Romanen von J. R. R. Tolkien.", answer:true},
+  {type:"mc", cat:"Sprache", q:"„Arrivederci“ ist ein Abschiedsgruß in welcher Sprache?", options:["Spanisch","Italienisch","Französisch","Portugiesisch"], correct:1},
+  {type:"est", cat:"Sprache", q:"Wie viele Buchstaben hat das englische Alphabet?", options:[24,25,26,27], unit:"", value:26},
+  {type:"mc", cat:"Kunst", q:"Welcher Künstler ist für seine „Sonnenblumen“-Gemälde bekannt?", options:["Claude Monet","Vincent van Gogh","Pablo Picasso","Rembrandt"], correct:1},
+  {type:"tf", cat:"Kunst", q:"Pablo Picasso war ein spanischer Künstler.", answer:true},
+  {type:"mc", cat:"Geografie", q:"Auf welchem Kontinent liegt Ägypten größtenteils?", options:["Asien","Afrika","Europa","Südamerika"], correct:1},
+];
+// Stabile, positionsbasierte i18n-Keys je Frage (neue Fragen werden angehängt → IDs stabil).
+BANK.forEach((q,i)=>{ q.id=i; q.k="np.q."+i; });
+
+// Fragen-Pool je Format (themenübergreifend); "risiko" zieht aus RISK_BOARDS.
+const AREA_QUESTIONS = {
+  mconly:  BANK.filter(q=>q.type==="mc"),
+  schaetz: BANK.filter(q=>q.type==="est"),
+  schnell: BANK.filter(q=>q.type==="mc" || q.type==="tf"),
+  schnapp: BANK.filter(q=>q.type==="rank"),
+  luege:   BANK.filter(q=>q.type==="lie"),
+  hilo:    BANK.filter(q=>q.type==="hilo"),
+  zeit:    BANK.filter(q=>q.type==="order"),
+};
+
+// ---- Minenfeld: Boards mit je 10 richtigen und 10 falschen Antworten ----
+const RISK_POINTS = 100;
+const RISK_BOARDS = [
+  { prompt:"Tippe nur EU-Mitgliedsländer an!",
+    correct:["Deutschland","Frankreich","Italien","Spanien","Polen","Niederlande","Österreich","Portugal","Schweden","Irland"],
+    wrong:["Schweiz","Norwegen","Ver. Königreich","Türkei","Serbien","Ukraine","Island","Russland","Marokko","USA"] },
+  { prompt:"Tippe nur echte chemische Elemente an!",
+    correct:["Wasserstoff","Sauerstoff","Eisen","Gold","Helium","Kohlenstoff","Neon","Silber","Kupfer","Uran"],
+    wrong:["Kryptonit","Adamantium","Vibranium","Mithril","Dilithium","Unobtainium","Netherite","Orichalcum","Bolognium","Duranium"] },
+  { prompt:"Tippe nur Säugetiere an!",
+    correct:["Delfin","Fledermaus","Elefant","Blauwal","Igel","Känguru","Löwe","Pferd","Mensch","Koala"],
+    wrong:["Hai","Krokodil","Adler","Frosch","Kobra","Pinguin","Oktopus","Biene","Schildkröte","Forelle"] },
+  { prompt:"Tippe nur echte Hauptstädte an!",
+    correct:["Paris","Berlin","Tokio","Rom","Madrid","Wien","Oslo","Kairo","Ottawa","Canberra"],
+    wrong:["New York","Sydney","München","Barcelona","Zürich","Hamburg","Rio de Janeiro","Istanbul","Los Angeles","Mailand"] },
+  { prompt:"Tippe nur Obst an – kein Gemüse!",
+    correct:["Apfel","Banane","Erdbeere","Kirsche","Ananas","Mango","Birne","Traube","Orange","Pfirsich"],
+    wrong:["Karotte","Kartoffel","Zwiebel","Brokkoli","Spinat","Rettich","Sellerie","Lauch","Blumenkohl","Rote Bete"] },
+  { prompt:"Tippe nur Länder an, die in Afrika liegen!",
+    correct:["Ägypten","Nigeria","Kenia","Marokko","Südafrika","Ghana","Äthiopien","Tansania","Algerien","Senegal"],
+    wrong:["Brasilien","Indien","Thailand","Mexiko","Peru","Vietnam","Kolumbien","Iran","Chile","Indonesien"] },
+  { prompt:"Tippe nur Tiere an, die fliegen können!",
+    correct:["Adler","Fledermaus","Biene","Schmetterling","Kolibri","Libelle","Papagei","Storch","Marienkäfer","Möwe"],
+    wrong:["Pinguin","Strauß","Hai","Elefant","Kuh","Kobra","Delfin","Frosch","Igel","Schnecke"] },
+  { prompt:"Tippe nur deutsche Städte an!",
+    correct:["Berlin","Hamburg","München","Köln","Frankfurt","Stuttgart","Dresden","Leipzig","Bremen","Hannover"],
+    wrong:["Wien","Zürich","Salzburg","Paris","Warschau","Amsterdam","Prag","Mailand","Lyon","Graz"] },
+
+  { prompt:"Tippe nur olympische Sportarten an!",
+    correct:["Schwimmen","Turnen","Fechten","Judo","Rudern","Bogenschießen","Handball","Hockey","Gewichtheben","Ringen"],
+    wrong:["Schach","Darts","Poker","Billard","Bowling","Sumo","American Football","Bodybuilding","Formel 1","Motocross"] },
+  { prompt:"Tippe nur Meere und Ozeane an!",
+    correct:["Mittelmeer","Ostsee","Nordsee","Schwarzes Meer","Rotes Meer","Karibisches Meer","Pazifik","Atlantik","Arabisches Meer","Japanisches Meer"],
+    wrong:["Genfersee","Titicacasee","Viktoriasee","Großer Salzsee","Bodensee","Chiemsee","Ladogasee","Michigansee","Balaton","Tanganjikasee"] },
+  { prompt:"Tippe nur Länder an, die mit dem Euro zahlen!",
+    correct:["Deutschland","Frankreich","Italien","Spanien","Portugal","Niederlande","Belgien","Österreich","Finnland","Griechenland"],
+    wrong:["Schweden","Dänemark","Polen","Tschechien","Ungarn","Schweiz","Norwegen","Ver. Königreich","Rumänien","Bulgarien"] },
+  { prompt:"Tippe nur Vögel an!",
+    correct:["Adler","Pinguin","Strauß","Eule","Kolibri","Storch","Papagei","Pelikan","Specht","Flamingo"],
+    wrong:["Fledermaus","Delfin","Schmetterling","Libelle","Krokodil","Schlange","Frosch","Biene","Hai","Igel"] },
+  { prompt:"Tippe nur Erfindungen an, die es vor 1900 schon gab!",
+    correct:["Buchdruck","Dampfmaschine","Telefon","Glühbirne","Fotografie","Fahrrad","Telegraf","Dynamit","Nähmaschine","Aufzug"],
+    wrong:["Fernsehen","Computer","Kernkraftwerk","Kugelschreiber","Mikrowelle","Internet","Mobiltelefon","Laser","GPS","Solarzelle"] },
+  { prompt:"Tippe nur romanische Sprachen an!",
+    correct:["Französisch","Spanisch","Italienisch","Portugiesisch","Rumänisch","Katalanisch","Galicisch","Okzitanisch","Sardisch","Korsisch"],
+    wrong:["Deutsch","Englisch","Niederländisch","Schwedisch","Polnisch","Russisch","Griechisch","Finnisch","Ungarisch","Türkisch"] },
+  { prompt:"Tippe nur Städte an, die in Asien liegen!",
+    correct:["Tokio","Seoul","Bangkok","Delhi","Jakarta","Manila","Hanoi","Singapur","Taipeh","Kuala Lumpur"],
+    wrong:["Kairo","Lagos","Lima","Sydney","Toronto","Madrid","Nairobi","Havanna","Auckland","Buenos Aires"] },
+  { prompt:"Tippe nur Wüsten an!",
+    correct:["Sahara","Gobi","Kalahari","Atacama","Namib","Mojave","Sonora","Taklamakan","Karakum","Arabische Wüste"],
+    wrong:["Serengeti","Amazonas-Regenwald","Everglades","Pampa","Camargue","Schwarzwald","Okavangodelta","Sundarbans","Tundra","Great Barrier Reef"] },
+];
+// Stabile i18n-Keys je Minenfeld-Board.
+RISK_BOARDS.forEach((b,i)=>{ b.k="np.risk."+i; });
+
+let state = null;
+const $ = s => document.querySelector(s);
+const shuffle = a => { a=[...a]; for(let i=a.length-1;i>0;i--){const j=(Math.random()*(i+1))|0;[a[i],a[j]]=[a[j],a[i]];} return a; };
+const escapeHtml = s => String(s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+/* ---- i18n: dünne Wrapper um die geteilte Laufzeit (assets/i18n.js) ---- */
+const tr = (k,v,f) => (window.BFI18N ? window.BFI18N.t(k,v,f) : (f||k));
+const curLang = () => (window.BFI18N && BFI18N.getLanguage ? BFI18N.getLanguage() : "de");
+const LOCALE = {de:"de-DE",en:"en-US",fr:"fr-FR",es:"es-ES",it:"it-IT",ru:"ru-RU",zh:"zh-CN",ja:"ja-JP"};
+const formatNum = n => Number(n).toLocaleString(LOCALE[curLang()]||"de-DE");
+// Punkte mit Vorzeichen — „Genau eine Lüge" kann auch Punkte kosten.
+const ptsLabel = n => (n>=0 ? "+"+n : String(n));
+
+/* Daten-Auflöser: Fallback ist stets der deutsche Originaltext aus den Datenliteralen. */
+const UNIT_SLUG = {" m":"m"," km":"km"," km²":"km2"," kg":"kg"," km/h":"kmh"," °C":"degC"," Sek.":"sec"," Jahre":"years"," Milliarden":"bn"," Liter":"liter"," Tage":"days"};
+const CAT_SLUG = {"Geografie":"geo","Biologie":"bio","Physik":"physics","Chemie":"chem","Technik":"tech","Astronomie":"astro","Geschichte":"history","Filme":"movies","Musik":"music","Kunst":"art","Sprache":"language","Allgemeinwissen":"general","Essen":"food","Sport":"sport","Let's schätz":"guess"};
+const qText = q => q && q.k ? tr(q.k,{},q.q) : (q ? q.q : "");
+const optText = (q,i) => (q.type==="mc"||q.type==="lie") ? tr(q.k+".o"+i,{},q.options[i]) : q.options[i];
+const unitLabel = u => u ? tr("np.unit."+(UNIT_SLUG[u]||u.trim()),{},u) : "";
+const unitSpoken = u => u ? tr("np.unitSpoken."+(UNIT_SLUG[u]||u.trim()),{},(UNIT_WORDS[u]||u)) : "";
+const riskPrompt = b => b && b.k ? tr(b.k,{},b.prompt) : (b ? b.prompt : "");
+const areaById = id => AREAS.find(a=>a.id===id);
+const areaLabel = a => a ? tr("np.area."+a.id,{},a.label) : "";
+const typeLabel = ty => tr("np.type."+ty,{},(TYPE_LABEL[ty]||"Frage"));
+const tfLabel = b => b ? tr("np.tf.true",{},"Wahr") : tr("np.tf.false",{},"Falsch");
+const catLabel = c => tr("np.cat."+(CAT_SLUG[c]||c),{},c);
+
+/* ---- setup ---- */
+let totalRounds = 5;
+let qPerRound = 4;
+let timerSec = 20;
+// Vorlesen an/aus — LOKAL pro Gerät/Client (nicht im geteilten Spielstatus),
+// damit jeder Spieler seine eigene Sprachausgabe steuern kann.
+let voiceOn = (()=>{try{return (localStorage.getItem('nitpicker.voice')||'1')==='1';}catch(e){return true;}})();
+/* Feste Rundenreihenfolge: Runde 1 Multiple Choice, Runde 2 Let's schätz, usw.
+   Abgewählte Formate fallen aus der Reihe heraus, der Rest rückt auf; sind mehr
+   Runden eingestellt als Formate übrig, beginnt die Reihe von vorn. */
+const ROUND_ORDER = ["mconly","schaetz","schnell","luege","schnapp","hilo","zeit","risiko"];
+const FORMAT_IDS = new Set(ROUND_ORDER);
+let enabledFormats = new Set(FORMAT_IDS);
+
+function roundFormats(){
+  const order = ROUND_ORDER.filter(id=>enabledFormats.has(id));
+  return order.length ? order : ROUND_ORDER.slice();   // alles abgewählt → alle
+}
+
+function renderCatGrid(){
+  const g = $("#catGrid"); g.innerHTML = "";
+  ROUND_ORDER.map(areaById).forEach(a=>{
+    const c = document.createElement("button");
+    c.className = "cat-chip" + (enabledFormats.has(a.id) ? " on" : "");
+    c.innerHTML = `<span class="ce">${a.emoji}</span><span class="cl">${escapeHtml(areaLabel(a))}</span>`;
+    c.addEventListener("click", ()=>{
+      if(enabledFormats.has(a.id)){ enabledFormats.delete(a.id); c.classList.remove("on"); }
+      else { enabledFormats.add(a.id); c.classList.add("on"); }
+    });
+    g.appendChild(c);
+  });
+}
+renderCatGrid();
+
+$("#roundsSel").addEventListener("click", e=>{ const c=e.target.closest(".chip"); if(!c)return; [...$("#roundsSel").children].forEach(x=>x.classList.remove("on")); c.classList.add("on"); totalRounds=+c.dataset.r; });
+$("#qprSel").addEventListener("click", e=>{ const c=e.target.closest(".chip"); if(!c)return; [...$("#qprSel").children].forEach(x=>x.classList.remove("on")); c.classList.add("on"); qPerRound=+c.dataset.q; });
+$("#timers").addEventListener("click", e=>{ const c=e.target.closest(".chip"); if(!c)return; [...$("#timers").children].forEach(x=>x.classList.remove("on")); c.classList.add("on"); timerSec=+c.dataset.t; });
+
+/* ---- Setup-Startauswahl: Erstellen / Beitreten ----
+   Einstellungen erscheinen erst, wenn der Host „erstellen“ wählt.
+   Die Chip-Handler oben aktualisieren die globalen Einstellungen unabhängig von
+   der Sichtbarkeit, daher liest createRoom()/startGame() weiter denselben Stand. */
+let curSetupMode = "select";
+function setSetupMode(mode){
+  curSetupMode = mode;
+  const V = id => $("#"+id).classList.remove("hidden");
+  const H = id => $("#"+id).classList.add("hidden");
+  ["setupMode","setupBack","nameBlock","joinBlock","settingsBlock","hostActions"].forEach(H);
+  if(mode==="select"){ V("setupMode"); return; }
+  V("setupBack");
+  if(mode==="host"){  $("#setupHeading").textContent=tr("np.setup.headHost"); V("nameBlock"); V("settingsBlock"); V("hostActions"); }
+  else if(mode==="join"){  $("#setupHeading").textContent=tr("np.setup.headJoin"); V("nameBlock"); V("joinBlock"); }
+}
+$("#modeHostBtn").addEventListener("click", ()=>setSetupMode("host"));
+$("#modeJoinBtn").addEventListener("click", ()=>setSetupMode("join"));
+$("#setupBackBtn").addEventListener("click", ()=>setSetupMode("select"));
+setSetupMode("select");
+
+/* Login-Name automatisch als Spielername übernehmen (Host wie Beitreten).
+   Solange der Spieler den Namen nicht selbst geändert hat, füllt der bei
+   brettspiele.fun angemeldete Anzeigename das Feld – auch wenn der Login erst
+   nach dem Laden bestätigt wird (brettspiele-auth-change). */
+function authDisplayName(){
+  try{
+    const s = window.BrettAuth && window.BrettAuth.getState && window.BrettAuth.getState();
+    if(s && s.authenticated && s.user) return String(s.user.displayName || s.user.username || "").slice(0,16);
+  }catch(e){}
+  return "";
+}
+let nameEdited = false;
+function applyAuthName(){
+  const el = $("#onlineName"); if(!el) return;
+  const n = authDisplayName();
+  if(n && !nameEdited && !el.value.trim()) el.value = n;
+}
+$("#onlineName")?.addEventListener("input", ()=>{ nameEdited = true; });
+window.addEventListener("brettspiele-auth-change", applyAuthName);
+applyAuthName();
+
+/* „Schon gestellt“ gilt für die ganze Partie, nicht je Format: Multiple Choice
+   und Schnellerwisser teilen sich den mc-Pool, sonst käme dieselbe Frage in
+   beiden Runden. Erst wenn ein Pool aufgebraucht ist, beginnt er von vorn.
+
+   Signatur = angezeigter Fragetext. Einzelne Bank-Einträge sind inhaltsgleich
+   (z. B. dieselbe MC-Frage doppelt) oder teilen sich einen generischen
+   Reihenfolge-Text; state.used entfernt nur Objekt-Duplikate. Über die Signatur
+   stellen wir hart sicher, dass sich innerhalb EINER Runde niemals dieselbe
+   Frage wiederholt (jeder Pool hat weit mehr eindeutige Texte als je Runde
+   gebraucht werden). */
+function qSig(q){ return q && q.q != null ? q.q : String(q); }
+function drawQuestions(areaId, n){
+  const pool = AREA_QUESTIONS[areaId] || [];
+  const picked = [], sigs = new Set();
+  const grab = list => {
+    for(const q of list){
+      if(picked.length >= n) break;
+      if(sigs.has(qSig(q))) continue;   // keine Wiederholung in derselben Runde
+      if(state.used.has(q)) continue;   // über die Partie hinweg möglichst neu
+      picked.push(q); sigs.add(qSig(q)); state.used.add(q);
+    }
+  };
+  grab(shuffle(pool));
+  if(picked.length < n){
+    // Ungenutzter Vorrat erschöpft → „schon gestellt“ zurücksetzen und erneut
+    // ziehen, aber weiterhin ohne Wiederholung innerhalb dieser Runde.
+    state.used = new Set(picked);
+    for(const q of shuffle(pool)){
+      if(picked.length >= n) break;
+      if(sigs.has(qSig(q))) continue;
+      picked.push(q); sigs.add(qSig(q)); state.used.add(q);
+    }
+  }
+  return picked;
+}
+
+function startGame(players){
+  state = {
+    players, totalRounds, qPerRound, timerSec,
+    formatOrder: roundFormats(),
+    round:0, roundArea:null, roundQueue:[], qInRound:0, shownOpts:null,
+    used:new Set(), revealed:false, timerId:null, timeLeft:0,
+    online: net.online, host: clientId, screen:"choose", deadline:0, answerSeq:0,
+    readOk:new Set()
+  };
+  updateVoicePanel();
+  newRound();
+}
+
+/* Runde n bekommt das n-te Format der Reihe (danach wieder von vorn). */
+function areaForRound(n){
+  const order = state.formatOrder;
+  return order[(n-1) % order.length];
+}
+
+function newRound(){
+  cancelSpeech();
+  state.round++;
+  if(state.round > state.totalRounds){ showResults(); return; }
+  state.roundArea = areaForRound(state.round);
+  showRoundIntro();
+}
+
+function showRoundIntro(){
+  if(net.online){ state.screen="choose"; pushState(); return; }
+  show("choose");
+  const area = AREAS.find(a=>a.id===state.roundArea);
+  $("#roundBadge").textContent = tr("np.game.roundOf",{n:state.round,total:state.totalRounds});
+  $("#revealEmoji").textContent = area.emoji;
+  $("#revealName").textContent = areaLabel(area);
+  const card=$(".reveal-card"), em=$("#revealEmoji");
+  if(card){ card.classList.remove("pop"); void card.offsetWidth; card.classList.add("pop"); }
+  if(em) em.classList.add("floaty");
+  speak(withMod(tr("np.speech.round",{n:state.round,cat:areaLabel(area)}), "round", {cat:areaLabel(area)}));
+}
+
+function beginRound(areaId){
+  if(areaId === "risiko"){ startRiskRound(); return; }
+  state.players.forEach(p=>{ p.streak = 0; });   // Serie gilt nur innerhalb einer Runde
+  state.roundQueue = drawQuestions(areaId, state.qPerRound);
+  state.qInRound = 0;
+  show("game");
+  renderQuestion();
+}
+$("#startRoundBtn").addEventListener("click", ()=>beginRound(state.roundArea));
+
+/* ---- Minenfeld (Bank oder Bust, reihum — host-autoritativ, online) ----
+   Host hält state.risk und broadcastet Snapshots; nur der aktuelle Spieler
+   (state.risk.cur.playerId) darf tippen/banken. Rendering: renderNetRisk(). */
+function drawRiskBoard(){
+  // Board-Auswahl auf Spielebene merken (state.riskUsedBoards), damit über die
+  // ganze Partie zufällige, nicht sofort wiederholte Minenfelder erscheinen.
+  if(!state.riskUsedBoards) state.riskUsedBoards = new Set();
+  let avail = RISK_BOARDS.map((_,i)=>i).filter(i=>!state.riskUsedBoards.has(i));
+  if(!avail.length){ state.riskUsedBoards = new Set(); avail = RISK_BOARDS.map((_,i)=>i); }
+  const idx = avail[(Math.random()*avail.length)|0];
+  state.riskUsedBoards.add(idx);
+  return RISK_BOARDS[idx];
+}
+function startRiskRound(){
+  // EIN gemeinsames Minenfeld pro Runde: alle Spieler räumen reihum dasselbe
+  // Feld, bis die letzte richtige Antwort gefunden ist. Board + Kacheln liegen
+  // daher auf Runden-Ebene (state.risk), nur `cur` ist der aktuelle Zug.
+  const board = drawRiskBoard();
+  const tiles = shuffle(
+    board.correct.map((t,j)=>({k:board.k+".c"+j, ok:true, revealed:false}))
+      .concat(board.wrong.map((t,j)=>({k:board.k+".w"+j, ok:false, revealed:false})))
+  );
+  state.risk = { board, tiles, turnPos:0, totalCorrect:board.correct.length, foundTotal:0, cleared:false, cur:null };
+  riskNextTurn();
+}
+function riskNextTurn(){
+  cancelSpeech();
+  const rk = state.risk; if(!rk) return;
+  // Feld geräumt (letzter Punkt gefunden) → Minenfeld-Runde vorbei.
+  if(rk.foundTotal >= rk.totalCorrect){ newRound(); return; }
+  const player = state.players[rk.turnPos % state.players.length];
+  rk.cur = { playerId:player.id, found:0, turnPoints:0, done:false, banked:false, five:false };
+  state.screen = "risk";
+  pushState();
+}
+function riskBank(five){
+  const rk = state.risk, c = rk && rk.cur;
+  if(!c || c.done) return;
+  c.done = true; c.banked = true; c.five = !!five;
+  const p = state.players[rk.turnPos % state.players.length];
+  if(p) p.score += c.turnPoints;
+  pushState();
+}
+function riskBust(){
+  const c = state.risk && state.risk.cur;
+  if(!c || c.done) return;
+  c.done = true; c.banked = false;
+  pushState();
+}
+/* Host-Autorität: Eingaben validieren (nur aktueller Spieler, nicht doppelt). */
+function applyRiskPick(pid, i){
+  if(!state || state.screen!=="risk") return;
+  const rk = state.risk, c = rk && rk.cur;
+  if(!c || c.done) return;
+  const p = state.players[pid];
+  if(!p || p.id!==c.playerId) return;
+  const tile = rk.tiles[i];
+  if(!tile || tile.revealed) return;
+  tile.revealed = true;              // aufgedeckt bleibt aufgedeckt (auch Minen)
+  if(tile.ok){
+    c.found++; c.turnPoints += RISK_POINTS; rk.foundTotal++;
+    if(rk.foundTotal >= rk.totalCorrect){
+      // Letzte richtige Antwort gefunden → Punkte gutschreiben, Feld geräumt.
+      c.done = true; c.banked = true; c.five = false; rk.cleared = true;
+      if(p) p.score += c.turnPoints;
+      pushState(); return;
+    }
+    if(c.found >= 5){ riskBank(true); return; }   // max. 5 pro Zug → weitergeben
+    pushState();
+  } else {
+    riskBust();                       // Mine: bleibt sichtbar, Zug-Punkte weg
+  }
+}
+function applyRiskBank(pid){
+  const c = state.risk && state.risk.cur;
+  if(!c || c.done) return;
+  const p = state.players[pid];
+  if(!p || p.id!==c.playerId) return;
+  if(c.found <= 0) return;   // erst mind. eine Kachel aufdecken (sonst käme das Feld nie voran)
+  riskBank(false);
+}
+function hostRiskAdvance(){
+  if(!state || !state.risk) return;
+  state.risk.turnPos++;      // läuft reihum weiter (wrap via % in riskNextTurn)
+  riskNextTurn();
+}
+/* Gast → Host (bzw. Host lokal): Kachel tippen / banken. */
+function netRiskPick(i){ if(amHost()) applyRiskPick(myPid(), i); else netSend({type:"riskPick", i}); }
+function netRiskBank(){  if(amHost()) applyRiskBank(myPid());   else netSend({type:"riskBank"}); }
+
+function show(which){
+  $("#setup").classList.toggle("hidden", which!=="setup");
+  $("#lobby").classList.toggle("hidden", which!=="lobby");
+  $("#choose").classList.toggle("hidden", which!=="choose");
+  $("#game").classList.toggle("hidden", which!=="game");
+  $("#risk").classList.toggle("hidden", which!=="risk");
+  $("#results").classList.toggle("hidden", which!=="results");
+}
+
+/* ============================================================
+   ONLINE-MEHRSPIELER (Host-Autorität + Snapshot-Sync über Relay)
+   ============================================================ */
+const GAME = "nitpicker";
+const clientId = sessionStorage.getItem("nitpicker.clientId")
+  || (crypto.randomUUID ? crypto.randomUUID() : String(Date.now()) + Math.random());
+sessionStorage.setItem("nitpicker.clientId", clientId);
+
+const net = { online:false, role:"local", room:"", ws:null, myName:"",
+  lobby:[], snap:null, joinTimer:null, reconnect:null, pendingPick:null, qKey:"", spokenKey:"" };
+
+function makeRoom(){ return Math.random().toString(36).slice(2,7).toUpperCase(); }
+/* Teilbarer Beitrittslink: der Raumcode steckt als ?room=CODE in der URL. Das
+   macht den Link kopierbar UND überlebt einen Reload/neuen Tab, ohne dass man
+   im Hauptmenü landet. */
+function roomUrl(code){ return location.origin + location.pathname + "?room=" + encodeURIComponent(code); }
+function setRoomUrl(code){ try{ history.replaceState(null, "", roomUrl(code)); }catch(e){} }
+function clearRoomUrl(){ try{ history.replaceState(null, "", location.pathname); }catch(e){} }
+function urlRoomCode(){ try{ return (new URLSearchParams(location.search).get("room")||"").trim().toUpperCase(); }catch(e){ return ""; } }
+function updateInviteLink(code){ const el=$("#inviteLink"); if(el) el.value = code ? roomUrl(code) : ""; }
+function wsUrl(){ if(location.protocol==="file:") return "ws://localhost:8787/ws";
+  return (location.protocol==="https:"?"wss":"ws")+"://"+location.host+"/ws"; }
+function netSend(msg){ if(net.ws && net.ws.readyState===1)
+  net.ws.send(JSON.stringify({game:GAME, room:net.room, clientId, name:net.myName, ...msg})); }
+function onlineHint(txt, err){ const el=$("#onlineHint"); if(el){ el.textContent=txt||""; el.classList.toggle("err", !!err); } }
+
+function netConnect(onOpen){
+  if(net.ws) try{ net.ws.close(); }catch(e){}
+  const ws = new WebSocket(wsUrl()); net.ws = ws;
+  ws.onopen = ()=>{ clearTimeout(net.reconnect); onOpen && onOpen(); };
+  ws.onmessage = e => { let m; try{ m=JSON.parse(e.data); }catch(_){ return; } netHandle(m); };
+  ws.onclose = ()=>{ if(net.online){ clearTimeout(net.reconnect);
+    net.reconnect = setTimeout(()=> netConnect(()=>{
+      if(net.role==="host") netSend({type:"create", snapshot: net.role==="host" && state ? buildSnap() : lobbySnap()});
+      else { netSend({type:"join"}); startJoinRepeat(); }
+    }), 1400); } };
+}
+function startJoinRepeat(){
+  clearInterval(net.joinTimer);
+  netSend({type:"joinRequest"});
+  net.joinTimer = setInterval(()=>{
+    // Aufhören zu pollen, sobald wir einen Sitz haben ODER das Spiel die Lobby
+    // schon verlassen hat (mitten im Spiel gibt es keinen freien Sitz mehr —
+    // weiteres joinRequest-Pollen würde den Host nur unnötig anstoßen).
+    const seated = net.snap && (net.snap.players||[]).some(p=>p.id===clientId);
+    const started = net.snap && net.snap.screen && net.snap.screen!=="lobby";
+    if(seated || started || !net.online) clearInterval(net.joinTimer); else netSend({type:"joinRequest"});
+  }, 1000);
+}
+
+function netHandle(m){
+  if(m.game && m.game!==GAME) return;
+  const snap = m.snapshot;
+  if(net.role==="host"){
+    if(m.clientId===clientId) return;
+    if(m.type==="joinRequest") hostAddPlayer(m.clientId, m.name);
+    else if(m.type==="answer") applyAnswer(pidOf(m.clientId), m.pick);
+    else if(m.type==="riskPick") applyRiskPick(pidOf(m.clientId), m.i);
+    else if(m.type==="riskBank") applyRiskBank(pidOf(m.clientId));
+    else if(m.type==="readOk") applyReadOk(pidOf(m.clientId));
+    return;
+  }
+  // guest
+  // Host-Übergabe: der scheidende Host reicht die Autorität an einen anderen
+  // Spieler weiter. Nur der benannte Nachfolger übernimmt.
+  if(m.type==="migrate"){ if(m.to===clientId) becomeHost(m); return; }
+  if(snap){ net.snap = snap; renderNet(snap); }
+}
+
+/* ---- Host-Übergabe (Host verlässt eine laufende Online-Partie) ----
+   Statt die Runde stehen zu lassen, gibt der Host seinen kompletten
+   autoritativen Spielstand an den nächsten verbundenen Spieler weiter. Der wird
+   automatisch neuer Host und hält den Raum am Leben; der bisherige Host kann
+   danach über denselben Raumcode/Link wieder beitreten. */
+function pickSuccessor(){
+  const roster = state ? state.players : net.lobby;
+  const other = (roster||[]).find(p=>p.id!==clientId);
+  return other ? other.id : null;
+}
+function hostHandoff(){
+  if(!(amHost() && net.online && net.room)) return;
+  if(!leaveNeedsConfirm()) return;                 // nur laufende Lobby/Partie übergeben
+  const to = pickSuccessor(); if(!to) return;      // niemand sonst da → nichts zu übergeben
+  // Lobby-Platz des scheidenden Hosts freigeben; im laufenden Spiel bleibt sein
+  // Sitz (in `full`) erhalten, damit er beim Rejoin Platz und Punkte behält.
+  const lobby = (net.lobby||[]).filter(p=>p.id!==clientId);
+  netSend({ type:"migrate", to, lobby, full: state ? serializeState() : null });
+}
+function becomeHost(m){
+  clearInterval(net.joinTimer); clearTimeout(net.reconnect);
+  net.role = "host";
+  net.lobby = (m.lobby||[]).slice();
+  if(m.full){
+    state = deserializeState(m.full);
+    state.online = true; state.host = clientId;
+    // Laufende Frage mit Timer frisch anstoßen, damit sie nicht hängen bleibt.
+    if(state.screen==="question" && !state.revealed && state.timerSec){
+      state.qTime = activeQSeconds();
+      state.deadline = Date.now()+state.qTime*1000;
+    }
+    netConnect(()=>{ const snap=buildSnap(); netSend({type:"create", snapshot:snap}); netSend({type:"snapshot", snapshot:snap}); });
+    renderNet(buildSnap());
+    if(state.screen==="question" && !state.revealed && state.timerSec) netHostTimer();
+  } else {
+    state = null;
+    netConnect(()=>{ netSend({type:"create", snapshot: lobbySnap()}); netSend({type:"snapshot", snapshot: lobbySnap()}); });
+    renderNet(lobbySnap());
+  }
+  saveSession();
+  onlineHint("");
+}
+
+/* ---- host: lobby ---- */
+function lobbySnap(){
+  return { screen:"lobby", room:net.room, host:clientId,
+    players: net.lobby.map((p,i)=>({ id:p.id, name:p.name, color:PLAYER_COLORS[i%PLAYER_COLORS.length], score:0 })) };
+}
+function broadcastLobby(){ const s=lobbySnap(); net.snap=s; renderNet(s); netSend({type:"snapshot", snapshot:s}); saveSession(); }
+function hostAddPlayer(id, name){
+  // Läuft bereits ein Spiel (state gesetzt), darf ein joinRequest NICHT die
+  // Lobby broadcasten — das würde ALLE aus dem laufenden Spiel zurück in die
+  // Lobby ("Warte auf den Host") werfen. Das passiert real, wenn jemand einem
+  // schon gestarteten Spiel beitritt oder ein Spieler kurz die Verbindung
+  // verliert und automatisch reconnectet. Stattdessen den aktuellen Spielstand
+  // erneut senden, damit ein neu verbundener Spieler sauber resynchronisiert.
+  if(state){ pushState(); return; }
+  if(net.lobby.some(p=>p.id===id)){ broadcastLobby(); return; }
+  if(net.lobby.length>=6) return;
+  net.lobby.push({ id, name:(name||tr("np.online.defaultGuest")).slice(0,16) });
+  broadcastLobby();
+}
+function createRoom(){
+  net.online=true; net.role="host"; net.room=makeRoom();
+  net.myName = ($("#onlineName").value.trim() || tr("np.online.defaultHost")).slice(0,16);
+  net.lobby = [{ id:clientId, name:net.myName }];
+  onlineHint("");
+  // create registers the room; the immediate snapshot persists the lobby so
+  // late joiners receive it as sessionState on connect.
+  netConnect(()=>{ netSend({type:"create", snapshot: lobbySnap()}); netSend({type:"snapshot", snapshot: lobbySnap()}); });
+  setRoomUrl(net.room);
+  renderNet(lobbySnap());
+  saveSession();
+}
+function joinRoom(){
+  const code = ($("#joinCode").value.trim()||"").toUpperCase();
+  if(!code){ onlineHint(tr("np.online.enterCode"), true); return; }
+  net.online=true; net.role="guest"; net.room=code;
+  net.myName = ($("#onlineName").value.trim() || tr("np.online.defaultGuest")).slice(0,16);
+  onlineHint(tr("np.online.connecting"));
+  show("lobby"); $("#lobbyCode").textContent=code; updateInviteLink(code);
+  $("#lobbyHostBox").classList.add("hidden"); $("#lobbyGuestWait").classList.remove("hidden");
+  netConnect(()=>{ netSend({type:"join"}); startJoinRepeat(); });
+  setRoomUrl(code);
+  saveSession();
+}
+function netLeave(){
+  hostHandoff();   // Host verlässt laufende Partie → Autorität weiterreichen, solange die Verbindung noch offen ist
+  net.online=false; net.role="local"; clearInterval(net.joinTimer); clearTimeout(net.reconnect);
+  if(net.ws) try{ net.ws.close(); }catch(e){} net.ws=null; net.snap=null; net.room="";
+  if(state) state.online=false;
+  clearRoomUrl();  // Raum verlassen: Link aus der Adresszeile nehmen
+  saveSession();   // beendetes/verlassenes Spiel: gespeicherte Sitzung löschen
+}
+
+/* ============================================================
+   SITZUNG ÜBER SEITEN-RELOAD HALTEN
+   Beim Neuladen (F5) soll man NICHT im Hauptmenü landen, sondern ins laufende
+   Spiel zurückkehren. clientId liegt bereits in sessionStorage (gleicher Tab),
+   also merken wir Rolle/Raum/Name – und beim Host zusätzlich den kompletten
+   autoritativen Spielstand – und stellen beim Laden automatisch wieder her.
+   Fragen/Boards werden nur über ihre stabile ID/Key gesichert (BANK[i], RISK_BOARDS.k)
+   und beim Rehydrieren wieder auf die echten Objekte gemappt.
+   ============================================================ */
+const SESSION_KEY = "nitpicker.session";
+function serializeState(){
+  const s = state;
+  return {
+    players: s.players.map(p=>({ id:p.id, name:p.name, color:p.color, score:p.score,
+      pick:(p.pick===undefined?null:p.pick), seq:p.seq||null,
+      answerOrder:(p.answerOrder===Infinity?null:p.answerOrder), streak:p.streak||0 })),
+    totalRounds:s.totalRounds, qPerRound:s.qPerRound, timerSec:s.timerSec,
+    formatOrder:s.formatOrder, round:s.round, roundArea:s.roundArea,
+    roundQueue:(s.roundQueue||[]).map(q=>q.id),
+    qInRound:s.qInRound, shownOpts:s.shownOpts||null,
+    used:[...(s.used||[])].map(q=>q.id),
+    revealed:!!s.revealed, screen:s.screen, deadline:s.deadline||0, answerSeq:s.answerSeq||0,
+    readOk:[...(s.readOk||[])],
+    riskUsedBoards:[...(s.riskUsedBoards||[])],
+    risk: s.risk ? {
+      boardK: s.risk.board ? s.risk.board.k : null,
+      tiles: s.risk.tiles, turnPos:s.risk.turnPos, totalCorrect:s.risk.totalCorrect,
+      foundTotal:s.risk.foundTotal, cleared:!!s.risk.cleared, cur:s.risk.cur||null
+    } : null
+  };
+}
+function deserializeState(d){
+  const st = {
+    players: (d.players||[]).map(p=>({ id:p.id, name:p.name, color:p.color, score:p.score,
+      pick:(p.pick==null?null:p.pick), seq:p.seq||null,
+      answerOrder:(p.answerOrder==null?Infinity:p.answerOrder), streak:p.streak||0 })),
+    totalRounds:d.totalRounds, qPerRound:d.qPerRound, timerSec:d.timerSec,
+    formatOrder:d.formatOrder, round:d.round, roundArea:d.roundArea,
+    roundQueue:(d.roundQueue||[]).map(i=>BANK[i]).filter(Boolean),
+    qInRound:d.qInRound, shownOpts:d.shownOpts||null,
+    used:new Set((d.used||[]).map(i=>BANK[i]).filter(Boolean)),
+    revealed:!!d.revealed, timerId:null,
+    online:true, host:clientId, screen:d.screen, deadline:d.deadline||0, answerSeq:d.answerSeq||0,
+    readOk:new Set(d.readOk||[]),
+    riskUsedBoards:new Set(d.riskUsedBoards||[]),
+    risk:null
+  };
+  if(d.risk){
+    st.risk = {
+      board: RISK_BOARDS.find(b=>b.k===d.risk.boardK) || null,
+      tiles: d.risk.tiles||[], turnPos:d.risk.turnPos||0,
+      totalCorrect:d.risk.totalCorrect||0, foundTotal:d.risk.foundTotal||0,
+      cleared:!!d.risk.cleared, cur:d.risk.cur||null
+    };
+  }
+  return st;
+}
+function saveSession(){
+  try{
+    if(!net.online || net.role==="local"){ sessionStorage.removeItem(SESSION_KEY); return; }
+    const blob = { role:net.role, room:net.room, name:net.myName };
+    if(net.role==="host"){ blob.lobby = net.lobby; blob.state = state ? serializeState() : null; }
+    sessionStorage.setItem(SESSION_KEY, JSON.stringify(blob));
+  }catch(e){}
+}
+function restoreSession(){
+  let blob=null;
+  try{ blob = JSON.parse(sessionStorage.getItem(SESSION_KEY)||"null"); }catch(e){ blob=null; }
+  if(!blob || !blob.room || !blob.role || blob.role==="local") return false;
+  // Beendetes Spiel nicht wiederherstellen: nach der Ergebnisanzeige beim
+  // erneuten Öffnen im Hauptmenü starten, statt im vorigen (fertigen) Spiel zu landen.
+  if(blob.role==="host" && blob.state && blob.state.screen==="results"){
+    sessionStorage.removeItem(SESSION_KEY); return false;
+  }
+  net.online=true; net.role=blob.role; net.room=blob.room; net.myName=blob.name||"";
+  setRoomUrl(net.room);
+  if(blob.role==="host"){
+    net.lobby = blob.lobby || [];
+    if(blob.state){
+      state = deserializeState(blob.state);
+      // Aktive Frage mit Timer: Ablauf frisch anstoßen, damit es nicht hängen bleibt.
+      if(state.screen==="question" && !state.revealed && state.timerSec){
+        state.qTime = activeQSeconds();
+        state.deadline = Date.now()+state.qTime*1000;
+      }
+      netConnect(()=>{ const snap=buildSnap(); netSend({type:"create", snapshot:snap}); netSend({type:"snapshot", snapshot:snap}); });
+      renderNet(buildSnap());
+      if(state.screen==="question" && !state.revealed && state.timerSec) netHostTimer();
+    } else {
+      netConnect(()=>{ netSend({type:"create", snapshot: lobbySnap()}); netSend({type:"snapshot", snapshot: lobbySnap()}); });
+      renderNet(lobbySnap());
+    }
+  } else {
+    // Gast: erneut beitreten – der Host schickt den aktuellen Spielstand zurück.
+    show("lobby"); $("#lobbyCode").textContent=net.room; updateInviteLink(net.room);
+    $("#lobbyHostBox").classList.add("hidden"); $("#lobbyGuestWait").classList.remove("hidden");
+    netConnect(()=>{ netSend({type:"join"}); startJoinRepeat(); });
+  }
+  return true;
+}
+
+/* ---- host: game snapshot ---- */
+/* Zusatzzeile unter der Frage nach der Auflösung. Lokal wird die <b>-Variante
+   der Schlüssel per innerHTML gesetzt, online derselbe Text ohne Markup. */
+function revealDetail(q, html){
+  const s = html ? "Html" : "";
+  if(q.type==="est")  return tr("np.game.actualValue"+s,{v:formatNum(q.value)+unitLabel(q.unit)});
+  if(q.type==="tf")   return tr("np.game.correctIs"+s,{v:tfLabel(q.answer)});
+  if(q.type==="lie")  return tr("np.lie.reveal"+s,{v:optText(q,q.correct)});
+  if(q.type==="hilo") return tr("np.hilo.reveal"+s,{
+    a:tr(q.k+".a",{},q.al), av:formatNum(q.av)+unitLabel(q.unit),
+    b:tr(q.k+".b",{},q.bl), bv:formatNum(q.bv)+unitLabel(q.unit)});
+  return "";
+}
+const revealDetailText = q => revealDetail(q,false);
+const revealDetailHtml = q => revealDetail(q,true);
+function buildSnap(){
+  const q = state.roundQueue ? state.roundQueue[state.qInRound] : null;
+  const area = AREAS.find(a=>a.id===state.roundArea);
+  const revealed = !!state.revealed;
+  let question=null, correct=null, results=null;
+  if(q){
+    // Tier B: nur stabile IDs verschicken; jeder Client rendert Text in seiner Sprache.
+    question = { type:q.type, qid:q.id, cat:q.cat, free:isSchaetz(q), unit:q.unit||"",
+                 opts: state.shownOpts||null };
+    // Schnappjagd: wer sich was geschnappt hat, ist sofort für alle sichtbar —
+    // genau darum geht das Format.
+    if(q.type==="rank") question.taken = state.players
+      .filter(p=>p.pick!=null).map(p=>({ id:p.id, opt:p.pick, color:p.color }));
+    if(revealed){
+      correct = isSchaetz(q) ? null : correctInfo(q, state.shownOpts).correct;
+      const sc = roundScore(q);
+      results = state.players.map((p,pi)=>({ id:p.id, pick:p.pick,
+        pts: sc.pts[pi]||0, rank: (sc.rank && sc.rank[pi])||null,
+        note: (sc.note && sc.note[pi]) || null }));
+    }
+  }
+  let risk = null;
+  if(state.screen==="risk" && state.risk && state.risk.cur){
+    const rk = state.risk, c = rk.cur;
+    risk = {
+      turnPos: rk.turnPos, turnPlayerId: c.playerId,
+      boardK: rk.board.k, found: c.found, turnPoints: c.turnPoints,
+      done: c.done, banked: c.banked, five: c.five,
+      cleared: !!rk.cleared, foundTotal: rk.foundTotal, totalCorrect: rk.totalCorrect,
+      // Nur aufgedeckte Kacheln verraten ihren Status (richtig=c / Mine=w);
+      // der Rest bleibt für die Folgespieler verdeckt (h) — kein Antwort-Leak.
+      tiles: rk.tiles.map(t=>({ k:t.k, rev: t.revealed ? (t.ok?"c":"w") : "h" }))
+    };
+  }
+  return {
+    screen: state.screen, room: net.room, host: clientId,
+    round: state.round, totalRounds: state.totalRounds,
+    qInRound: state.qInRound, qCount: state.roundQueue ? state.roundQueue.length : 0,
+    area: area ? { id:area.id, emoji:area.emoji } : null,
+    players: state.players.map(p=>({ id:p.id, name:p.name, color:p.color, score:p.score, answered:p.pick!=null })),
+    question, revealed, correct, results, risk,
+    readOk: state.readOk ? [...state.readOk] : [],
+    deadline: state.deadline||0, timerSec: state.timerSec||0
+  };
+}
+function pushState(){ if(!net.online) return; const snap=buildSnap(); net.snap=snap; renderNet(snap); netSend({type:"snapshot", snapshot:snap}); saveSession(); }
+function pidOf(cid){ return state ? state.players.findIndex(p=>p.id===cid) : -1; }
+function myPid(){ return pidOf(clientId); }
+
+function applyAnswer(pid, opt){
+  if(!state || state.revealed || pid<0 || opt==null) return;
+  const p = state.players[pid]; if(!p || p.pick!=null) return;
+  const q = state.roundQueue ? state.roundQueue[state.qInRound] : null;
+  // Schnappjagd: der Host entscheidet, wer zuerst war — spätere Griffe auf
+  // dasselbe Objekt prallen ab.
+  if(q && q.type==="rank" && state.players.some(pl=>pl.pick===opt)) return;
+  p.pick = opt; p.answerOrder = state.answerSeq++;
+  if(state.players.every(pl=>pl.pick!=null)) reveal(); else pushState();
+}
+function netHostTimer(){
+  clearTimeout(state._timer);
+  const secs = activeQSeconds();
+  if(secs) state._timer = setTimeout(()=>{ if(state && !state.revealed) reveal(); }, secs*1000 + 300);
+}
+/* „Gelesen"-Bestätigung: jeder Spieler quittiert die Auflösung selbst; der Host
+   kann erst weiter, wenn alle bestätigt haben. Host-autoritativ wie die Antworten. */
+function applyReadOk(pid){
+  if(!state || !state.revealed || state.screen!=="revealed" || pid<0) return;
+  const p = state.players[pid]; if(!p) return;
+  if(!state.readOk) state.readOk = new Set();
+  if(state.readOk.has(p.id)) return;
+  state.readOk.add(p.id);
+  // Haben alle die Auflösung quittiert, geht es sofort weiter (kein Host-Klick nötig).
+  if(state.players.every(pl=>state.readOk.has(pl.id))){ next(); return; }
+  pushState();
+}
+function netReadOk(){
+  if(amHost()) applyReadOk(myPid());
+  else { net.readPending = true; netSend({type:"readOk"}); renderNet(net.snap); }
+}
+function netReveal(){
+  if(state.revealed) return;
+  clearTimeout(state._timer);
+  state.readOk = new Set();            // frische Runde: noch hat niemand quittiert
+  state.revealed = true; state.screen = "revealed";
+  const q = state.roundQueue[state.qInRound];
+  const sc = roundScore(q);
+  state.players.forEach((p,pi)=>{ p.score += sc.pts[pi]||0; });
+  pushState();
+}
+function netAnswer(opt){
+  if(net.role==="host"){ applyAnswer(myPid(), opt); }
+  else { net.pendingPick = opt; netSend({type:"answer", pick:opt}); renderNet(net.snap); }
+}
+/* Zeitstrahl: die Reihenfolge entsteht lokal am eigenen Gerät und geht erst als
+   Ganzes raus, wenn alle Ereignisse eingeordnet sind. */
+function netOrderPick(i){
+  if(!net.orderSeq) net.orderSeq = [];
+  if(net.orderSeq.includes(i)) return;
+  net.orderSeq.push(i);
+  const snap = net.snap, q = snap && snap.question;
+  const total = q && q.opts ? q.opts.length : 0;
+  if(total && net.orderSeq.length >= total) netAnswer(net.orderSeq.slice());
+  else renderNet(snap);
+}
+function netSpeak(key, text){ if(key!==net.spokenKey){ net.spokenKey=key; speak(text); } }
+
+/* ---- unified renderer (host + guest) ---- */
+function amHost(){ return net.role==="host"; }
+function renderNet(snap){
+  if(!snap) return;
+  const s = snap.screen;
+  if(s==="lobby"){ renderNetLobby(snap); return; }
+  if(s==="choose"){ renderNetChoose(snap); return; }
+  if(s==="question" || s==="revealed"){ renderNetQuestion(snap); return; }
+  if(s==="risk"){ renderNetRisk(snap); return; }
+  if(s==="results"){ renderNetResults(snap); return; }
+}
+function renderNetRisk(snap){
+  show("risk");
+  const r = snap.risk; if(!r) return;
+  const players = snap.players || [];
+  const n = players.length;
+  const cur = players.find(p=>p.id===r.turnPlayerId);
+  const isMyTurn = r.turnPlayerId===clientId;
+  const board = RISK_BOARDS.find(b=>b.k===r.boardK);
+
+  // Fortschritt = Anteil der bereits gefundenen richtigen Antworten im Feld.
+  const roundFrac = r.totalCorrect ? (r.foundTotal||0)/r.totalCorrect : 0;
+  const frac = ((snap.round - 1 + roundFrac) / snap.totalRounds) * 100;
+  $("#riskProgress").style.width = frac + "%";
+  $("#riskMeta").textContent = tr("np.risk.turnMeta",{r:snap.round,t:snap.totalRounds,p:(r.turnPos % n)+1,n:n});
+  $("#riskPlayer").textContent = cur ? cur.name : "";
+  $("#riskPlayer").style.color = cur ? cur.color : "";
+  $("#riskPrompt").textContent = riskPrompt(board);
+
+  // Statuszeile: laufend Punktestand, am Zugende die Ergebnis-Meldung.
+  if(r.cleared){
+    $("#riskStatus").textContent = tr("np.risk.cleared");
+  } else if(r.done){
+    $("#riskStatus").textContent = !r.banked
+      ? tr("np.risk.bustPrefix") + (r.turnPoints>0 ? tr("np.risk.bustLost",{pts:r.turnPoints}) : tr("np.risk.bustNone"))
+      : (r.five ? tr("np.risk.fiveFound") : tr("np.risk.banked",{pts:r.turnPoints}));
+  } else {
+    $("#riskStatus").textContent = tr("np.risk.status",{found:r.found,pts:r.turnPoints});
+  }
+
+  // Scoreboard aus dem Snapshot (Gäste haben kein state.players).
+  const sb = $("#riskScore"); if(sb){ sb.innerHTML = "";
+    players.forEach(p=>{
+      const el = document.createElement("div"); el.className = "score-chip";
+      el.innerHTML = `<span class="dot" style="background:${p.color}"></span><span class="nm">${escapeHtml(p.name)}</span><span class="sc">${p.score}</span>`;
+      sb.appendChild(el);
+    });
+  }
+
+  const grid = $("#riskGrid"); grid.innerHTML = "";
+  r.tiles.forEach((t,i)=>{
+    const b = document.createElement("button");
+    b.className = "tile"; b.textContent = tr(t.k); b.dataset.i = i;
+    if(t.rev==="c") b.classList.add("correct");
+    else if(t.rev==="w") b.classList.add("wrong");
+    else if(t.rev==="ro") b.classList.add("reveal-ok");
+    else if(t.rev==="rn") b.classList.add("reveal-no");
+    const clickable = isMyTurn && !r.done && t.rev==="h";
+    b.disabled = !clickable;
+    if(clickable) b.addEventListener("click", ()=>netRiskPick(i));
+    grid.appendChild(b);
+  });
+
+  const act = $("#riskActions"); act.innerHTML = "";
+  if(!r.done){
+    if(isMyTurn){
+      const stop = document.createElement("button");
+      stop.className = "btn ghost"; stop.textContent = tr("np.risk.stop");
+      // Sichern erst möglich, wenn mindestens eine Kachel aufgedeckt wurde —
+      // sonst könnte das gemeinsame Feld durch reines Passen nie geräumt werden.
+      stop.disabled = !(r.found>0);
+      if(!stop.disabled) stop.addEventListener("click", ()=>netRiskBank());
+      act.appendChild(stop);
+    } else {
+      const note = document.createElement("div"); note.className = "net-note";
+      note.textContent = tr("np.online.riskWait",{name:cur?cur.name:""});
+      act.appendChild(note);
+    }
+  } else {
+    if(amHost()){
+      const isLastRound = snap.round >= snap.totalRounds;
+      const btn = document.createElement("button"); btn.className = "btn";
+      if(r.cleared){
+        // Feld geräumt → Runde vorbei: weiter zur nächsten Runde bzw. Endstand.
+        btn.textContent = isLastRound ? tr("np.common.finalStanding") : tr("np.common.nextRound");
+      } else {
+        // Feld noch nicht geräumt → reihum zum nächsten Spieler.
+        const nx = players[(r.turnPos+1) % n];
+        btn.textContent = tr("np.risk.nextPlayer",{name:nx?nx.name:""});
+      }
+      btn.addEventListener("click", ()=>hostRiskAdvance());
+      act.appendChild(btn); btn.focus();
+    } else {
+      const note = document.createElement("div"); note.className = "net-note";
+      note.textContent = tr("np.online.hostContinues");
+      act.appendChild(note);
+    }
+  }
+
+  // Sprachausgabe: einmal je Zug/Zustand, in der Sprache des jeweiligen Clients.
+  const turnKey = "risk"+snap.round+"."+r.turnPos+"."+curLang();
+  if(r.done){
+    netSpeak(turnKey+".done", r.cleared
+      ? withMod(tr("np.risk.speakCleared"), "clear", {}, turnKey)
+      : (r.banked ? withMod(tr("np.risk.speakBanked",{pts:r.turnPoints}), "bank", {}, turnKey)
+                  : withMod(tr("np.risk.speakBust"), "bust", {}, turnKey)));
+  } else {
+    netSpeak(turnKey, (cur?cur.name:"") + ". " + riskPrompt(board));
+  }
+}
+function renderNetLobby(snap){
+  show("lobby");
+  const room = snap.room || net.room;
+  $("#lobbyCode").textContent = room;
+  updateInviteLink(room);
+  const host = amHost();
+  $("#lobbyHostBox").classList.toggle("hidden", !host);
+  $("#lobbyGuestWait").classList.toggle("hidden", host);
+  const wrap = $("#lobbyPlayers"); wrap.innerHTML = "";
+  (snap.players||[]).forEach(p=>{
+    const row = document.createElement("div"); row.className = "lp";
+    row.innerHTML = `<span class="dot" style="background:${p.color}"></span>
+      <span class="lp-name">${escapeHtml(p.name)}</span>
+      <span class="lp-tag">${p.id===snap.host?"Host":""}${p.id===clientId?" · du":""}</span>`;
+    wrap.appendChild(row);
+  });
+}
+function renderNetChoose(snap){
+  show("choose");
+  const area = snap.area ? areaById(snap.area.id) : null;
+  $("#roundBadge").textContent = tr("np.game.roundOf",{n:snap.round,total:snap.totalRounds});
+  if(snap.area){ $("#revealEmoji").textContent = snap.area.emoji; $("#revealName").textContent = areaLabel(area); }
+  const btn = $("#startRoundBtn");
+  btn.classList.toggle("hidden", !amHost());
+  let note = $("#chooseWaitNote");
+  if(!note){ note = document.createElement("div"); note.id="chooseWaitNote"; note.className="net-note"; btn.parentNode.appendChild(note); }
+  note.textContent = amHost() ? "" : tr("np.online.hostStartsRound");
+  // Beim Rundenwechsel die Enthüllungskarte hüpfen lassen (einmal je Runde).
+  if(net.chooseKey!==snap.round){
+    net.chooseKey=snap.round;
+    const card=$(".reveal-card"), em=$("#revealEmoji");
+    if(card){ card.classList.remove("pop"); void card.offsetWidth; card.classList.add("pop"); }
+    if(em) em.classList.add("floaty");
+  }
+  if(snap.area) netSpeak("c"+snap.round+"."+curLang(),
+    withMod(tr("np.speech.round",{n:snap.round,cat:areaLabel(area)}), "round", {cat:areaLabel(area)}, "c"+snap.round));
+}
+function renderNetQuestion(snap){
+  show("game");
+  const q = snap.question; if(!q) return;
+  const full = q.qid!=null ? BANK[q.qid] : null;   // lokale Auflösung → eigene Sprache
+  const od = full ? optionData(full, q.opts) : {keys:[],labels:[]};
+  const unit = q.unit||"";
+  const area = snap.area ? areaById(snap.area.id) : null;
+  const me = (snap.players||[]).find(p=>p.id===clientId);
+  const qk = snap.round+"."+snap.qInRound;
+  const freshQ = (qk!==net.qKey);
+  if(freshQ){ net.qKey=qk; net.pendingPick=null; net.orderSeq=[]; net.readPending=false; net.estDraft=null; }
+  // Beim Schätzen darf ein Snapshot (z. B. Gegner antwortet) die eigene Eingabe
+  // nicht löschen: Entwurf + Fokus über den Neuaufbau hinweg erhalten.
+  const estFocused = (()=>{ const a=document.activeElement; return !!(a && a.classList && a.classList.contains("est-field")); })();
+  // Reveal-Effekte (Puls/Rütteln) nur beim ersten Auflösen dieser Frage zeigen.
+  const firstReveal = snap.revealed && net.revealKey!==qk;
+  if(firstReveal){ net.revealKey=qk; net.readPending=false; }
+  const done = (snap.round-1)*(snap.qCount||1) + snap.qInRound;
+  const totalQ = snap.totalRounds * (snap.qCount||1);
+  $("#hudArea").textContent = snap.area ? `${snap.area.emoji} ${areaLabel(area)}` : tr("np.game.questionWord");
+  $("#turnMeta").textContent = tr("np.game.roundQMeta",{r:snap.round,t:snap.totalRounds,q:snap.qInRound+1,n:snap.qCount});
+  $("#progressBar").style.width = (totalQ? done/totalQ*100 : 0)+"%";
+  $("#typeBadge").textContent = typeLabel(q.type);
+  $("#catBadge").textContent = catLabel(q.cat);
+  $("#qText").textContent = full ? qText(full) : "";
+  $("#revealDetail").textContent = snap.revealed && full ? revealDetailText(full) : "";
+
+  // Schnappjagd: hat sich jemand anderes mein Wunschobjekt gegriffen, war mein
+  // Tipp zu spät — Auswahl wieder freigeben statt ewig auf eine Antwort warten.
+  if(q.taken && net.pendingPick!=null && !(me && me.answered)
+     && q.taken.some(t=>t.opt===net.pendingPick && t.id!==clientId)) net.pendingPick = null;
+
+  const answered = !!(me && me.answered) || net.pendingPick!=null;
+  const myRes = snap.results ? snap.results.find(r=>r.id===clientId) : null;
+  const legend = $("#legend"); legend.innerHTML = "";
+  const pads = $("#pads"); pads.innerHTML = "";
+
+  if(q.free){
+    // Let's schätz: freie Zahleneingabe statt Multiple Choice
+    const box = document.createElement("div"); box.className="net-est";
+    if(!me || answered || snap.revealed){
+      const myGuess = myRes ? myRes.pick : net.pendingPick;
+      const note=document.createElement("div"); note.className="net-note";
+      note.textContent = !me ? tr("np.online.spectator")
+        : (myGuess!=null ? tr("np.online.yourGuess",{v:formatNum(Number(myGuess))+unitLabel(unit)}) : tr("np.online.guessWait"));
+      box.appendChild(note);
+    } else {
+      const inp=document.createElement("input"); inp.type="number"; inp.className="est-field"; inp.inputMode="decimal";
+      inp.placeholder = unit ? tr("np.game.estIn",{unit:unitLabel(unit)}) : tr("np.game.estPlain");
+      if(net.estDraft!=null) inp.value = net.estDraft;
+      inp.addEventListener("input", ()=>{ net.estDraft = inp.value; });
+      const ok=document.createElement("button"); ok.className="btn net-est-ok"; ok.textContent=tr("np.game.submit");
+      const submit=()=>{ const v=inp.value.trim(); if(v==="") return; net.estDraft=null; netAnswer(Number(v)); };
+      ok.addEventListener("click", submit);
+      inp.addEventListener("keydown", e=>{ if(e.key==="Enter"){ e.preventDefault(); submit(); } });
+      box.appendChild(inp); box.appendChild(ok);
+      // War das Feld gerade fokussiert, Fokus (und Cursor ans Ende) wiederherstellen.
+      if(estFocused) requestAnimationFrame(()=>{ try{ inp.focus(); }catch(e){} try{ const L=(inp.value||"").length; inp.setSelectionRange(L,L); }catch(e){} });
+    }
+    pads.appendChild(box);
+  } else {
+    // Direkt auf die Antwort klicken: die Legende IST die Antwort (Buchstabe + Text)
+    const isRank  = q.type==="rank"  && !!full;
+    const isOrder = q.type==="order" && !!full;
+    const isItem  = isRank || isOrder;
+    // Nur die Schnappjagd zeigt, wer welches Objekt hält — vor der Auflösung aus
+    // `taken`, danach aus den Ergebnissen. Andere Formate bleiben unverändert.
+    const holder = {};
+    const src = !isRank ? [] : (snap.revealed ? (snap.results||[]).map(r=>({id:r.id, opt:r.pick})) : (q.taken||[]));
+    src.forEach(t=>{ if(t.opt!=null){
+      const pl = (snap.players||[]).find(p=>p.id===t.id);
+      if(pl) holder[t.opt] = pl;
+    }});
+    const rankOfPos = {};
+    if(isItem) rankOrder(full, q.opts).forEach((o,r)=>{ rankOfPos[o.pos] = r; });
+    const seq = isOrder ? (net.orderSeq||[]) : [];
+
+    od.labels.forEach((lab,i)=>{
+      const el=document.createElement("button"); el.className="leg leg-btn"; el.dataset.i=i;
+      const h = holder[i];
+      const mySeqPos = isOrder ? seq.indexOf(i) : -1;
+      // Aufgelöst zeigen beide Objekt-Formate Platz und echten Wert; beim
+      // Zeitstrahl steht vorher schon die selbst gewählte Position im Feld.
+      const key = (isItem && snap.revealed) ? (rankOfPos[i]+1)
+                : (mySeqPos>=0 ? mySeqPos+1 : od.keys[i]);
+      const val = (isItem && snap.revealed)
+        ? `<span class="leg-val">${escapeHtml(itemValueText(full, q.opts[i]))}</span>` : "";
+      const who = h ? `<span class="leg-who" style="background:${h.color}">${escapeHtml(h.name)}</span>` : "";
+      el.innerHTML = `<span class="k">${key}</span><span class="leg-txt">${escapeHtml(lab)}</span>${val}${who}`;
+      // Beim Zeitstrahl ist nach der Auflösung jedes Feld "meins" — dann sagt die
+      // Markierung nichts mehr aus und bleibt weg.
+      if(net.pendingPick===i || (mySeqPos>=0 && !snap.revealed) || (myRes && myRes.pick===i)) el.classList.add("mine");
+      // Sperr-Optik nur solange gespielt wird; nach der Auflösung zählt der Rang.
+      if(isRank && h && h.id!==clientId && !snap.revealed){ el.classList.add("taken"); el.style.setProperty("--tc", h.color); }
+      if(snap.revealed){
+        if(i===snap.correct) el.classList.add("correct");
+        // Bei Schnappjagd/Zeitstrahl ist eine schlechtere Wahl nicht "falsch", nur weniger wert.
+        else if(!isItem && myRes && myRes.pick===i) el.classList.add("wrongpick");
+        if(firstReveal && (el.classList.contains("correct")||el.classList.contains("wrongpick")))
+          el.classList.add("flash");
+      } else if(freshQ){
+        // Antwortzeilen gestaffelt einblenden, wenn eine neue Frage erscheint.
+        el.classList.add("pop-in"); el.style.animationDelay=(i*45)+"ms";
+      }
+      el.disabled = snap.revealed || !me || (isOrder ? mySeqPos>=0 : answered) || (isRank && !!h);
+      el.addEventListener("click", ()=> isOrder ? netOrderPick(i) : netAnswer(i));
+      legend.appendChild(el);
+    });
+  }
+
+  // status strip
+  const strip = document.createElement("div"); strip.className="net-status";
+  (snap.players||[]).forEach(p=>{
+    const r = snap.results ? snap.results.find(x=>x.id===p.id) : null;
+    let mid;
+    if(r){ mid = (q.free && r.pick!=null)
+             ? tr("np.online.tipShort",{v:formatNum(Number(r.pick))+unitLabel(unit),pts:r.pts})
+             : ptsLabel(r.pts) + (r.note ? " "+r.note : ""); }
+    else mid = p.answered?"✓":"…";
+    const ns=document.createElement("div"); ns.className="ns"+(p.answered||snap.revealed?" answered":"");
+    if(firstReveal && r && r.pts>0) ns.classList.add("bump");
+    // Nach der Auflösung zeigt ein Häkchen, wer die Antworten schon quittiert hat.
+    const readMark = snap.revealed ? ` · ${(snap.readOk||[]).includes(p.id)?"✅":"📖"}` : "";
+    ns.innerHTML=`<span class="dot" style="background:${p.color}"></span>${escapeHtml(p.name)} · ${mid} · ${p.score}${readMark}`;
+    strip.appendChild(ns);
+  });
+  pads.appendChild(strip);
+
+  // actions / notes
+  const act=$("#actions"); act.innerHTML="";
+  if(snap.revealed){
+    const players = snap.players||[];
+    const readOk = snap.readOk||[];
+    const iRead = readOk.includes(clientId) || net.readPending;
+    const readN = players.filter(p=>readOk.includes(p.id)).length;
+
+    if(me && !iRead){
+      // Jeder Spieler quittiert selbst, dass er die Auflösung gelesen hat.
+      const b=document.createElement("button"); b.className="btn";
+      b.textContent = tr("np.read.confirm");
+      b.addEventListener("click", ()=>netReadOk());
+      act.appendChild(b);
+    } else {
+      // Schon quittiert (oder Zuschauer): warten, bis alle so weit sind – dann
+      // schaltet der Host automatisch weiter.
+      const n=document.createElement("div"); n.className="net-note";
+      n.textContent = tr("np.read.waitOthers",{n:readN,total:players.length});
+      act.appendChild(n);
+    }
+    netSpeak("r"+qk+"."+curLang(), withMod(answerSpeechFor(full, snap), revealPool(snap.results), {}, "r"+qk));
+  } else if(!me && !q.free){
+    const n=document.createElement("div"); n.className="net-note"; n.textContent=tr("np.online.spectator"); act.appendChild(n);
+  } else if(answered && !q.free){
+    const n=document.createElement("div"); n.className="net-note"; n.textContent=tr("np.online.answerWait"); act.appendChild(n);
+  }
+  if(!snap.revealed && full) netSpeak("q"+qk+"."+curLang(), questionSpeech(full, q.opts));
+}
+function answerSpeechFor(q, snap){
+  if(!q) return "";
+  const shown = snap.question ? snap.question.opts : null;
+  if(q.free || isSchaetz(q) || ITEM_TYPES.has(q.type)) return answerSpeech(q, shown);
+  if(snap.correct==null) return "";
+  return tr("np.speech.correctLegend",{v:optionData(q, shown).labels[snap.correct]});
+}
+function renderNetResults(snap){
+  show("results");
+  const ranked=[...(snap.players||[])].sort((a,b)=>b.score-a.score);
+  const top = ranked.length?ranked[0].score:0;
+  const winners = ranked.filter(p=>p.score===top);
+  $("#champLine").innerHTML = winners.length>1
+    ? `<span class="champ">${tr("np.results.tie")}</span>`
+    : tr("np.results.wins",{name:`<span class="champ" style="color:${winners[0]?.color||"var(--gold)"}">${escapeHtml(winners[0]?.name||"—")}</span>`});
+  $("#resultLead").textContent = winners.length>1
+    ? tr("np.results.tieLead",{names:winners.map(w=>w.name).join(" & "),n:top})
+    : tr("np.results.soloLead",{n:top});
+  const st=$("#standings"); st.innerHTML="";
+  ranked.forEach((p,i)=>{
+    const row=document.createElement("div"); row.className="standing-row pop-in";
+    row.style.animationDelay=(i*70)+"ms";
+    row.innerHTML=`<span class="rank">${i+1}</span>
+      <span class="dot" style="width:12px;height:12px;box-shadow:none;background:${p.color}"></span>
+      <span class="nm">${escapeHtml(p.name)}</span>
+      <span class="sc" style="color:${p.score===top?"var(--gold)":"var(--ink)"}">${p.score}</span>`;
+    st.appendChild(row);
+  });
+  $(".trophy")?.classList.add("bob");
+  // Einmal je Endstand: Konfetti + Moderator-Ansage des Siegers.
+  const rkey = ranked.map(p=>p.id+":"+p.score).join(",");
+  if(net.resultsKey!==rkey){
+    net.resultsKey=rkey;
+    burstConfetti();
+    netSpeak("res."+rkey+"."+curLang(),
+      winners.length>1 ? modLine("tie", {}, rkey)
+                       : modLine("win", {name:winners[0]?.name||""}, rkey));
+  }
+  // online: hide local rematch/new (host-driven); guests just view
+  $("#rematchBtn").classList.toggle("hidden", !amHost());
+  $("#newGameBtn").classList.toggle("hidden", true);
+}
+
+/* ---- online button wiring ---- */
+$("#createRoomBtn").addEventListener("click", createRoom);
+$("#joinRoomBtn").addEventListener("click", joinRoom);
+$("#lobbyLeaveBtn").addEventListener("click", ()=>{ confirmLeave(()=>{ netLeave(); show("setup"); setSetupMode("select"); }); });
+$("#copyLinkBtn").addEventListener("click", ()=>{
+  const link = $("#inviteLink").value; if(!link) return;
+  const done = ()=>{ const b=$("#copyLinkBtn"); const t=b.textContent; b.textContent=tr("np.lobby.copied"); setTimeout(()=>{ b.textContent=t; }, 1600); };
+  const fallback = ()=>{ const el=$("#inviteLink"); el.focus(); el.select(); try{ document.execCommand("copy"); }catch(e){} done(); };
+  if(navigator.clipboard && navigator.clipboard.writeText){
+    navigator.clipboard.writeText(link).then(done).catch(fallback);
+  } else fallback();
+});
+$("#lobbyStartBtn").addEventListener("click", ()=>{
+  if(!net.lobby.length) return;
+  const players = net.lobby.map((p,i)=>({ id:p.id, name:p.name, color:PLAYER_COLORS[i%PLAYER_COLORS.length], score:0, pick:null }));
+  startGame(players);
+});
+
+/* ---- Sprachausgabe (Text-to-Speech) ---- */
+const synth = window.speechSynthesis || null;
+let deVoice = null;
+let userPickedVoice = false;
+const RATE_MAX = 1.15;   // Sprechtempo fest auf Maximum (kein Regler mehr)
+let rateVal = RATE_MAX;
+/* Lautstärke der Sprachausgabe (0..1), pro Gerät gespeichert. */
+let volVal = (()=>{ try{ const v=parseFloat(localStorage.getItem('nitpicker.voiceVol')); return isNaN(v)?1:Math.min(1,Math.max(0,v)); }catch(e){ return 1; } })();
+
+function voiceScore(v, lang){
+  const n=(v.name||"").toLowerCase();
+  const L=(lang||curLang());
+  let s=0;
+  if(new RegExp("^"+L+"[-_]","i").test(v.lang)) s+=5; else if(new RegExp("^"+L,"i").test(v.lang)) s+=3;
+  if(/natural|neural|online|premium|enhanced/.test(n)) s+=6;
+  if(/google/.test(n)) s+=4;
+  if(v.localService===false) s+=2;
+  return s;
+}
+/* Stimmen für die aktuell gewählte Oberflächensprache (Fallback: alle Stimmen). */
+function voicesForLang(lang){
+  if(!synth) return [];
+  const L = lang || curLang();
+  const all = synth.getVoices();
+  const match = all.filter(v=>new RegExp("^"+L,"i").test(v.lang));
+  return (match.length ? match : all).slice().sort((a,b)=>voiceScore(b,L)-voiceScore(a,L));
+}
+function voiceStoreKey(){ return 'nitpicker.voiceURI.'+curLang(); }
+function populateVoiceSelect(){
+  if(!synth) return;
+  const sel = $("#voiceSelect"); if(!sel) return;
+  const list = voicesForLang();
+  if(!list.length) return;
+  const prev = sel.value;
+  sel.innerHTML = "";
+  list.forEach(v=>{
+    const o=document.createElement("option");
+    o.value=v.voiceURI; o.textContent=`${v.name} (${v.lang})`;
+    sel.appendChild(o);
+  });
+  const saved = (()=>{try{return localStorage.getItem(voiceStoreKey())||'';}catch(e){return '';}})();
+  let chosen;
+  if(saved && list.some(v=>v.voiceURI===saved)) chosen = saved;
+  else if(userPickedVoice && prev && list.some(v=>v.voiceURI===prev)) chosen = prev;
+  else chosen = list[0].voiceURI;
+  sel.value = chosen;
+  deVoice = list.find(v=>v.voiceURI===chosen) || list[0];
+}
+if(synth){ populateVoiceSelect(); synth.addEventListener("voiceschanged", populateVoiceSelect); }
+/* Kleiner „spricht gerade"-Puls am Lautsprecher-Symbol. */
+let _talkTimer=null;
+function setTalking(on){
+  const b=$("#settingsBtn"); if(!b) return;
+  clearTimeout(_talkTimer);
+  if(on){ b.classList.add("talking"); }
+  else { _talkTimer=setTimeout(()=>b.classList.remove("talking"), 120); }
+}
+/* Konfetti-Regen (Sieger). Respektiert reduzierte Bewegung. */
+function burstConfetti(){
+  try{ if(matchMedia("(prefers-reduced-motion: reduce)").matches) return; }catch(e){}
+  const colors=PLAYER_COLORS.concat(["#ffc24b","#43d99a"]);
+  const N=28;
+  for(let i=0;i<N;i++){
+    const p=document.createElement("div"); p.className="conf-piece";
+    p.style.left=(Math.random()*100)+"vw";
+    p.style.background=colors[(Math.random()*colors.length)|0];
+    p.style.animationDuration=(2.2+Math.random()*1.6)+"s";
+    p.style.animationDelay=(Math.random()*0.5)+"s";
+    p.style.transform="rotate("+((Math.random()*360)|0)+"deg)";
+    if(Math.random()<0.5) p.style.borderRadius="50%";
+    document.body.appendChild(p);
+    setTimeout(()=>p.remove(), 4200);
+  }
+}
+function cancelSpeech(){ if(synth){ try{ synth.cancel(); }catch(e){} } setTalking(false); }
+function speakNow(text){
+  if(!synth || !text) return false;
+  try{
+    if(synth.speaking || synth.pending) synth.cancel();
+    const u = new SpeechSynthesisUtterance(text);
+    u.lang = (deVoice && deVoice.lang) || LOCALE[curLang()] || "de-DE";
+    if(deVoice) u.voice = deVoice;
+    u.rate = rateVal; u.pitch = 1; u.volume = volVal;
+    u.onstart = ()=> setTalking(true);
+    u.onend = u.onerror = ()=> setTalking(false);
+    try{ synth.resume(); }catch(e){}
+    synth.speak(u);
+    return true;
+  }catch(e){ return false; }
+}
+function speak(text){
+  if(!voiceOn) return;
+  speakNow(text);
+}
+
+/* ==== Moderator-Kommentare (Ansager-Stimme) ====
+   Kurze, zufällige Sprüche, die der Vorlese-Stimme nach Frage/Antwort angehängt
+   werden. Eigener An/Aus-Schalter (pro Gerät), nutzt aber dieselbe Stimme. */
+let modOn = (()=>{try{return (localStorage.getItem('nitpicker.mod')||'1')==='1';}catch(e){return true;}})();
+const MOD_POOLS = { round:3, allRight:3, mixed:3, allWrong:3, win:3, tie:2, bank:2, bust:2, clear:2 };
+function modLine(pool, params, seed){
+  if(!modOn) return "";
+  const n = MOD_POOLS[pool]||0; if(!n) return "";
+  let i;
+  if(seed!=null){ let h=0; const s=String(seed); for(let k=0;k<s.length;k++) h=(h*31 + s.charCodeAt(k))>>>0; i=h%n; }
+  else i=(Math.random()*n)|0;
+  return tr("np.mod."+pool+"."+i, params||{}, "");
+}
+/* Moderator-Spruch an einen vorhandenen Vorlese-Text anhängen (leer = unverändert). */
+function withMod(text, pool, params, seed){
+  const m = modLine(pool, params, seed);
+  return m ? (text ? text+" "+m : m) : (text||"");
+}
+/* Aus den Rundenergebnissen ableiten, wie der Moderator reagiert. */
+function revealPool(results){
+  const res = results||[]; if(!res.length) return null;
+  const scored = res.filter(r=>r&&r.pts>0).length;
+  if(scored===0) return "allWrong";
+  if(scored>=res.length) return "allRight";
+  return "mixed";
+}
+const UNIT_WORDS = { " m":" Meter", " km":" Kilometer", " km/h":" Stundenkilometer", " °C":" Grad Celsius", " Sek.":" Sekunden" };
+function spokenValue(v,unit){ return formatNum(v) + unitSpoken(unit); }
+function questionSpeech(q, shown){
+  if(isSchaetz(q))   return qText(q) + " " + tr("np.speech.estimatePrompt");
+  if(q.type==="tf")  return qText(q) + " " + tr("np.speech.trueOrFalse");
+  if(q.type==="hilo") return qText(q) + " " + tr("np.hilo.prompt");
+  const {keys, labels} = optionData(q, shown);
+  if(ITEM_TYPES.has(q.type)) return qText(q) + " " + labels.map((l,i)=>`${keys[i]}: ${l}`).join(". ") + ".";
+  const opts = (q.type==="est")
+    ? q.options.map((v,i)=>`${keys[i]}: ${spokenValue(v,q.unit)}`)
+    : q.options.map((o,i)=>`${keys[i]}: ${optText(q,i)}`);
+  return qText(q) + " " + opts.join(". ") + ".";
+}
+function answerSpeech(q, shown){
+  if(isSchaetz(q)) return tr("np.speech.actual",{v:spokenValue(q.value,q.unit)});
+  if(q.type==="rank"){
+    const o = rankOrder(q, shown);
+    if(!o.length) return "";
+    return tr("np.speech.rankTop",{v:itemLabel(q,o[0].idx), val:itemValueText(q,o[0].idx)});
+  }
+  if(q.type==="order"){
+    const o = rankOrder(q, shown);
+    if(!o.length) return "";
+    return tr("np.order.speech",{v:o.map(x=>itemLabel(q,x.idx)).join(", ")});
+  }
+  const {correct} = correctInfo(q);
+  if(q.type==="tf") return tr("np.speech.correctIs",{v:tfLabel(q.answer)});
+  if(q.type==="est") return tr("np.speech.correctEst",{opt:spokenValue(q.options[correct],q.unit),v:spokenValue(q.value,q.unit)});
+  if(q.type==="hilo") return tr("np.speech.correctIs",{v:optionData(q).labels[correct]});
+  return tr("np.speech.correctIs",{v:optText(q,correct)});
+}
+function updateVoicePanel(){
+  const chk=$("#voiceOnChk"); if(chk) chk.checked = voiceOn;
+  const mchk=$("#modOnChk"); if(mchk) mchk.checked = modOn;
+  const vol=$("#voiceVol"); if(vol) vol.value = volVal;
+}
+/* Lautsprecher-Symbol im Kopf spiegelt den An/Aus-Zustand wider. */
+function updateVoiceButton(){
+  const b=$("#settingsBtn"); if(b) b.textContent = voiceOn ? "🔊" : "🔇";
+}
+updateVoiceButton();
+/* ⚙ Sprachausgabe-Einstellungen — pro Gerät/Client, jederzeit erreichbar. */
+$("#settingsBtn")?.addEventListener("click", ()=>{ populateVoiceSelect(); updateVoicePanel(); $("#voiceSettingsOverlay")?.classList.remove("hidden"); });
+$("#voiceSettingsClose")?.addEventListener("click", ()=>$("#voiceSettingsOverlay")?.classList.add("hidden"));
+$("#voiceSettingsOverlay")?.addEventListener("click", e=>{ if(e.target.id==="voiceSettingsOverlay") e.currentTarget.classList.add("hidden"); });
+$("#voiceOnChk")?.addEventListener("change", e=>{
+  voiceOn = !!e.target.checked;
+  try{ localStorage.setItem('nitpicker.voice', voiceOn?'1':'0'); }catch(_e){}
+  updateVoiceButton();
+  if(!voiceOn){ cancelSpeech(); }
+  else if(state){ const q=state.roundQueue&&state.roundQueue[state.qInRound]; if(q) speak(state.revealed ? answerSpeech(q, state.shownOpts) : questionSpeech(q, state.shownOpts)); }
+});
+$("#modOnChk")?.addEventListener("change", e=>{
+  modOn = !!e.target.checked;
+  try{ localStorage.setItem('nitpicker.mod', modOn?'1':'0'); }catch(_e){}
+  if(modOn && voiceOn) speakNow(modLine("allRight"));
+});
+$("#voiceVol")?.addEventListener("input", e=>{
+  volVal = Math.min(1, Math.max(0, parseFloat(e.target.value)||0));
+  try{ localStorage.setItem('nitpicker.voiceVol', String(volVal)); }catch(_e){}
+});
+$("#voiceVol")?.addEventListener("change", ()=>{ if(voiceOn) speakNow(tr("np.voice.sampleSentence")); });
+$("#voiceTest").addEventListener("click", ()=>{
+  const btn=$("#voiceTest");
+  if(!synth){ btn.textContent=tr("np.voice.noSynth"); return; }
+  populateVoiceSelect();
+  const ok = speakNow(tr("np.voice.testSentence"));
+  btn.textContent = ok ? tr("np.voice.testAgain") : tr("np.voice.blocked");
+});
+$("#voiceSelect").addEventListener("change", e=>{
+  userPickedVoice = true;
+  const list = voicesForLang();
+  deVoice = list.find(v=>v.voiceURI===e.target.value) || deVoice;
+  try{ localStorage.setItem(voiceStoreKey(), e.target.value); }catch(_e){}
+  speakNow(tr("np.voice.sampleSentence"));
+});
+
+/* ---- question helpers ---- */
+/* „Let's schätz“: freie Zahleneingabe statt Multiple Choice. est-Fragen kommen
+   nur in der Schätz-Runde vor, die damit durchgängig aus Tipps besteht. */
+function isSchaetz(q){ return q.type==="est"; }
+
+const OPT_KEYS = ["A","B","C","D","E","F","G"];
+
+/* ---- Objektbasierte Formate (Schnappjagd + Zeitstrahl) ----
+   Beide zeigen eine Auswahl aus q.items; `opts` hält deren Indizes in q.items.
+   Die i18n-Keys hängen am Item-Index, nicht an der Anzeigeposition — sonst hieße
+   dasselbe Objekt je nach Auslosung anders. */
+const ITEM_TYPES = new Set(["rank","order"]);
+function itemLabel(q, idx){ return tr(q.k+".o"+idx, {}, q.items[idx].l); }
+function itemValueText(q, idx){
+  const v = q.items[idx].v;
+  if(q.vfmt==="year") return v<0 ? tr("np.rank.bc",{v:formatNum(-v)}) : tr("np.rank.ad",{v:formatNum(v)});
+  return formatNum(v) + unitLabel(q.unit);
+}
+/* Echte Rangfolge der gezeigten Objekte, bestes zuerst. Beim Zeitstrahl ist das
+   zugleich die gesuchte Reihenfolge (ältestes zuerst). */
+function rankOrder(q, opts){
+  const low = q.type==="order" || q.best==="low";
+  return (opts||[]).map((idx,pos)=>({pos, idx, v:q.items[idx].v}))
+    .sort((a,b)=> low ? a.v-b.v : b.v-a.v);
+}
+
+function optionData(q, opts){
+  if(isSchaetz(q)) return { keys:[], labels:[], free:true };
+  if(q.type==="tf") return { keys:[tr("np.tf.keyTrue",{},"W"),tr("np.tf.keyFalse",{},"F")], labels:[tfLabel(true),tfLabel(false)] };
+  if(q.type==="hilo") return { keys:[tr("np.hilo.keyMore",{},"M"),tr("np.hilo.keyLess",{},"W")],
+                               labels:[tr("np.hilo.more",{},"Mehr"),tr("np.hilo.less",{},"Weniger")] };
+  if(ITEM_TYPES.has(q.type)){
+    const list = opts || [];
+    return { keys: OPT_KEYS.slice(0,list.length), labels: list.map(i=>itemLabel(q,i)) };
+  }
+  const keys = OPT_KEYS.slice(0,q.options.length);
+  const labels = q.type==="est" ? q.options.map(v=>formatNum(v)+unitLabel(q.unit)) : q.options.map((_,i)=>optText(q,i));
+  return { keys, labels };
+}
+function correctInfo(q, opts){
+  if(q.type==="mc" || q.type==="lie") return { correct:q.correct, second:-1 };
+  if(q.type==="tf") return { correct:q.answer?0:1, second:-1 };
+  if(q.type==="hilo") return { correct:q.av>q.bv ? 0 : 1, second:-1 };
+  if(ITEM_TYPES.has(q.type)){
+    const o = rankOrder(q, opts);
+    return { correct: o.length?o[0].pos:-1, second: o.length>1?o[1].pos:-1 };
+  }
+  const ranked = q.options.map((v,i)=>({i,d:Math.abs(v-q.value)})).sort((a,b)=>a.d-b.d);
+  return { correct:ranked[0].i, second:ranked[1].i };
+}
+function pointsFor(q,pick){
+  if(pick===null||pick===undefined) return 0;
+  if(isSchaetz(q)) return 0;   // Schätz wird per estimatePoints (nähe-basiert) gewertet
+  const {correct} = correctInfo(q);
+  return pick===correct ? 100 : 0;
+}
+
+// Schnellerwisser: richtige Antworten nach Antwort-Reihenfolge gestaffelt
+const SPEED_POINTS = [100,80,60,40,20,20];
+function speedPoints(q){
+  const winners = state.players
+    .map((p,i)=>({i, order:p.answerOrder, ok: pointsFor(q,p.pick)>0}))
+    .filter(o=>o.ok)
+    .sort((a,b)=>a.order-b.order);
+  const pts={}, rank={};
+  winners.forEach((o,idx)=>{ pts[o.i]=SPEED_POINTS[Math.min(idx,SPEED_POINTS.length-1)]; rank[o.i]=idx+1; });
+  return {pts, rank};
+}
+
+// Let's schätz: gestaffelt nach Nähe zum echten Wert (näher = mehr Punkte).
+// Gleiche Distanz → gleicher Rang und gleiche Punkte (Competition-Ranking).
+const EST_POINTS = [100,60,40,20,10,10];
+function estimatePoints(q){
+  const guesses = state.players
+    .map((p,i)=>({i, d:(p.pick==null ? null : Math.abs(Number(p.pick)-q.value))}))
+    .filter(o=>o.d!=null && !isNaN(o.d))
+    .sort((a,b)=>a.d-b.d);
+  const pts={}, rank={};
+  let place=0, prevD=null;
+  guesses.forEach((o,idx)=>{
+    if(prevD===null || o.d!==prevD){ place=idx; prevD=o.d; }
+    pts[o.i]=EST_POINTS[Math.min(place,EST_POINTS.length-1)];
+    rank[o.i]=place+1;
+  });
+  return {pts, rank};
+}
+
+// Schnappjagd: Punkte nach dem echten Rang des geschnappten Objekts. Wer nichts
+// abbekommen hat (oder nicht getippt hat), geht leer aus.
+const RANK_POINTS = [100,60,40,20,10,10,10];
+function rankPoints(q){
+  const order = rankOrder(q, state.shownOpts);
+  const rankOfPos = {};
+  order.forEach((o,r)=>{ rankOfPos[o.pos] = r; });
+  const pts={}, rank={};
+  state.players.forEach((p,i)=>{
+    const r = p.pick==null ? null : rankOfPos[p.pick];
+    if(r==null) return;
+    pts[i] = RANK_POINTS[Math.min(r, RANK_POINTS.length-1)];
+    rank[i] = r+1;
+  });
+  return {pts, rank};
+}
+
+// Genau eine Lüge: die Lüge zu finden bringt 100, ein Fehlgriff kostet 50 —
+// wer sich nicht sicher ist, lässt die Frage besser aus.
+const LIE_PENALTY = -50;
+function liePoints(q){
+  const pts={};
+  state.players.forEach((p,i)=>{
+    pts[i] = p.pick==null ? 0 : (p.pick===q.correct ? 100 : LIE_PENALTY);
+  });
+  return {pts};
+}
+
+// Höher oder tiefer: 100 pro Treffer, jede weitere richtige Antwort in Folge
+// legt 25 drauf (max. 200). Ein Fehler setzt die Serie zurück.
+function hiloPoints(q){
+  const right = correctInfo(q).correct;
+  const pts={}, note={};
+  state.players.forEach((p,i)=>{
+    if(p.pick!=null && p.pick===right){
+      p.streak = (p.streak||0) + 1;
+      pts[i] = 100 + Math.min(p.streak-1, 4) * 25;
+      if(p.streak>1) note[i] = tr("np.hilo.streak",{n:p.streak});
+    } else {
+      p.streak = 0; pts[i] = 0;
+    }
+  });
+  return {pts, note};
+}
+
+// Zeitstrahl: je korrekt platziertem Ereignis ein Viertel der Punkte.
+function orderPoints(q){
+  const seqCorrect = rankOrder(q, state.shownOpts).map(o=>o.pos);
+  const per = seqCorrect.length ? Math.round(100/seqCorrect.length) : 0;
+  const pts={}, note={};
+  state.players.forEach((p,i)=>{
+    const seq = Array.isArray(p.pick) ? p.pick : null;
+    let hit = 0;
+    if(seq) seqCorrect.forEach((pos,k)=>{ if(seq[k]===pos) hit++; });
+    pts[i] = hit * per;
+    note[i] = tr("np.order.hits",{n:hit, total:seqCorrect.length});
+  });
+  return {pts, note};
+}
+
+/* Einheitliche Rundenwertung: liefert {pts, rank, note} je Spielerindex.
+   Schätz → nähe-gestaffelt, Schnappjagd → nach Rang des geschnappten Objekts,
+   Lüge → mit Abzug, Höher/Tiefer → mit Serienbonus, Zeitstrahl → je Position,
+   Schnellerwisser → nach Antwortreihenfolge, sonst → 100 für die richtige Antwort. */
+function roundScore(q){
+  if(isSchaetz(q)) return estimatePoints(q);
+  if(q.type==="rank")  return rankPoints(q);
+  if(q.type==="lie")   return liePoints(q);
+  if(q.type==="hilo")  return hiloPoints(q);
+  if(q.type==="order") return orderPoints(q);
+  if(state.roundArea==="schnell") return speedPoints(q);
+  const pts={}, rank={};
+  state.players.forEach((p,i)=>{ pts[i]=pointsFor(q,p.pick); });
+  return {pts, rank};
+}
+
+const TYPE_LABEL = {mc:"Multiple Choice", tf:"Wahr oder Falsch", est:"Am nächsten dran",
+                    rank:"Schnapp es dir", lie:"Finde die Lüge", hilo:"Mehr oder weniger",
+                    order:"In die richtige Reihenfolge"};
+
+function renderScoreboard(sel="#scoreboard"){
+  const sb=$(sel); if(!sb) return; sb.innerHTML="";
+  state.players.forEach(p=>{
+    const el=document.createElement("div"); el.className="score-chip";
+    el.innerHTML=`<span class="dot" style="background:${p.color}"></span><span class="nm">${escapeHtml(p.name)}</span><span class="sc">${p.score}</span>`;
+    sb.appendChild(el);
+  });
+}
+
+function renderQuestion(){
+  const q = state.roundQueue[state.qInRound];
+  state.revealed = false;
+  state.players.forEach(p=>{ p.pick=null; p.seq=null; p.answerOrder=Infinity; });
+  state.answerSeq = 0;
+  // Schnappjagd: ein Objekt mehr auslosen als Spieler mitspielen, damit auch der
+  // Langsamste noch zwischen zwei Resten wählen kann. Zeitstrahl: alle Ereignisse
+  // in zufälliger Anzeigereihenfolge.
+  state.shownOpts =
+    q.type==="rank"  ? shuffle(q.items.map((_,i)=>i)).slice(0, Math.min(state.players.length+1, q.items.length)) :
+    q.type==="order" ? shuffle(q.items.map((_,i)=>i)) : null;
+
+  if(net.online){
+    state.screen = "question";
+    state.qTime = activeQSeconds();
+    state.deadline = state.qTime ? Date.now()+state.qTime*1000 : 0;
+    pushState(); netHostTimer(); return;
+  }
+
+  const done = (state.round-1)*state.qPerRound + state.qInRound;
+  const totalQ = state.totalRounds * state.qPerRound;
+  const area = AREAS.find(a=>a.id===state.roundArea);
+  $("#hudArea").textContent = area ? `${area.emoji} ${areaLabel(area)}` : tr("np.game.questionWord");
+  $("#turnMeta").textContent = tr("np.game.roundQMeta",{r:state.round,t:state.totalRounds,q:state.qInRound+1,n:state.roundQueue.length});
+  $("#progressBar").style.width = (done/totalQ*100)+"%";
+  renderScoreboard();
+
+  $("#typeBadge").textContent = typeLabel(q.type);
+  $("#catBadge").textContent = catLabel(q.cat);
+  $("#qText").textContent = qText(q);
+  $("#revealDetail").textContent = "";
+  $("#actions").innerHTML = "";
+  $("#qCard").classList.remove("anim"); void $("#qCard").offsetWidth; $("#qCard").classList.add("anim");
+
+  const {keys,labels} = optionData(q, state.shownOpts);
+  const legend = $("#legend"); legend.innerHTML="";
+  labels.forEach((lab,i)=>{
+    const el=document.createElement("div"); el.className="leg pop-in"; el.dataset.i=i;
+    el.style.animationDelay=(i*45)+"ms";
+    el.innerHTML=`<span class="k">${keys[i]}</span><span class="leg-txt">${escapeHtml(lab)}</span>`;
+    legend.appendChild(el);
+  });
+
+  renderPads(q,keys);
+  setupTimer();
+  speak(questionSpeech(q, state.shownOpts));
+}
+
+function renderPads(q,keys){
+  const pads=$("#pads"); pads.innerHTML="";
+  const {labels} = optionData(q, state.shownOpts);
+  const sch = isSchaetz(q);
+  state.players.forEach((p,pi)=>{
+    const pad=document.createElement("div"); pad.className="pad"; pad.style.setProperty("--pc",p.color); pad.dataset.pi=pi;
+    pad.innerHTML=`<div class="pname"><span>${escapeHtml(p.name)}</span><span class="pscore">${p.score}</span></div>`;
+    if(sch){
+      // Let's schätz: freie Zahleneingabe + OK (kein Multiple Choice)
+      const row=document.createElement("div"); row.className="est-in";
+      const inp=document.createElement("input"); inp.type="number"; inp.className="est-field"; inp.inputMode="decimal";
+      inp.placeholder = q.unit ? tr("np.game.estIn",{unit:unitLabel(q.unit)}) : tr("np.game.estPlain");
+      const ok=document.createElement("button"); ok.className="key-btn est-ok"; ok.textContent=tr("np.game.ok");
+      const submit=()=>{ const v=inp.value.trim(); if(v==="") return; choose(pi, Number(v)); };
+      ok.addEventListener("click", submit);
+      inp.addEventListener("keydown", e=>{ if(e.key==="Enter"){ e.preventDefault(); submit(); } });
+      row.appendChild(inp); row.appendChild(ok);
+      pad.appendChild(row);
+    } else {
+      // Direkt auf die Antwort klicken: Buchstabe + voller Antworttext
+      // Zeitstrahl: antippen reiht ein (1., 2., …), sonst wählt ein Tipp direkt.
+      const ord = q.type==="order";
+      const keyRow=document.createElement("div"); keyRow.className="keys keys-text";
+      keys.forEach((k,i)=>{
+        const b=document.createElement("button"); b.className="key-btn key-answer"; b.dataset.i=i;
+        b.innerHTML=`<span class="kk">${k}</span><span class="kt">${escapeHtml(labels[i])}</span>`;
+        b.addEventListener("click", ()=> ord ? chooseOrder(pi,i) : choose(pi,i));
+        keyRow.appendChild(b);
+      });
+      pad.appendChild(keyRow);
+    }
+    pads.appendChild(pad);
+  });
+}
+
+/* Schnappjagd: ein geschnapptes Objekt ist für alle anderen weg — auf jedem Pad
+   sperren und in der Farbe des Schnappers markieren. */
+function markTaken(optIdx, color){
+  document.querySelectorAll(`.pad .key-answer[data-i="${optIdx}"]`).forEach(b=>{
+    b.disabled = true; b.classList.add("taken"); b.style.setProperty("--tc", color);
+  });
+  const leg = $(`#legend .leg[data-i="${optIdx}"]`);
+  if(leg){ leg.classList.add("taken"); leg.style.setProperty("--tc", color); }
+}
+
+/* Zeitstrahl: jeder Tipp hängt ein Ereignis hinten an die eigene Reihenfolge an.
+   Erst wenn alle vier stehen, gilt die Antwort als abgegeben. */
+function chooseOrder(pi,optIdx){
+  if(state.revealed) return;
+  const p=state.players[pi];
+  if(p.pick!==null) return;
+  if(!p.seq) p.seq=[];
+  if(p.seq.includes(optIdx)) return;
+  p.seq.push(optIdx);
+  const pad=$(`.pad[data-pi="${pi}"]`);
+  const btn=pad && pad.querySelector(`.key-answer[data-i="${optIdx}"]`);
+  if(btn){
+    btn.disabled=true; btn.classList.add("picked");
+    const kk=btn.querySelector(".kk"); if(kk) kk.textContent = p.seq.length;
+  }
+  if(p.seq.length < (state.shownOpts||[]).length) return;
+
+  p.pick = p.seq.slice();
+  p.answerOrder = state.answerSeq++;
+  const slot = pad && pad.querySelector(".keys");
+  if(slot){
+    const ready=document.createElement("div"); ready.className="ready"; ready.textContent=tr("np.game.ready");
+    slot.replaceWith(ready);
+  }
+  if(pad) pad.classList.add("answered");
+  if(state.players.every(pl=>pl.pick!==null)) setTimeout(reveal,350);
+}
+
+function choose(pi,optIdx){
+  if(state.revealed) return;
+  const p=state.players[pi];
+  if(p.pick!==null) return;
+  const q=state.roundQueue[state.qInRound];
+  // Wer zu spät kommt, geht leer aus: das Objekt gehört schon jemand anderem.
+  if(q.type==="rank" && state.players.some(pl=>pl.pick===optIdx)) return;
+  p.pick=optIdx;
+  p.answerOrder = state.answerSeq++;
+  if(q.type==="rank") markTaken(optIdx, p.color);
+  const pad=$(`.pad[data-pi="${pi}"]`);
+  const slot=pad.querySelector(".keys")||pad.querySelector(".est-in");
+  const ready=document.createElement("div"); ready.className="ready"; ready.textContent=tr("np.game.ready");
+  slot.replaceWith(ready);
+  pad.classList.add("answered");
+  if(state.players.every(pl=>pl.pick!==null)){ setTimeout(reveal,350); }
+}
+
+/* ---- timer ---- */
+/* Dynamische Fragezeit: Grundzeit (Nutzerwahl: flott/entspannt) plus Lese-
+   Zuschlag. Je mehr auf dem Bildschirm steht – Fragetext plus alle Antwort- bzw.
+   Objekt-Labels – desto mehr Zeit bekommt man. Timer „Aus" (0) bleibt aus, und
+   kürzer als die gewählte Grundzeit wird es nie. */
+function questionReadLen(q){
+  let s = qText(q) || "";
+  try{ const {labels}=optionData(q, state.shownOpts); if(labels && labels.length) s += " " + labels.join(" "); }catch(e){}
+  return s.length;
+}
+function questionSeconds(q){
+  const base = state.timerSec||0;
+  if(!base || !q) return base;
+  // ~70 Zeichen sind mit der Grundzeit gut lesbar; alles darüber gibt bei rund
+  // 12 Zeichen/Sekunde zusätzliche Lesezeit, gedeckelt auf +100 % der Grundzeit.
+  const REF=70, CPS=12;
+  const extra = Math.max(0, questionReadLen(q) - REF) / CPS;
+  return Math.round(base + Math.min(extra, base));
+}
+function activeQSeconds(){
+  return questionSeconds(state.roundQueue && state.roundQueue[state.qInRound]);
+}
+function setupTimer(){
+  clearInterval(state.timerId);
+  const t=$("#timer"), bar=$("#timerBar");
+  const total = activeQSeconds();
+  state.qTime = total;
+  if(!total){ t.classList.add("hidden"); return; }
+  t.classList.remove("hidden","low"); bar.style.width="100%";
+  state.timeLeft=total;
+  // force reflow so the transition animates down smoothly
+  state.timerId=setInterval(()=>{
+    state.timeLeft--;
+    const pct=Math.max(0,state.timeLeft/total*100);
+    bar.style.width=pct+"%";
+    if(pct<=30) t.classList.add("low");
+    if(state.timeLeft<=0){ clearInterval(state.timerId); reveal(); }
+  },1000);
+  // kick off first shrink immediately
+  requestAnimationFrame(()=>{ bar.style.width=((state.timeLeft-1)/total*100)+"%"; });
+}
+
+/* ---- reveal ---- */
+function reveal(){
+  if(state.revealed) return;
+  if(net.online){ netReveal(); return; }
+  state.revealed=true;
+  clearInterval(state.timerId);
+  $("#timer").classList.add("hidden");
+
+  const q=state.roundQueue[state.qInRound];
+  const {correct}=correctInfo(q, state.shownOpts);
+  const isRank = q.type==="rank";
+  const isItem = ITEM_TYPES.has(q.type);
+  const rankOfPos = {};
+  if(isItem) rankOrder(q, state.shownOpts).forEach((o,r)=>{ rankOfPos[o.pos]=r; });
+
+  [...$("#legend").children].forEach(el=>{
+    const i=+el.dataset.i;
+    if(i===correct) el.classList.add("correct","flash");
+    if(isItem){
+      // Schnappjagd/Zeitstrahl: aus dem Buchstaben wird der echte Platz, dahinter
+      // der Wert — bei der Schnappjagd zusätzlich, wer sich das Objekt geholt hat.
+      el.classList.remove("taken");     // Sperr-Optik gilt nur bis zur Auflösung
+      const k=el.querySelector(".k"); if(k) k.textContent = rankOfPos[i]+1;
+      const val=document.createElement("span"); val.className="leg-val";
+      val.textContent = itemValueText(q, state.shownOpts[i]);
+      el.appendChild(val);
+      if(isRank){
+        const owner = state.players.find(p=>p.pick===i);
+        if(owner){
+          const who=document.createElement("span"); who.className="leg-who";
+          who.style.background = owner.color; who.textContent = owner.name;
+          el.appendChild(who);
+        }
+      }
+    }
+  });
+  $("#revealDetail").innerHTML = revealDetailHtml(q);
+
+  const {keys,labels}=optionData(q, state.shownOpts);
+  const sc = roundScore(q);
+  const sch = isSchaetz(q);
+  state.players.forEach((p,pi)=>{
+    const pts = sc.pts[pi]||0;
+    p.score+=pts;
+    const pad=$(`.pad[data-pi="${pi}"]`);
+    const slot=pad.querySelector(".ready")||pad.querySelector(".keys")||pad.querySelector(".est-in");
+    const good=pts>0;
+    let chosen;
+    if(p.pick==null) chosen = tr("np.game.noAnswer");
+    else if(sch) chosen = tr("np.game.guessLabel",{v:formatNum(Number(p.pick))+unitLabel(q.unit||"")});
+    else if(Array.isArray(p.pick)) chosen = p.pick.map(i=>labels[i]).join(" → ");
+    else chosen = `${keys[p.pick]} · ${labels[p.pick]}`;
+    const emo = sch ? "🎯" : (isRank ? "🤏" : "⚡");
+    // Zeitstrahl/Serie liefern einen eigenen Hinweis, sonst zählt der Platz.
+    const extra = (sc.note && sc.note[pi]) ? ` · ${sc.note[pi]}`
+                : ((sc.rank && sc.rank[pi]) ? ` · ${emo} ${tr("np.game.place",{n:sc.rank[pi]})}` : "");
+    const res=document.createElement("div");
+    res.className="result-line "+(good?"good":"bad");
+    res.innerHTML=`${ptsLabel(pts)}<small>${escapeHtml(chosen)}${escapeHtml(extra)}</small>`;
+    slot.replaceWith(res);
+    pad.querySelector(".pscore").textContent=p.score;
+  });
+  renderScoreboard();
+  const scoredN = state.players.filter((p,pi)=>(sc.pts[pi]||0)>0).length;
+  const revPool = scoredN===0?"allWrong":(scoredN>=state.players.length?"allRight":"mixed");
+  speak(withMod(answerSpeech(q, state.shownOpts), revPool));
+
+  const lastInRound = state.qInRound === state.roundQueue.length-1;
+  const lastOverall = lastInRound && state.round === state.totalRounds;
+  const act=$("#actions");
+  const btn=document.createElement("button"); btn.className="btn";
+  btn.textContent = lastOverall ? tr("np.common.finalStanding") : (lastInRound ? tr("np.common.nextRound") : tr("np.common.nextQuestion"));
+  btn.addEventListener("click", next);
+  act.appendChild(btn); btn.focus();
+}
+
+function next(){
+  cancelSpeech();
+  state.qInRound++;
+  const done = (state.round-1)*state.qPerRound + state.qInRound;
+  $("#progressBar").style.width = (done/(state.totalRounds*state.qPerRound)*100)+"%";
+  if(state.qInRound >= state.roundQueue.length){ newRound(); }
+  else renderQuestion();
+}
+
+/* ---- results ---- */
+function showResults(){
+  cancelSpeech();
+  if(net.online){ state.screen="results"; pushState(); return; }
+  show("results");
+  const ranked=[...state.players].sort((a,b)=>b.score-a.score);
+  const top=ranked[0].score;
+  const winners=ranked.filter(p=>p.score===top);
+  if(winners.length>1){
+    $("#champLine").innerHTML=`<span class="champ">${tr("np.results.tie")}</span>`;
+    $("#resultLead").textContent=tr("np.results.tieLead",{names:winners.map(w=>w.name).join(" & "),n:top});
+  } else {
+    $("#champLine").innerHTML=tr("np.results.wins",{name:`<span class="champ">${escapeHtml(ranked[0].name)}</span>`});
+    $("#resultLead").textContent=tr("np.results.soloLead",{n:top});
+  }
+  const sEl=$("#standings"); sEl.innerHTML="";
+  ranked.forEach((p,i)=>{
+    const row=document.createElement("div"); row.className="stand pop-in"+(p.score===top?" first":"");
+    row.style.animationDelay=(i*70)+"ms";
+    row.innerHTML=`<span class="rank">${i+1}</span>
+      <span class="dot" style="width:12px;height:12px;box-shadow:none;background:${p.color}"></span>
+      <span class="nm">${escapeHtml(p.name)}</span>
+      <span class="sc" style="color:${p.score===top?'var(--gold)':'var(--ink)'}">${p.score}</span>`;
+    sEl.appendChild(row);
+  });
+  $(".trophy")?.classList.add("bob");
+  burstConfetti();
+  speak(winners.length>1 ? modLine("tie") : modLine("win", {name:winners[0]?.name||""}));
+}
+$("#rematchBtn").addEventListener("click", ()=>{
+  const players=state.players.map(p=>({id:p.id,name:p.name,color:p.color,score:0,pick:null}));
+  totalRounds=state.totalRounds; qPerRound=state.qPerRound; timerSec=state.timerSec;
+  startGame(players);
+});
+$("#newGameBtn").addEventListener("click", ()=>{ cancelSpeech(); netLeave(); show("setup"); setSetupMode("select"); });
+
+/* ---- i18n: dynamische Screens bei Sprachwechsel neu beschriften ----
+   Statische [data-i18n]-Knoten übernimmt die geteilte Laufzeit selbst; hier nur
+   die per JS erzeugten Teile. Antwort-/Reveal-Zustand wird NICHT zurückgesetzt. */
+function relabelGameScreen(){
+  if(!state || !state.roundQueue) return;
+  const q=state.roundQueue[state.qInRound]; if(!q) return;
+  const area=areaById(state.roundArea);
+  $("#hudArea").textContent = area ? `${area.emoji} ${areaLabel(area)}` : tr("np.game.questionWord");
+  $("#turnMeta").textContent = tr("np.game.roundQMeta",{r:state.round,t:state.totalRounds,q:state.qInRound+1,n:state.roundQueue.length});
+  $("#typeBadge").textContent = typeLabel(q.type);
+  $("#catBadge").textContent = catLabel(q.cat);
+  $("#qText").textContent = qText(q);
+  const {keys,labels}=optionData(q, state.shownOpts);
+  [...$("#legend").children].forEach(el=>{
+    const i=+el.dataset.i;
+    const s=el.querySelector(".leg-txt"); if(s&&labels[i]!=null) s.textContent=labels[i];
+    // Der aufgedeckte Wert hängt an der Sprache (Jahreszahl, Einheit).
+    const v=el.querySelector(".leg-val");
+    if(v && ITEM_TYPES.has(q.type) && state.shownOpts) v.textContent = itemValueText(q, state.shownOpts[i]);
+  });
+  if(state.revealed) $("#revealDetail").innerHTML = revealDetailHtml(q);
+  state.players.forEach((p,pi)=>{
+    const pad=$(`.pad[data-pi="${pi}"]`); if(!pad) return;
+    pad.querySelectorAll(".key-answer").forEach((b,i)=>{ const kt=b.querySelector(".kt"); if(kt&&labels[i]!=null) kt.textContent=labels[i]; const kk=b.querySelector(".kk"); if(kk&&keys[i]!=null) kk.textContent=keys[i]; });
+    const est=pad.querySelector(".est-field"); if(est) est.placeholder = q.unit ? tr("np.game.estIn",{unit:unitLabel(q.unit)}) : tr("np.game.estPlain");
+    const eok=pad.querySelector(".est-ok"); if(eok) eok.textContent=tr("np.game.ok");
+    const rdy=pad.querySelector(".ready"); if(rdy) rdy.textContent=tr("np.game.ready");
+  });
+}
+function rerenderI18n(){
+  try{ document.title = tr("np.doc.title"); }catch(e){}
+  if(net.online && net.snap){ renderNet(net.snap); return; }
+  if(!$("#setup").classList.contains("hidden")){
+    renderCatGrid();
+    if(curSetupMode==="host") $("#setupHeading").textContent=tr("np.setup.headHost");
+    else if(curSetupMode==="join") $("#setupHeading").textContent=tr("np.setup.headJoin");
+  }
+  if(!$("#choose").classList.contains("hidden") && state){
+    const area=areaById(state.roundArea);
+    $("#roundBadge").textContent=tr("np.game.roundOf",{n:state.round,total:state.totalRounds});
+    if(area) $("#revealName").textContent=areaLabel(area);
+  }
+  if(!$("#game").classList.contains("hidden")) relabelGameScreen();
+  if(!$("#results").classList.contains("hidden") && state) showResults();
+}
+window.addEventListener("brettspiele-language-change", ()=>{ try{ populateVoiceSelect(); }catch(e){} rerenderI18n(); });
+try{ document.title = tr("np.doc.title"); }catch(e){}
+
+/* Verlassen-Abfrage im Spiel-Design: bevor eine laufende Partie oder ein offener
+   Online-Raum verlassen wird, erst bestätigen lassen. Ergebnis-Bildschirm und
+   Setup zählen nicht als „laufend" – dort ist nichts zu verlieren. */
+function leaveNeedsConfirm(){
+  return ["lobby","choose","game","risk"].some(id=>!$("#"+id).classList.contains("hidden"));
+}
+let pendingLeave=null;
+function closeLeaveConfirm(){ $("#leaveConfirm").classList.add("hidden"); pendingLeave=null; }
+function confirmLeave(action){
+  if(!leaveNeedsConfirm()){ action(); return; }   // nichts zu verlieren → direkt
+  pendingLeave=action;
+  $("#leaveConfirm").classList.remove("hidden");
+}
+$("#leaveCancelBtn").addEventListener("click", closeLeaveConfirm);
+$("#leaveConfirmBtn").addEventListener("click", ()=>{ const f=pendingLeave; closeLeaveConfirm(); if(f) f(); });
+$("#leaveConfirm").addEventListener("click", e=>{ if(e.target.id==="leaveConfirm") closeLeaveConfirm(); });
+document.addEventListener("keydown", e=>{ if(e.key==="Escape" && !$("#leaveConfirm").classList.contains("hidden")) closeLeaveConfirm(); });
+
+/* Shared back button: walk menu ↔ site (mirrors Buchstabensturm) */
+window.__brettGoToGameMenu=function(){ try{cancelSpeech();}catch(e){} try{netLeave();}catch(e){} show("setup"); setSetupMode("select"); };
+window.__brettBack={
+  atTop:()=>!$("#setup").classList.contains("hidden"),
+  up:()=>confirmLeave(()=>window.__brettGoToGameMenu()),
+};
+
+/* Nach dem Laden: lief in diesem Tab schon ein Online-Spiel, automatisch dorthin
+   zurückkehren statt im Hauptmenü zu starten. Sonst: enthält die URL einen
+   Beitrittslink (?room=CODE), den Beitreten-Bildschirm mit dem Code vorbelegen. */
+let __restored=false, __restoreErr="";
+try{ __restored = restoreSession(); }catch(e){ __restored=false; __restoreErr=String(e&&e.message||e); }
+if(!__restored){
+  const rc = urlRoomCode();
+  if(rc){ setSetupMode("join"); $("#joinCode").value = rc; onlineHint(tr("np.online.joinHint")); const nm=$("#onlineName"); if(nm) nm.focus(); }
+}
+</script>
+<script src="../../assets/game-chrome.js?v=20260625-nav"></script>
+  <script src="../../assets/gamepad.js?v=20260824-pad"></script>
+</body>
+</html>

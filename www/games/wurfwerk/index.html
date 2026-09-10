@@ -1,0 +1,392 @@
+<!doctype html>
+<html lang="de" data-game="wurfwerk">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+  <meta http-equiv="Cache-Control" content="no-store, no-cache, must-revalidate" />
+  <meta http-equiv="Pragma" content="no-cache" />
+  <meta http-equiv="Expires" content="0" />
+  <script>
+    (function(){
+      try {
+        var key = "brettspiele.themeMode";
+        var mode = localStorage.getItem(key) || "auto";
+        if (!["auto", "light", "dark"].includes(mode)) mode = "auto";
+        var prefersDark = window.matchMedia && window.matchMedia("(prefers-color-scheme: dark)").matches;
+        var theme = mode === "auto" ? (prefersDark ? "dark" : "light") : mode;
+        document.documentElement.dataset.theme = theme;
+        document.documentElement.dataset.themeMode = mode;
+      } catch (e) {
+        document.documentElement.dataset.theme = "light";
+        document.documentElement.dataset.themeMode = "auto";
+      }
+    })();
+  </script>
+  <title data-i18n="rollforge.pageTitle">Wurfwerk – brettspiele.fun</title>
+  <meta name="description" content="3D-Würfel, Online-Räume, Bots, animierte Realtime-Synchronisation und ausklappbare Scoreboards. 1–6 Spieler." />
+  <link rel="canonical" href="https://brettspiele.fun/games/wurfwerk/" />
+  <!--hreflang:auto-->
+  <link rel="alternate" hreflang="de" href="https://brettspiele.fun/games/wurfwerk/" />
+  <link rel="alternate" hreflang="en" href="https://brettspiele.fun/en/games/wurfwerk/" />
+  <link rel="alternate" hreflang="fr" href="https://brettspiele.fun/fr/games/wurfwerk/" />
+  <link rel="alternate" hreflang="es" href="https://brettspiele.fun/es/games/wurfwerk/" />
+  <link rel="alternate" hreflang="it" href="https://brettspiele.fun/it/games/wurfwerk/" />
+  <link rel="alternate" hreflang="ru" href="https://brettspiele.fun/ru/games/wurfwerk/" />
+  <link rel="alternate" hreflang="zh" href="https://brettspiele.fun/zh/games/wurfwerk/" />
+  <link rel="alternate" hreflang="ja" href="https://brettspiele.fun/ja/games/wurfwerk/" />
+  <link rel="alternate" hreflang="x-default" href="https://brettspiele.fun/games/wurfwerk/" />
+  <!--/hreflang:auto-->
+  <meta property="og:type" content="website" />
+  <meta property="og:site_name" content="brettspiele.fun" />
+  <meta property="og:title" content="Wurfwerk – brettspiele.fun" />
+  <meta property="og:description" content="3D-Würfel, Online-Räume, Bots, animierte Realtime-Synchronisation und ausklappbare Scoreboards." />
+  <meta property="og:url" content="https://brettspiele.fun/games/wurfwerk/" />
+  <meta property="og:image" content="https://brettspiele.fun/games/wurfwerk/wallpaper.png" />
+  <meta property="og:locale" content="de_DE" />
+  <meta name="twitter:card" content="summary_large_image" />
+  <meta name="twitter:title" content="Wurfwerk – brettspiele.fun" />
+  <meta name="twitter:description" content="3D-Würfel, Online-Räume, Bots, animierte Realtime-Synchronisation und ausklappbare Scoreboards." />
+  <meta name="twitter:image" content="https://brettspiele.fun/games/wurfwerk/wallpaper.png" />
+  <script type="application/ld+json">{"@context": "https://schema.org", "@type": "VideoGame", "name": "Wurfwerk", "description": "3D-Würfel, Online-Räume, Bots, animierte Realtime-Synchronisation und ausklappbare Scoreboards.", "url": "https://brettspiele.fun/games/wurfwerk/", "image": "https://brettspiele.fun/games/wurfwerk/wallpaper.png", "genre": "Würfelspiel", "playMode": "MultiPlayer", "applicationCategory": "Game", "operatingSystem": "Any (Web Browser)", "inLanguage": ["de", "en", "fr", "es", "it", "ru", "zh", "ja"]}</script>
+  <link rel="icon" href="../../assets/icons/wurfwerk.svg?v=20260530-optional-account" type="image/svg+xml" />
+  <link rel="stylesheet" href="./styles.css?v=20260708-selectscheme" />
+  <link rel="stylesheet" href="../../assets/game-chrome.css?v=20260708-nohscroll" />
+  <script src="../../assets/runtime-config.js?v=20260905-donation-on"></script>
+  <script src="../../assets/i18n/de.js?v=20260824-i18n-gaps"></script><script src="../../assets/i18n/en.js?v=20260824-i18n-gaps"></script><script src="../../assets/i18n/fr.js?v=20260824-i18n-gaps"></script><script src="../../assets/i18n/es.js?v=20260824-i18n-gaps"></script><script src="../../assets/i18n/it.js?v=20260824-i18n-gaps"></script><script src="../../assets/i18n/ru.js?v=20260824-i18n-gaps"></script><script src="../../assets/i18n/zh.js?v=20260824-i18n-gaps"></script><script src="../../assets/i18n/ja.js?v=20260824-i18n-gaps"></script><script src="i18n/de.js?v=20260824-i18n-gaps"></script><script src="i18n/en.js?v=20260824-i18n-gaps"></script><script src="i18n/fr.js?v=20260824-i18n-gaps"></script><script src="i18n/es.js?v=20260824-i18n-gaps"></script><script src="i18n/it.js?v=20260824-i18n-gaps"></script><script src="i18n/ru.js?v=20260824-i18n-gaps"></script><script src="i18n/zh.js?v=20260824-i18n-gaps"></script><script src="i18n/ja.js?v=20260824-i18n-gaps"></script><script src="../../assets/i18n.js?v=20260824-i18n-gaps"></script>
+  <script src="../../assets/auth.js?v=20260904-oauth-link"></script>
+  <script src="../../assets/consent.js?v=20260530-optional-account"></script>
+  <link rel="stylesheet" href="../../assets/gamepad.css?v=20260824-pad" />
+</head>
+<body>
+  <div class="game-top-actions"><select class="game-language-select" data-language-select aria-label="Sprache"></select><button class="game-theme-toggle" id="themeToggle" type="button">Theme</button></div>
+<main id="app">
+    <section class="scene-panel" id="scenePanel">
+      <canvas id="threeCanvas"></canvas>
+
+      <div class="topbar">
+        <div class="brand">
+          <img class="brand-emblem wurfwerk-emblem" src="../../assets/icons/wurfwerk.svg?v=20260530-optional-account" alt="" />
+          <div class="brand-copy">
+          <h1>Wurfwerk</h1>
+<p data-i18n="rollforge.subtitle">Three.js dice game · Local and online multiplayer</p>
+          </div>
+          <div class="game-status-pill" id="gameStatusPill" data-i18n="rollforge.status.offline">Lobby · Offline</div>
+        </div>
+        <div class="stats">
+          <div class="stat"><small data-i18n="rollforge.stat.player">Player</small><strong id="playerInfo">1 / 2</strong></div>
+          <div class="stat"><small data-i18n="rollforge.stat.round">Round</small><strong id="roundInfo">1 / 13</strong></div>
+          <div class="stat"><small data-i18n="rollforge.stat.rolls">Rolls</small><strong id="rollsLeft">3</strong></div>
+          <div class="stat"><small data-i18n="rollforge.stat.total">Total</small><strong id="diceSum">0</strong></div>
+        </div>
+      </div>
+
+      <div class="hint" data-i18n="rollforge.hint">Click dice = select for next reroll</div>
+
+      <div class="controls">
+        <div class="message" id="message" data-i18n="rollforge.message.lobby">Erstelle einen Raum oder tritt einem Raum bei. Die Würfel warten ungewöhnlich geduldig.</div>
+        <div class="button-row">
+          <button class="primary" id="rollBtn" data-i18n="rollforge.roll">Roll</button>
+          <button class="secondary" id="releaseBtn" data-i18n="rollforge.clear">Clear selection</button>
+          <button class="secondary" id="playersBtn" data-i18n="rollforge.playersButton">Players: 2</button>
+        </div>
+      </div>
+    </section>
+
+    <aside class="score-panel">
+      <div class="score-header">
+        <div>
+          <h2 data-i18n="rollforge.score.title">Score Sheets</h2>
+          <p data-i18n="rollforge.score.subtitle">The active player is opened automatically. Open the other players to review their results.</p>
+        </div>
+        <div class="score-header-mgmt">
+          <button class="danger" id="newBtn" data-i18n="rollforge.new">New Game</button>
+          <button class="secondary" id="exitBtn" data-i18n="rollforge.exit">Exit Game</button>
+        </div>
+      </div>
+
+      <div class="all-score-sheets" id="allScoreSheets" aria-label="Player score sheets"></div>
+    </aside>
+  </main>
+
+  <div class="lobby-overlay" id="lobbyOverlay">
+    <div class="lobby-card">
+      <h1>Wurfwerk</h1>
+      <p data-i18n="rollforge.lobby.lede">Erstelle einen Raum oder tritt einem Raum bei. Die Würfel warten erst, bis alle am Tisch sitzen.</p>
+
+      <div class="lobby-step" id="lobbyStepMode">
+        <div class="mode-choice-grid online-only hidden">
+          <button class="mode-choice hidden" id="chooseHotseatBtn" aria-hidden="true" tabindex="-1">
+            <div>
+              <strong data-i18n="rollforge.mode.hotseat">Hotseat</strong>
+              <span data-i18n="rollforge.mode.hotseat.desc">Local multiplayer on one device. Add humans and bots.</span>
+            </div>
+            <small data-i18n="rollforge.mode.hotseat.small">Play locally</small>
+          </button>
+          <button class="mode-choice" id="chooseHostBtn">
+            <div>
+              <strong data-i18n="rollforge.mode.host">Raum erstellen</strong>
+              <span data-i18n="rollforge.mode.host.desc">Erstelle einen Raum und stelle Variante, Bots und Name direkt in der Lobby ein.</span>
+            </div>
+            <small data-i18n="rollforge.mode.host.small">Lobby öffnen</small>
+          </button>
+          <button class="mode-choice" id="chooseJoinBtn">
+            <div>
+              <strong data-i18n="rollforge.mode.join">Raum beitreten</strong>
+              <span data-i18n="rollforge.mode.join.desc">Tritt mit Raumcode oder Einladungslink bei.</span>
+            </div>
+            <small data-i18n="rollforge.mode.join.small">Beitreten</small>
+          </button>
+        </div>
+
+        <div class="lobby-tabs" role="tablist">
+          <button type="button" class="secondary lobby-tab active" id="modeCreateTab" role="tab" aria-selected="true" data-i18n="rollforge.createRoom">Raum erstellen</button>
+          <button type="button" class="secondary lobby-tab" id="modeJoinTab" role="tab" aria-selected="false" data-i18n="rollforge.joinRoom">Raum beitreten</button>
+        </div>
+        <p class="tab-hint muted" data-i18n="rollforge.tabHint" style="margin-top:10px">Die Reiter öffnen nur den Bereich – danach unten noch auf den Button „Raum erstellen“ bzw. „Raum beitreten“ tippen.</p>
+        <div class="lobby-mode" id="lobbyMenuFields" style="margin-top:14px">
+          <label data-i18n="rollforge.yourName">Dein Name</label>
+          <input id="menuNameInput" maxlength="18" placeholder="Dein Name" data-i18n-placeholder="rollforge.yourName" />
+          <div id="menuJoinFields" class="hidden">
+            <label data-i18n="rollforge.roomCode">Raumcode</label>
+            <input id="menuRoomInput" maxlength="18" placeholder="ABCD12" data-i18n-placeholder="rollforge.roomCode" />
+            <div class="muted" id="menuJoinInviteHint" style="display:none" data-i18n="rollforge.join.inviteHint">Dieser Raum stammt aus dem Einladungslink. Gib nur noch deinen Namen ein.</div>
+            <div class="public-rooms" id="publicRoomsList">
+              <div class="public-rooms-head" data-i18n="rollforge.publicRooms.title">Öffentliche Spiele</div>
+              <div class="public-rooms-items" id="publicRoomsItems">
+                <div class="public-rooms-empty muted" data-i18n="rollforge.publicRooms.empty">Aktuell keine öffentlichen Räume.</div>
+              </div>
+            </div>
+          </div>
+        </div>
+        <button class="primary" id="menuActionBtn" style="width:100%;margin-top:14px" data-i18n="rollforge.createRoom">Raum erstellen</button>
+      </div>
+
+      <div class="lobby-step hidden" id="lobbyStepSettings">
+        <div class="lobby-back-row">
+          <button class="secondary" id="lobbyBackBtn" data-i18n="rollforge.back">← Back</button>
+          <strong id="lobbySettingsTitle" data-i18n="rollforge.settings">Game Settings</strong>
+        </div>
+
+        <div class="variant-picker" id="variantPicker">
+          <button class="variant-card active" data-mode="classic">
+            <strong data-i18n="rollforge.variant.classic">Classic Forge</strong>
+            <span data-i18n="rollforge.variant.classic.desc">13 categories · familiar full-length game.</span>
+          </button>
+          <button class="variant-card" data-mode="extended">
+            <strong data-i18n="rollforge.variant.extended">Extended Forge</strong>
+            <span data-i18n="rollforge.variant.extended.desc">17 categories · extra tactical scoring options.</span>
+          </button>
+        </div>
+
+        <div class="lobby-grid">
+          <section class="lobby-mode hidden" id="hotseatSettings" aria-hidden="true">
+            <h2 data-i18n="rollforge.hotseat.title">Hotseat Settings</h2>
+            <small data-i18n="rollforge.hotseat.desc">Choose your player name, human players and bots.</small>
+            <input id="lobbyHotseatName" placeholder="Your name" data-i18n-placeholder="rollforge.yourName" maxlength="18" />
+            <input id="lobbyHotseatPlayers" type="number" min="1" max="6" value="2" title="Human players" />
+            <input id="lobbyHotseatBots" type="number" min="0" max="5" value="0" title="Bots" />
+            <button class="primary" id="lobbyHotseatBtn" data-i18n="rollforge.startHotseat">Start Hotseat</button>
+          </section>
+
+          <section class="lobby-mode hidden" id="hostSettings">
+            <h2 data-i18n="rollforge.host.title">Raum-Einstellungen</h2>
+            <small data-i18n="rollforge.host.desc">Lege Variante, Bots und deinen Namen fest. Danach öffnest du die Lobby.</small>
+            <input id="lobbyHostName" placeholder="Your name" data-i18n-placeholder="rollforge.yourName" maxlength="18" />
+            <input id="lobbyHostRoom" class="room-code-field" placeholder="Room code" data-i18n-placeholder="rollforge.roomCode" maxlength="18" readonly />
+            <div class="invite-box">
+              <label for="lobbyHostInviteLink" data-i18n="rollforge.inviteLink">Invite link</label>
+              <div class="invite-row">
+                <input id="lobbyHostInviteLink" class="room-code-field" placeholder="Invite link" data-i18n-placeholder="rollforge.inviteLink" readonly />
+                <button class="secondary" id="copyHostInviteBtn" type="button" data-i18n="rollforge.copy">Copy</button>
+              </div>
+            </div>
+            <label for="lobbyHostBots" data-i18n="rollforge.bots">Bots</label>
+            <input id="lobbyHostBots" type="number" min="0" max="5" value="0" title="Bots" />
+            <label class="keep-rerolls-label"><input type="checkbox" id="keepRerollsCheck"> Ungenutzte Rerolls aufbewahren</label>
+            <button class="primary" id="lobbyHostBtn" data-i18n="rollforge.createRoom">Create Room</button>
+          </section>
+
+          <section class="lobby-mode hidden" id="joinSettings">
+            <h2 data-i18n="rollforge.join.title">Join Online</h2>
+            <small data-i18n="rollforge.join.desc">No extra settings here — just enter your name and the room code from the host.</small>
+            <input id="lobbyJoinName" placeholder="Your name" data-i18n-placeholder="rollforge.yourName" maxlength="18" />
+            <input id="lobbyJoinRoom" placeholder="Room code" data-i18n-placeholder="rollforge.roomCode" maxlength="18" />
+            <div class="muted" id="joinInviteHint" style="display:none;" data-i18n="rollforge.join.inviteHint">Dieser Raum stammt aus dem Einladungslink. Gib nur noch deinen Namen ein.</div>
+            <button class="primary" id="lobbyJoinBtn" data-i18n="rollforge.joinRoom">Join Room</button>
+          </section>
+        </div>
+      </div>
+
+
+      <div class="online-waiting hidden" id="onlineWaitingRoom">
+        <div class="lobby-back-row">
+          <strong id="onlineWaitingTitle" data-i18n="rollforge.onlineLobby">Online Lobby</strong>
+          <span class="lobby-code-pill" id="onlineWaitingCode">ROOM</span>
+        </div>
+        <div class="invite-box">
+          <label for="onlineInviteView" data-i18n="rollforge.inviteLink">Invite link</label>
+          <div class="invite-row">
+            <input id="onlineInviteView" class="room-code-field" readonly />
+            <button class="secondary" id="copyOnlineInviteBtn" type="button" data-i18n="rollforge.copy">Copy</button>
+          </div>
+        </div>
+
+        <section class="online-host-settings" id="onlineHostSettings">
+          <div class="lobby-back-row online-host-settings-head">
+            <strong data-i18n="rollforge.host.title">Raum-Einstellungen</strong>
+            <span class="muted" data-i18n="rollforge.host.desc">Variante, Bots und Name werden vor dem Start festgelegt.</span>
+          </div>
+          <div class="online-settings-grid">
+            <label class="online-setting-field" for="onlineHostName">
+              <span data-i18n="rollforge.yourName">Your name</span>
+              <input id="onlineHostName" placeholder="Your name" data-i18n-placeholder="rollforge.yourName" maxlength="18" />
+            </label>
+            <label class="online-setting-field" for="onlineHostBots">
+              <span data-i18n="rollforge.bots">Bots</span>
+              <input id="onlineHostBots" type="number" min="0" max="5" value="0" />
+            </label>
+            <label class="online-setting-field" style="flex-direction:row;align-items:center;gap:8px;cursor:pointer">
+              <input type="checkbox" id="keepRerollsCheckHost">
+              <span>Rerolls aufbewahren</span>
+            </label>
+            <label class="online-setting-field" style="flex-direction:row;align-items:center;gap:8px;cursor:pointer">
+              <input type="checkbox" id="publicRoomCheckHost">
+              <span data-i18n="rollforge.publicRoom">Öffentlich sichtbar (im Spiele-Browser gelistet)</span>
+            </label>
+          </div>
+          <div class="variant-picker online-variant-picker" id="onlineVariantPicker">
+            <button class="variant-card active" data-mode="classic" type="button">
+              <strong data-i18n="rollforge.variant.classic">Classic Forge</strong>
+              <span data-i18n="rollforge.variant.classic.desc">13 categories · familiar full-length game.</span>
+            </button>
+            <button class="variant-card" data-mode="extended" type="button">
+              <strong data-i18n="rollforge.variant.extended">Extended Forge</strong>
+              <span data-i18n="rollforge.variant.extended.desc">17 categories · extra tactical scoring options.</span>
+            </button>
+          </div>
+        </section>
+
+        <div class="online-player-list" id="onlineLobbyPlayers"></div>
+        <div class="lobby-back-row">
+          <span class="muted" id="onlineWaitingHint" data-i18n="rollforge.waitingHost">Waiting for the host to start the game.</span>
+          <button class="primary" id="onlineStartGameBtn" type="button" data-i18n="rollforge.startGame">Start Game</button>
+        </div>
+      </div>
+
+      <div class="lobby-status" id="lobbyStatus" data-i18n="rollforge.lobby.chooseHostJoin">Create a room or join one.</div>
+    </div>
+  </div>
+
+
+
+  <div class="ranking-overlay hidden" id="rankingOverlay" aria-hidden="true">
+    <div class="ranking-card" role="dialog" aria-modal="true" aria-labelledby="rankingTitle">
+      <div class="ranking-kicker" data-i18n="ranking.finalKicker">Endabrechnung · amtlich überdramatisiert</div>
+      <h2 id="rankingTitle" data-i18n="rollforge.ranking.title">Das große Würfelgericht hat gesprochen.</h2>
+      <p id="rankingSubtitle" class="ranking-subtitle" data-i18n="rollforge.ranking.subtitle">Die Punkte sind gezählt. Die Ausreden werden separat gelagert.</p>
+      <div class="ranking-podium" id="rankingPodium"></div>
+      <div class="ranking-list" id="rankingList"></div>
+      <div class="ranking-actions">
+        <button class="primary" id="rankingAgainBtn" type="button" data-i18n="ranking.again">Noch eine Runde</button>
+        <button class="secondary" id="rankingCloseBtn" type="button" data-i18n="rollforge.ranking.scoreboards">Scoreboards ansehen</button>
+        <button class="danger" id="rankingLobbyBtn" type="button" data-i18n="ranking.lobby">Zur Lobby</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="confirm-overlay hidden" id="exitConfirmOverlay">
+    <div class="confirm-card">
+      <h2 id="confirmTitle" data-i18n="rollforge.confirm.endTitle">End current game?</h2>
+      <p id="confirmText" data-i18n="rollforge.confirm.endText">This will leave the current match and return to the lobby. Unsaved scores and the current room session will be lost.</p>
+      <div class="confirm-actions">
+        <button class="secondary" id="cancelExitBtn" data-i18n="rollforge.confirm.cancel">Cancel</button>
+        <button class="danger" id="confirmExitBtn" data-i18n="rollforge.confirm.endButton">End Game</button>
+      </div>
+    </div>
+  </div>
+  <script src="../../assets/sounds/sound.js?v=20260615-diceroll"></script>
+  <script>
+    // Early fallback driver for the shared game-chrome back button
+    // (assets/game-chrome.js). game.js replaces this with a fuller version (that
+    // also leaves an online room cleanly) once its module loads; until then this
+    // already keeps the lobby's mode-choice step as the only "top" level, so the
+    // button never drops to the catalogue from the settings step or an online
+    // room — it walks back to the game's own menu in-page instead.
+    window.__brettBack = {
+      atTop: function () {
+        var lo = document.getElementById('lobbyOverlay');
+        var modeStep = document.getElementById('lobbyStepMode');
+        return !!(lo && !lo.classList.contains('hidden') && modeStep && !modeStep.classList.contains('hidden'));
+      },
+      up: function () {
+        var lo = document.getElementById('lobbyOverlay');
+        if (!lo || lo.classList.contains('hidden')) {
+          var exitBtn = document.getElementById('exitBtn');   // live match → exit-confirm back to lobby
+          if (exitBtn) exitBtn.click();
+          return;
+        }
+        var backBtn = document.getElementById('lobbyBackBtn'); // settings step / online room → mode menu
+        if (backBtn) backBtn.click();
+      }
+    };
+  </script>
+  <script src="../../assets/game-chrome.js?v=20260625-nav"></script>
+  <script type="module" src="./game.js?v=20260904-local-three"></script>
+
+  <script>
+    (function(){
+      var key = "brettspiele.themeMode";
+      var root = document.documentElement;
+      var button = document.getElementById("themeToggle");
+      var media = window.matchMedia ? window.matchMedia("(prefers-color-scheme: dark)") : null;
+      function getMode() {
+        try {
+          var mode = localStorage.getItem(key) || "auto";
+          return ["auto", "light", "dark"].includes(mode) ? mode : "auto";
+        } catch (e) {
+          return "auto";
+        }
+      }
+      function resolve(mode) {
+        return mode === "auto" ? (media && media.matches ? "dark" : "light") : mode;
+      }
+      function apply(mode, save) {
+        mode = ["auto", "light", "dark"].includes(mode) ? mode : "auto";
+        var theme = resolve(mode);
+        root.dataset.themeMode = mode;
+        root.dataset.theme = theme;
+        if (save) {
+          try { localStorage.setItem(key, mode); } catch (e) {}
+        }
+        try { localStorage.setItem("brettspiele.theme", theme); } catch (e) {}
+        if (button) {
+          var text = window.BFI18N && BFI18N.describeThemeMode ? BFI18N.describeThemeMode(mode, theme) : (theme === "light" ? "Light" : "Dark");
+          button.textContent = text;
+          button.setAttribute("aria-label", window.BFI18N ? BFI18N.t("theme.aria", { mode: text }) : ("Theme wechseln. Aktuell: " + text));
+          button.setAttribute("title", "Theme: " + text);
+        }
+        window.dispatchEvent(new CustomEvent("brettspiele-theme-change", { detail: { mode: mode, theme: theme } }));
+      }
+      function nextMode() {
+        // Toggle the visible theme immediately.
+        // When the stored mode is "auto", the old implementation first changed
+        // auto -> light/dark and could look like a no-op. This always switches
+        // to the opposite of the currently resolved theme.
+        var currentTheme = root.dataset.theme || resolve(getMode());
+        return currentTheme === "light" ? "dark" : "light";
+      }
+      button && button.addEventListener("click", function(){
+        apply(nextMode(), true);
+      });
+      if (media) {
+        var onSystemChange = function(){ apply(getMode(), false); };
+        if (media.addEventListener) media.addEventListener("change", onSystemChange);
+        else if (media.addListener) media.addListener(onSystemChange);
+      }
+      apply(getMode(), false);
+      window.addEventListener("brettspiele-language-change", function(){ apply(getMode(), false); });
+    })();
+  </script>
+  <script src="../../assets/gamepad.js?v=20260824-pad"></script>
+</body>
+</html>

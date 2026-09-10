@@ -1,0 +1,231 @@
+:root{color-scheme:dark;--bg:#0d1512;--panel:rgba(20,28,25,.88);--panel2:#182420;--line:rgba(255,255,255,.13);--text:#eafff6;--muted:#9db3ab;--accent:#5ec8a6;--good:#57d68d;--bad:#ff5b65;--blue:#65a8ff;--shadow:0 24px 70px rgba(0,0,0,.4);--radius:24px;--font:ui-sans-serif,system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif}
+html[data-theme="light"]{color-scheme:light;--bg:#eef6f2;--panel:rgba(255,255,255,.86);--panel2:#ffffff;--line:rgba(15,30,25,.14);--text:#0f1e18;--muted:#5a6f68;--shadow:0 20px 55px rgba(20,60,45,.14)}
+*{box-sizing:border-box}
+body{margin:0;min-height:100vh;font-family:var(--font);color:var(--text);background:radial-gradient(circle at 10% 5%,color-mix(in srgb,var(--accent) 22%,transparent),transparent 30%),radial-gradient(circle at 90% 10%,rgba(101,168,255,.14),transparent 28%),linear-gradient(140deg,var(--bg),#070c0a);overflow-x:hidden}
+html[data-theme="light"] body{background:radial-gradient(circle at 10% 5%,color-mix(in srgb,var(--accent) 18%,transparent),transparent 30%),radial-gradient(circle at 90% 10%,rgba(101,168,255,.16),transparent 28%),#eef6f2}
+.app{width:min(1480px,calc(100vw - 28px));margin:0 auto;padding:18px 0 30px}
+.top{display:flex;align-items:center;justify-content:space-between;gap:14px;margin-bottom:16px}
+.brand{display:flex;align-items:center;gap:12px}
+.logo{width:54px;height:54px;border-radius:18px;background:linear-gradient(135deg,var(--accent),#2f9c76);display:grid;place-items:center;font-size:28px;box-shadow:0 14px 28px rgba(0,0,0,.24)}
+h1{margin:0;font-size:clamp(30px,4vw,56px);line-height:.88;letter-spacing:-.065em}
+.subtitle{margin-top:7px;color:var(--muted);font-weight:650}
+.game-top-actions{display:flex;gap:9px;align-items:center;flex-wrap:wrap;justify-content:flex-end}
+.btn,button{border:0;border-radius:16px;padding:12px 15px;font:inherit;font-weight:900;cursor:pointer;background:linear-gradient(135deg,var(--accent),#38b98d);color:#052e21;box-shadow:0 12px 22px rgba(94,200,166,.2);transition:transform .15s ease,filter .15s ease,opacity .15s ease;text-decoration:none;display:inline-flex;align-items:center;justify-content:center;gap:8px}
+button:hover,.btn:hover{transform:translateY(-1px);filter:brightness(1.05)}
+button:disabled{opacity:.4;cursor:not-allowed;transform:none}
+.secondary{background:rgba(255,255,255,.08);border:1px solid var(--line);box-shadow:none;color:var(--text)}
+html[data-theme="light"] .secondary{background:rgba(0,0,0,.04)}
+.danger{background:linear-gradient(135deg,#ff5b65,#cc3348);color:#fff}
+.good{background:linear-gradient(135deg,#57d68d,#9cf06d);color:#07180f}
+button.small{padding:8px 12px;font-size:12.5px}
+.layout{display:grid;grid-template-columns:300px minmax(560px,1fr) 280px;gap:16px}
+.card{border:1px solid var(--line);border-radius:var(--radius);background:var(--panel);backdrop-filter:blur(18px);box-shadow:var(--shadow);overflow:hidden}
+.pad{padding:18px}
+.section-title{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-bottom:12px}
+h2,h3{margin:0;letter-spacing:-.035em}
+h2{font-size:20px}h3{font-size:16px}
+.muted{color:var(--muted);font-size:13px;line-height:1.45}
+.accent{color:var(--accent)}
+label{display:block;color:var(--muted);font-size:12px;font-weight:900;letter-spacing:.08em;text-transform:uppercase;margin:12px 0 7px}
+input:not([type="checkbox"]),select,textarea{width:100%;border:1px solid var(--line);background:rgba(255,255,255,.07);color:var(--text);border-radius:15px;padding:12px 13px;outline:none;font:inherit}
+html[data-theme="light"] input:not([type="checkbox"]),html[data-theme="light"] select,html[data-theme="light"] textarea{background:rgba(0,0,0,.04)}
+input[type="checkbox"]{width:18px;height:18px;margin:0;flex:0 0 auto;accent-color:var(--accent);cursor:pointer}
+.public-room-toggle{display:flex;align-items:center;gap:8px;cursor:pointer;margin:12px 0 7px;text-transform:none;letter-spacing:0;color:var(--text);font-size:13px;font-weight:800}
+.public-rooms{margin-top:10px;padding:11px;border-radius:14px;background:rgba(255,255,255,.05);border:1px solid var(--line)}
+.public-rooms-head{font-size:12px;font-weight:900;letter-spacing:.06em;text-transform:uppercase;color:var(--muted);margin-bottom:8px}
+.public-rooms-items{display:grid;gap:6px;max-height:160px;overflow-y:auto}
+.public-rooms-empty{font-size:13px;padding:4px 2px}
+.public-room-row{display:grid;grid-template-columns:auto 1fr auto;align-items:center;gap:10px;width:100%;padding:9px 11px;border-radius:12px;background:rgba(255,255,255,.08);border:1px solid var(--line);color:var(--text);font-weight:700;text-align:left;cursor:pointer}
+.public-room-row:hover{border-color:color-mix(in srgb,var(--accent) 55%,var(--line))}
+.public-room-row span{color:var(--muted);font-size:13px;font-weight:700}
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.hidden{display:none!important}
+.pill{display:inline-flex;align-items:center;gap:8px;border:1px solid var(--line);border-radius:999px;background:rgba(255,255,255,.06);padding:8px 11px;font-size:13px;color:var(--muted);font-weight:800}
+.pill strong{color:var(--text)}
+.list{display:flex;flex-direction:column;gap:9px}
+.item{padding:12px;border-radius:16px;background:rgba(255,255,255,.06);border:1px solid var(--line)}
+.item.active{border-color:color-mix(in srgb,var(--accent) 65%,var(--line));background:color-mix(in srgb,var(--accent) 14%,transparent)}
+.item .row1{display:flex;justify-content:space-between;align-items:center;font-weight:800}
+.item .row2{display:flex;justify-content:space-between;align-items:center;margin-top:4px;color:var(--muted);font-size:12.5px}
+.item .level-track{display:flex;gap:3px;margin-top:8px}
+.item .level-dot{width:15px;height:6px;border-radius:3px;background:rgba(255,255,255,.14)}
+.item .level-dot.done{background:var(--accent)}
+.item .level-dot.current{background:#e0ac2b}
+.center{display:grid;place-items:center;text-align:center;min-height:420px}
+.big{font-size:clamp(42px,8vw,100px);font-weight:1000;letter-spacing:-.08em;line-height:.9}
+.toast{position:fixed;left:50%;bottom:24px;transform:translateX(-50%) translateY(16px);opacity:0;transition:.18s ease;z-index:50;background:rgba(10,20,17,.94);border:1px solid var(--line);border-radius:999px;padding:12px 16px;color:var(--text);font-weight:900;box-shadow:var(--shadow)}
+.toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
+.lobby-tabs{margin-bottom:4px}
+.lobby-tab.active{background:linear-gradient(135deg,var(--accent),#38b98d);color:#052e21;border-color:transparent}
+.tab-hint{font-size:12.5px;line-height:1.4;margin:2px 0 10px;opacity:.85}
+.lobbyHero{min-height:380px}
+.rules-box{margin-top:6px}
+.level-list{margin:0;padding-left:20px;display:flex;flex-direction:column;gap:6px;font-size:12.5px;color:var(--muted);max-height:340px;overflow-y:auto}
+.level-list li strong{color:var(--text)}
+.level-list li.done{color:var(--accent)}
+
+/* ===== game stage ===== */
+.table-wrap{position:relative;border-radius:20px;overflow:hidden;background:#06120c;aspect-ratio:16/10;box-shadow:inset 0 0 0 1px var(--line)}
+/* touch-action:none: hand cards are picked/dragged straight off this canvas
+   (see LevelUp3D.pickHandCard in game.js) — without this, touch-dragging a
+   card also pans/scrolls the page underneath it. */
+#tableCanvas{width:100%;height:100%;display:block;touch-action:none}
+.turn-banner{position:absolute;top:12px;left:50%;transform:translateX(-50%);background:rgba(6,18,12,.72);backdrop-filter:blur(6px);border:1px solid var(--line);border-radius:999px;padding:8px 18px;font-weight:900;font-size:13px;color:var(--text);white-space:nowrap}
+.turn-banner.mine{background:color-mix(in srgb,var(--accent) 30%,rgba(6,18,12,.72));border-color:var(--accent)}
+
+.table-view-actions{position:absolute;right:10px;bottom:10px;display:flex;gap:6px;z-index:7}
+.view-action-btn{width:36px;height:36px;padding:0;border-radius:11px;background:rgba(6,18,12,.72);backdrop-filter:blur(6px);border:1px solid var(--line);color:var(--text);font-size:16px;line-height:1;box-shadow:none}
+.view-action-btn:hover{background:rgba(6,18,12,.9);transform:none}
+.view-action-btn[aria-pressed="true"]{outline:2px solid var(--accent);outline-offset:1px;background:color-mix(in srgb,var(--accent) 30%,rgba(6,18,12,.72))}
+
+/* "Ansicht füllen" is CSS-only (browser chrome stays visible) and is applied
+   after reparenting #gameStage to document.body (see game.js) — position:
+   fixed here would otherwise be scoped to the nearest ancestor that sets
+   backdrop-filter (main.card), not the real viewport. Real fullscreen (the
+   other button) is requested on <html> instead of #gameStage, because the
+   skip-target/run-side/confirm overlays live as siblings of .app directly
+   under <body> — fullscreening only #gameStage would render on top of the
+   whole page and blank those dialogs out. */
+#gameStage.view-expanded{position:fixed;inset:0;z-index:900;margin:0;padding:16px;box-sizing:border-box;overflow-y:auto;background:var(--bg);display:flex;flex-direction:column;gap:0}
+#gameStage.view-expanded .table-wrap{aspect-ratio:auto;flex:1 1 auto;min-height:260px}
+@media(max-width:650px){#gameStage.view-expanded{padding:10px}}
+
+.board-panel{margin-top:12px}
+.board-panel-head{display:flex;justify-content:space-between;align-items:center;margin-bottom:8px}
+.table-melds{display:flex;flex-direction:column;gap:8px;max-height:150px;overflow-y:auto}
+.meld-row{display:flex;align-items:center;gap:8px;flex-wrap:wrap;padding:6px 8px;border-radius:12px;background:rgba(255,255,255,.04);border:1px solid var(--line)}
+.meld-row .meld-owner{font-size:11px;font-weight:900;color:var(--muted);text-transform:uppercase;letter-spacing:.05em;min-width:70px}
+.meld-group{display:flex;gap:3px;padding:3px;border-radius:9px}
+.meld-group.hittable{outline:2px dashed var(--accent);cursor:pointer}
+.meld-group.hittable:hover{background:color-mix(in srgb,var(--accent) 14%,transparent)}
+.meld-group.skip-pending{outline:2px dashed #ff8f8f;background:rgba(255,143,143,.08)}
+/* Shown while dragging a hand card: which laid-down groups it could legally
+   extend right now (see computeDropTargets() in game.js). */
+.meld-group.drop-armed{outline:2px dashed color-mix(in srgb,var(--accent) 55%,var(--line))}
+.meld-group.drop-hover{outline:2px solid var(--accent);background:color-mix(in srgb,var(--accent) 18%,transparent)}
+
+.card-chip{width:30px;height:42px;border-radius:6px;display:grid;place-items:center;font-weight:900;font-size:14px;color:#111;box-shadow:0 3px 6px rgba(0,0,0,.3);border:1px solid rgba(0,0,0,.15);flex:0 0 auto}
+.card-chip.color-red{background:linear-gradient(160deg,#ff8a7a,#e0483a);color:#3a0a05}
+.card-chip.color-blue{background:linear-gradient(160deg,#7fb6ff,#2f6fd6);color:#031a3a}
+.card-chip.color-green{background:linear-gradient(160deg,#8be6b0,#2f9c60);color:#03230f}
+.card-chip.color-yellow{background:linear-gradient(160deg,#ffe37f,#e0ac2b);color:#3a2a00}
+.card-chip.type-wild{background:linear-gradient(160deg,#f0a8ff,#8b5cf6,#65a8ff,#57d68d);color:#fff;font-size:11px}
+.card-chip.type-skip{background:linear-gradient(160deg,#4b5563,#1f2430);color:#fff;font-size:16px}
+
+.lay-tray-box{margin-top:12px;padding:12px;border-radius:16px;background:rgba(255,255,255,.05);border:1px solid var(--accent)}
+.lay-tray-head{display:flex;justify-content:space-between;align-items:center;margin-bottom:10px;font-weight:800;font-size:13px}
+.lay-trays{display:flex;flex-direction:column;gap:10px;margin-bottom:10px}
+.lay-tray{padding:8px;border-radius:12px;border:1px dashed var(--line);min-height:54px;transition:background .12s ease,border-color .12s ease}
+.lay-tray-label{font-size:11px;font-weight:900;color:var(--muted);text-transform:uppercase;letter-spacing:.05em;margin-bottom:6px}
+.lay-tray-cards{display:flex;gap:5px;flex-wrap:wrap;min-height:42px}
+.lay-tray.valid{border-color:var(--good);border-style:solid}
+.lay-tray.drop-armed{border-color:color-mix(in srgb,var(--accent) 55%,var(--line));border-style:dashed}
+.lay-tray.drop-hover{background:color-mix(in srgb,var(--accent) 18%,transparent);border-color:var(--accent);border-style:solid}
+.lay-tray-warn{margin-bottom:10px;padding:8px 11px;border-radius:12px;background:rgba(255,91,101,.12);border:1px solid color-mix(in srgb,var(--bad) 45%,var(--line));color:var(--text);font-size:12.5px;font-weight:750;line-height:1.35}
+.card-chip.draggable{cursor:grab;touch-action:none}
+.drag-ghost{position:fixed;z-index:5000;pointer-events:none;transform:translate(-50%,-50%) scale(1.08);opacity:.95;box-shadow:0 16px 30px rgba(0,0,0,.4)}
+
+.hand-panel{margin-top:12px}
+.hand-panel-head{display:flex;justify-content:space-between;align-items:center;gap:10px;margin-bottom:8px;font-weight:800;flex-wrap:wrap}
+.sort-toggle{display:inline-flex;border:1px solid var(--line);border-radius:999px;padding:3px;gap:2px;background:rgba(255,255,255,.04)}
+.sort-btn{padding:5px 12px;font-size:11.5px;font-weight:800;border-radius:999px;background:transparent;color:var(--muted);box-shadow:none}
+.sort-btn.active{background:linear-gradient(135deg,var(--accent),#38b98d);color:#052e21}
+/* .hand-card itself is no longer laid out anywhere in the DOM — the hand
+   lives in the 3D scene now (see game.render3d.js buildHandFan) — but this
+   base look is still what the floating drag-ghost (game.js startCardDrag)
+   is styled as while a card is being dragged onto a lay-tray. */
+.hand-card{width:64px;height:92px;border-radius:10px;display:flex;flex-direction:column;align-items:center;justify-content:center;font-weight:900;font-size:26px;box-shadow:0 8px 18px rgba(0,0,0,.32);border:2px solid rgba(0,0,0,.15);user-select:none}
+.hand-card.color-red{background:linear-gradient(160deg,#ff8a7a,#e0483a);color:#3a0a05}
+.hand-card.color-blue{background:linear-gradient(160deg,#7fb6ff,#2f6fd6);color:#031a3a}
+.hand-card.color-green{background:linear-gradient(160deg,#8be6b0,#2f9c60);color:#03230f}
+.hand-card.color-yellow{background:linear-gradient(160deg,#ffe37f,#e0ac2b);color:#3a2a00}
+.hand-card.type-wild{background:linear-gradient(160deg,#f0a8ff,#8b5cf6,#65a8ff,#57d68d);color:#fff;font-size:15px;text-align:center}
+.hand-card.type-skip{background:linear-gradient(160deg,#4b5563,#1f2430);color:#fff;font-size:30px}
+.action-hint{min-height:19px;margin-bottom:8px;padding:8px 12px;border-radius:12px;background:rgba(94,200,166,.12);border:1px solid color-mix(in srgb,var(--accent) 40%,var(--line));color:var(--text);font-size:13px;font-weight:750;line-height:1.35}
+.action-hint:empty{display:none}
+.action-bar{display:flex;gap:8px;flex-wrap:wrap;margin-top:4px}
+.action-bar button{flex:1 1 auto;min-width:110px}
+.action-bar button.mode-on{outline:2px solid var(--accent);outline-offset:2px}
+/* button:disabled{opacity:.4} alone barely reads as "off" on an already
+   vivid color like .danger's red — desaturating on top of the dimming is
+   what actually makes a disabled action button look unavailable rather than
+   just a slightly muted version of "available". */
+.action-bar button:disabled{filter:grayscale(.7);opacity:.38}
+
+.skip-targets{display:flex;flex-direction:column;gap:8px;margin:14px 0}
+.skip-target-btn{width:100%;padding:12px;border-radius:12px;background:rgba(255,255,255,.08);border:1px solid var(--line);color:var(--text);font-weight:800;cursor:pointer;display:flex;flex-direction:column;align-items:flex-start;gap:2px;text-align:left}
+.skip-target-btn:hover{border-color:var(--accent)}
+.skip-target-meta{font-size:11.5px;font-weight:700;color:var(--muted)}
+
+.log-section-title{margin-top:16px}
+.log-list{display:flex;flex-direction:column;gap:5px;max-height:220px;overflow-y:auto;font-size:12px}
+.log-entry{padding:6px 9px;border-radius:10px;background:rgba(255,255,255,.04);border:1px solid var(--line);color:var(--muted);line-height:1.35}
+.log-empty{font-size:12.5px;padding:4px 2px}
+
+.ranking{list-style:none;padding:0;margin:16px 0;width:100%}
+.ranking li{display:flex;justify-content:space-between;gap:12px;padding:10px 0;border-bottom:1px solid var(--line);font-weight:800}
+.ranking li.gold,.ranking li.gold strong{color:var(--accent)}
+.continue-box{display:flex;align-items:center;gap:14px;flex-wrap:wrap;margin-top:18px;justify-content:center}
+.continue-box button{width:auto;padding:12px 26px}
+.victory{display:flex;flex-direction:column;align-items:center;text-align:center}
+.victory .crown{font-size:clamp(56px,12vw,96px);line-height:1;filter:drop-shadow(0 10px 24px rgba(0,0,0,.35));animation:lu-pop .5s ease}
+.victory .champ-name{font-size:clamp(30px,5vw,54px);font-weight:1000;letter-spacing:-.06em;line-height:1;margin-top:6px;background:linear-gradient(135deg,var(--accent),#38b98d);-webkit-background-clip:text;background-clip:text;color:transparent}
+.victory .champ-sub{color:var(--muted);font-weight:800;margin-top:8px;font-size:15px}
+.endmenu{margin-top:10px;display:flex;align-items:center;gap:14px;flex-wrap:wrap;justify-content:center}
+.endmenu button{width:auto;padding:11px 22px}
+@keyframes lu-pop{0%{transform:scale(.4);opacity:0}70%{transform:scale(1.12)}100%{transform:scale(1);opacity:1}}
+
+.gc-overlay{position:fixed;inset:0;z-index:2000;background:rgba(0,0,0,.55);backdrop-filter:blur(4px);display:flex;align-items:center;justify-content:center}
+.gc-overlay[hidden]{display:none!important}
+.gc-modal{background:var(--panel2,#111827);border:1px solid var(--line,rgba(255,255,255,.16));border-radius:18px;padding:24px 24px 18px;min-width:280px;max-width:400px;width:90%;box-shadow:var(--shadow,0 24px 60px rgba(0,0,0,.5))}
+.gc-msg{font-size:15px;color:var(--text,#f8fafc);line-height:1.55;margin-bottom:16px;text-align:center}
+.gc-actions{display:flex;gap:10px;justify-content:flex-end}
+.gc-actions button{width:auto;padding:10px 20px}
+
+.game-language-select{min-height:38px;border:1px solid var(--line,rgba(255,255,255,.16));border-radius:999px;padding:0 12px;background:var(--panel,#111827);color:var(--text,#f8fafc);font:inherit;font-weight:800}
+
+/* ===== character select ===== */
+.char-select-head{display:flex;flex-wrap:wrap;align-items:center;gap:10px 14px;margin-bottom:14px}
+.char-select-head h2{flex:1 1 auto}
+.char-select-head .muted{flex:1 0 100%;margin:0}
+.char-select-body{display:grid;grid-template-columns:220px 1fr;gap:18px;align-items:start}
+.char-preview{border:1px solid var(--line);border-radius:18px;background:rgba(0,0,0,.18);overflow:hidden;text-align:center}
+html[data-theme="light"] .char-preview{background:rgba(0,0,0,.05)}
+.char-preview canvas{width:100%;height:220px;display:block}
+.char-preview-name{padding:10px 8px;font-weight:900;font-size:15px}
+.char-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(96px,1fr));gap:10px}
+.char-card{position:relative;display:flex;flex-direction:column;align-items:center;gap:6px;padding:10px 8px 9px;border-radius:16px;background:rgba(255,255,255,.06);border:2px solid var(--line);color:var(--text);font:inherit;box-shadow:none}
+.char-card:hover{border-color:color-mix(in srgb,var(--accent) 55%,var(--line))}
+.char-card.selected{border-color:var(--accent);background:color-mix(in srgb,var(--accent) 16%,transparent)}
+.char-thumb{width:100%;aspect-ratio:1/1;border-radius:11px;background:rgba(0,0,0,.22);display:grid;place-items:center;overflow:hidden}
+html[data-theme="light"] .char-thumb{background:rgba(0,0,0,.06)}
+.char-thumb img{width:100%;height:100%;object-fit:contain}
+.char-thumb .char-emoji-fallback{font-size:34px}
+.char-name{font-size:12px;font-weight:800;text-align:center;line-height:1.25}
+.char-inuse-badge{position:absolute;top:6px;right:6px;background:rgba(6,18,12,.85);border:1px solid var(--line);color:var(--muted);font-size:9.5px;font-weight:900;letter-spacing:.03em;text-transform:uppercase;padding:3px 6px;border-radius:999px}
+.char-card.taken .char-inuse-badge{color:#ffd27a;border-color:color-mix(in srgb,#e0ac2b 60%,var(--line))}
+
+.seat-select-head{margin-top:16px;font-weight:900;font-size:14px;color:var(--muted)}
+.seat-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(96px,1fr));gap:10px;margin-top:8px}
+.seat-card{display:flex;flex-direction:column;align-items:center;gap:4px;padding:9px 8px;border-radius:14px;background:rgba(255,255,255,.06);border:2px solid var(--line);color:var(--text);font:inherit;box-shadow:none}
+.seat-card:hover{border-color:color-mix(in srgb,var(--accent) 55%,var(--line))}
+.seat-card.selected{border-color:var(--accent);background:color-mix(in srgb,var(--accent) 16%,transparent)}
+.seat-emoji{font-size:26px}
+.seat-name{font-size:11.5px;font-weight:800;text-align:center;line-height:1.2}
+
+@media(max-width:1100px){
+  .layout{grid-template-columns:1fr}
+  .top{align-items:flex-start;flex-direction:column}
+  .rightbar{order:3}
+  .rules-box{display:none}
+}
+@media(max-width:650px){
+  .app{width:min(100vw - 16px,720px);padding-top:8px}
+  .grid2{grid-template-columns:1fr}
+  .action-bar button{min-width:auto}
+  .table-wrap{aspect-ratio:4/3}
+  .char-select-body{grid-template-columns:1fr}
+  .char-preview canvas{height:170px}
+  .char-grid{grid-template-columns:repeat(auto-fill,minmax(78px,1fr))}
+  .seat-grid{grid-template-columns:repeat(auto-fill,minmax(78px,1fr))}
+}

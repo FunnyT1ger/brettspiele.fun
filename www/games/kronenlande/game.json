@@ -1,0 +1,63 @@
+{
+  "title": "Kronenlande",
+  "subtitle": {
+    "de": "Aufbau-Strategie im Plättchen-Look",
+    "en": "Tile-laying build-up strategy",
+    "fr": "Stratégie de construction en tuiles",
+    "es": "Estrategia de construcción con losetas",
+    "it": "Strategia di costruzione a tessere",
+    "ru": "Строительная стратегия из плиток",
+    "zh": "拼块建设策略",
+    "ja": "タイル配置の建設ストラテジー"
+  },
+  "description": {
+    "de": "Erschließe das Land, sammle Rohstoffe über die Jahreszeiten und baue vom Dorf bis zur Burg dein Reich – mit rollendem W8 im Brettspiel-Plättchen-Look.",
+    "en": "Open up the land, gather resources across the seasons and build your realm from village to castle — with a rolling d8 in a board-game tile look.",
+    "fr": "Explorez le pays, récoltez des ressources au fil des saisons et bâtissez votre royaume du village au château — avec un dé à 8 faces qui roule, dans un style de tuiles de plateau.",
+    "es": "Abre el territorio, reúne recursos a lo largo de las estaciones y construye tu reino de la aldea al castillo, con un d8 rodante y estética de losetas.",
+    "it": "Esplora il territorio, raccogli risorse attraverso le stagioni e costruisci il tuo regno dal villaggio al castello, con un d8 che rotola in stile tessere da tavolo.",
+    "ru": "Осваивайте земли, собирайте ресурсы по сезонам и стройте королевство от деревни до замка — с катящимся восьмигранником в стиле настольных плиток.",
+    "zh": "开拓土地，随季节收集资源，从村庄一路建到城堡——采用滚动 8 面骰与桌游拼块风格。",
+    "ja": "土地を開拓し、季節ごとに資源を集め、村から城まで王国を築こう——転がる8面ダイスとボードゲーム風タイルで。"
+  },
+  "players": {
+    "de": "1+ Spieler",
+    "en": "1+ players",
+    "fr": "1+ joueurs",
+    "es": "1+ jugadores",
+    "it": "1+ giocatori",
+    "ru": "1+ игроков",
+    "zh": "1+ 名玩家",
+    "ja": "1人以上"
+  },
+  "minutes": "20–60 min",
+  "category": {
+    "de": "Strategie",
+    "en": "Strategy",
+    "fr": "Stratégie",
+    "es": "Estrategia",
+    "it": "Strategia",
+    "ru": "Стратегия",
+    "zh": "策略",
+    "ja": "ストラテジー"
+  },
+  "tags": [
+    {
+      "de": "Aufbau", "en": "Build-up", "fr": "Construction", "es": "Construcción",
+      "it": "Costruzione", "ru": "Строительство", "zh": "建设", "ja": "建設"
+    },
+    {
+      "de": "Rohstoffe", "en": "Resources", "fr": "Ressources", "es": "Recursos",
+      "it": "Risorse", "ru": "Ресурсы", "zh": "资源", "ja": "資源"
+    },
+    {
+      "de": "Würfel", "en": "Dice", "fr": "Dés", "es": "Dados",
+      "it": "Dadi", "ru": "Кости", "zh": "骰子", "ja": "ダイス"
+    }
+  ],
+  "image": "games/kronenlande/button.svg",
+  "accent": "#d9a441",
+  "theme": "kronenlande",
+  "order": 4,
+  "comingSoon": false
+}

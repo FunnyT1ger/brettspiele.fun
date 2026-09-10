@@ -1,0 +1,79 @@
+{
+  "title": {
+    "de": "Buchstabensturm",
+    "en": "Buchstabensturm",
+    "fr": "Buchstabensturm",
+    "es": "Buchstabensturm",
+    "it": "Buchstabensturm",
+    "ru": "Buchstabensturm",
+    "zh": "Buchstabensturm",
+    "ja": "Buchstabensturm"
+  },
+  "subtitle": {
+    "de": "Stadt · Land · Fluss — Kategorien, Buchstaben, Panik",
+    "en": "Categories, letters, panic — the pen-and-paper classic",
+    "fr": "Catégories, lettres, panique — le classique papier-crayon",
+    "es": "Categorías, letras, pánico — el clásico de papel y lápiz",
+    "it": "Categorie, lettere, panico — il classico carta e penna",
+    "ru": "Категории, буквы, паника — классика с бумагой и ручкой",
+    "zh": "分类、字母和慌张 —— 纸笔经典游戏",
+    "ja": "カテゴリ、文字、焦り — 紙とペンの定番ゲーム"
+  },
+  "description": {
+    "de": "Der Klassiker mit eigener Kategorieauswahl, verrückten Feldern, Raumcode und automatischer Rundenauswertung.",
+    "en": "The classic word race with custom categories, silly fields, room codes and automatic round scoring.",
+    "fr": "Le classique des mots avec catégories personnalisées, cases absurdes, code de salle et score automatique.",
+    "es": "El clásico con categorías personalizadas, campos raros, código de sala y puntuación automática.",
+    "it": "Il classico con categorie personalizzate, campi assurdi, codice stanza e punteggio automatico.",
+    "ru": "Классика с категориями, странными полями, кодом комнаты и автоматическим подсчётом.",
+    "zh": "经典文字竞速，支持自定义分类、怪题、房间码和自动计分。",
+    "ja": "カテゴリ編集、変な項目、ルームコード、自動採点つきの定番単語ゲーム。"
+  },
+  "players": {
+    "de": "2+ Spieler",
+    "en": "2+ players",
+    "fr": "2+ joueurs",
+    "es": "2+ jugadores",
+    "it": "2+ giocatori",
+    "ru": "2+ игроков",
+    "zh": "2+ 人",
+    "ja": "2人以上"
+  },
+  "minutes": "10–25 min",
+  "category": {
+    "de": "Wörter",
+    "en": "Words",
+    "fr": "Mots",
+    "es": "Palabras",
+    "it": "Parole",
+    "ru": "Слова",
+    "zh": "文字",
+    "ja": "言葉"
+  },
+  "tags": [
+    {
+      "de": "Kategorien",
+      "en": "Categories",
+      "fr": "Catégories",
+      "es": "Categorías",
+      "it": "Categorie",
+      "ru": "Категории",
+      "zh": "分类",
+      "ja": "カテゴリ"
+    },
+    {
+      "de": "Realtime",
+      "en": "Realtime",
+      "fr": "Temps réel",
+      "es": "Tiempo real",
+      "it": "Tempo reale",
+      "ru": "Реалтайм",
+      "zh": "实时",
+      "ja": "リアルタイム"
+    }
+  ],
+  "image": "games/buchstabensturm/button.svg",
+  "accent": "#57d68d",
+  "theme": "buchstabensturm",
+  "order": 40
+}

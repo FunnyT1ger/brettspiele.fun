@@ -1,0 +1,71 @@
+{
+  "title": {
+    "de": "Korinthenkacker",
+    "en": "Nitpicker",
+    "fr": "Le Coupeur de Cheveux",
+    "es": "El Tiquismiquis",
+    "it": "Il Pignolo",
+    "ru": "Придира",
+    "zh": "吹毛求疵",
+    "ja": "重箱の隅つつき"
+  },
+  "subtitle": {
+    "de": "Party-Quiz für 2–6",
+    "en": "Party quiz for 2–6",
+    "fr": "Quiz d'ambiance pour 2 à 6",
+    "es": "Quiz de fiesta para 2–6",
+    "it": "Quiz da festa per 2–6",
+    "ru": "Викторина-вечеринка на 2–6",
+    "zh": "2–6 人派对问答",
+    "ja": "2〜6人のパーティークイズ"
+  },
+  "description": {
+    "de": "Alle spielen gleichzeitig: gemischte Themen und drei Fragetypen. Nur wer es ganz genau nimmt, sammelt die meisten Punkte und kürt sich zum größten Korinthenkacker. Online zusammen, ohne App und ohne Konto.",
+    "en": "Everyone plays at once: mixed topics and three question types. Only the truly pedantic rack up the most points and crown themselves top nitpicker. Play online together, no app and no account.",
+    "fr": "Tout le monde joue en même temps : thèmes variés et trois types de questions. Seuls les plus pointilleux marquent le plus de points et deviennent le roi du détail. En ligne ensemble, sans appli ni compte.",
+    "es": "Todos juegan a la vez: temas variados y tres tipos de preguntas. Solo los más quisquillosos suman más puntos y se coronan como el mayor tiquismiquis. En línea juntos, sin app ni cuenta.",
+    "it": "Si gioca tutti insieme: temi misti e tre tipi di domande. Solo i più pignoli accumulano più punti e si incoronano campioni. Online insieme, senza app e senza account.",
+    "ru": "Все играют одновременно: разные темы и три типа вопросов. Больше всех очков наберёт самый дотошный и станет главным придирой. Онлайн вместе, без приложения и аккаунта.",
+    "zh": "所有人同时作答：主题混合，三种题型。只有最较真的人才能拿到最多分数，成为头号吹毛求疵者。在线同乐，无需应用、无需账号。",
+    "ja": "全員同時にプレイ：ジャンル混合、3種類の問題。とことん細かい人だけが最多得点を稼ぎ、最強の重箱の隅つつきになる。みんなでオンライン、アプリ不要・アカウント不要。"
+  },
+  "players": {
+    "de": "2–6 Spieler",
+    "en": "2–6 players",
+    "fr": "2–6 joueurs",
+    "es": "2–6 jugadores",
+    "it": "2–6 giocatori",
+    "ru": "2–6 игроков",
+    "zh": "2–6 名玩家",
+    "ja": "2〜6人"
+  },
+  "minutes": "10–25 min",
+  "category": {
+    "de": "Party",
+    "en": "Party",
+    "fr": "Ambiance",
+    "es": "Fiesta",
+    "it": "Party",
+    "ru": "Вечеринка",
+    "zh": "派对",
+    "ja": "パーティー"
+  },
+  "tags": [
+    {
+      "de": "Quiz", "en": "Quiz", "fr": "Quiz", "es": "Quiz",
+      "it": "Quiz", "ru": "Викторина", "zh": "问答", "ja": "クイズ"
+    },
+    {
+      "de": "Online", "en": "Online", "fr": "En ligne", "es": "En línea",
+      "it": "Online", "ru": "Онлайн", "zh": "在线", "ja": "オンライン"
+    },
+    {
+      "de": "Wissen", "en": "Trivia", "fr": "Culture", "es": "Cultura",
+      "it": "Cultura", "ru": "Эрудиция", "zh": "冷知识", "ja": "雑学"
+    }
+  ],
+  "image": "games/nitpicker/button.svg",
+  "accent": "#ffc24b",
+  "theme": "nitpicker",
+  "order": 60
+}

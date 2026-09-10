@@ -1,0 +1,72 @@
+{
+  "title": {
+    "de": "Goldmeile",
+    "en": "Gold Mile",
+    "fr": "Le Mille d'Or",
+    "es": "La Milla de Oro",
+    "it": "Il Miglio d'Oro",
+    "ru": "Золотая миля",
+    "zh": "黄金大道",
+    "ja": "ゴールドマイル"
+  },
+  "subtitle": {
+    "de": "Das große Straßen-Handelsspiel",
+    "en": "The great street trading game",
+    "fr": "Le grand jeu de négoce immobilier",
+    "es": "El gran juego de comercio de calles",
+    "it": "Il grande gioco di compravendita di vie",
+    "ru": "Большая игра в торговлю улицами",
+    "zh": "大型街道交易游戏",
+    "ja": "本格ストリート取引ゲーム"
+  },
+  "description": {
+    "de": "Kaufe Straßen, kassiere Miete, baue Häuser und Hotels – und treibe deine Gegner in den Bankrott. Wer als Letztes zahlungsfähig bleibt, gewinnt die Goldmeile. Lokaler Hotseat, ohne App und ohne Konto.",
+    "en": "Buy streets, collect rent, build houses and hotels — and drive your rivals into bankruptcy. The last one still solvent wins the Gold Mile. Local hotseat, no app and no account.",
+    "fr": "Achetez des rues, encaissez les loyers, bâtissez maisons et hôtels — et ruinez vos adversaires. Le dernier solvable remporte le Mille d'Or. Hotseat local, sans appli ni compte.",
+    "es": "Compra calles, cobra alquileres, construye casas y hoteles y lleva a tus rivales a la bancarrota. El último solvente gana la Milla de Oro. Hotseat local, sin app ni cuenta.",
+    "it": "Compra vie, incassa affitti, costruisci case e hotel e manda in bancarotta gli avversari. L'ultimo solvibile vince il Miglio d'Oro. Hotseat locale, senza app e senza account.",
+    "ru": "Покупайте улицы, собирайте ренту, стройте дома и отели — и разоряйте соперников. Последний платёжеспособный выигрывает Золотую милю. Локальный хотсит, без приложения и аккаунта.",
+    "zh": "购买街道、收取租金、建造房屋和酒店，让对手破产。最后一个不破产的人赢得黄金大道。本地同屏，无需应用、无需账号。",
+    "ja": "通りを買い、家賃を集め、家やホテルを建てて対戦相手を破産させよう。最後まで支払い能力を保った人がゴールドマイルを制す。ローカルのホットシート、アプリ不要・アカウント不要。"
+  },
+  "players": {
+    "de": "2–4 Spieler",
+    "en": "2–4 players",
+    "fr": "2–4 joueurs",
+    "es": "2–4 jugadores",
+    "it": "2–4 giocatori",
+    "ru": "2–4 игрока",
+    "zh": "2–4 名玩家",
+    "ja": "2〜4人"
+  },
+  "minutes": "30–90 min",
+  "category": {
+    "de": "Strategie",
+    "en": "Strategy",
+    "fr": "Stratégie",
+    "es": "Estrategia",
+    "it": "Strategia",
+    "ru": "Стратегия",
+    "zh": "策略",
+    "ja": "ストラテジー"
+  },
+  "tags": [
+    {
+      "de": "Handel", "en": "Trading", "fr": "Négoce", "es": "Comercio",
+      "it": "Commercio", "ru": "Торговля", "zh": "交易", "ja": "取引"
+    },
+    {
+      "de": "Hotseat", "en": "Hotseat", "fr": "Hotseat", "es": "Hotseat",
+      "it": "Hotseat", "ru": "Hotseat", "zh": "同屏", "ja": "ホットシート"
+    },
+    {
+      "de": "Würfel", "en": "Dice", "fr": "Dés", "es": "Dados",
+      "it": "Dadi", "ru": "Кости", "zh": "骰子", "ja": "ダイス"
+    }
+  ],
+  "image": "games/gold-mile/button.svg",
+  "accent": "#cba650",
+  "theme": "gold-mile",
+  "order": 50,
+  "comingSoon": false
+}

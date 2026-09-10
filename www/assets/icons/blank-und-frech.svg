@@ -1,0 +1,32 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 200">
+  <defs>
+    <filter id="sha" color-interpolation-filters="sRGB">
+      <feDropShadow dx="0" dy="8" stdDeviation="10" flood-color="#000" flood-opacity=".5"/>
+    </filter>
+    <filter id="shb" color-interpolation-filters="sRGB">
+      <feDropShadow dx="2" dy="10" stdDeviation="12" flood-color="#000" flood-opacity=".45"/>
+    </filter>
+  </defs>
+  <!-- Back card (rotated right, red/dark) -->
+  <rect x="65" y="22" width="108" height="152" rx="16"
+        fill="#c0202e" filter="url(#sha)"
+        transform="rotate(10 119 98)"/>
+  <!-- Back card pattern -->
+  <rect x="78" y="35" width="82" height="126" rx="10" fill="none"
+        stroke="rgba(255,255,255,.18)" stroke-width="2"
+        transform="rotate(10 119 98)"/>
+  <!-- Front card (white/cream) -->
+  <rect x="28" y="22" width="108" height="152" rx="16"
+        fill="#fff1f2" filter="url(#shb)"/>
+  <!-- Card inner border -->
+  <rect x="38" y="32" width="88" height="132" rx="10"
+        fill="none" stroke="#ff5b65" stroke-width="2.5"/>
+  <!-- Blank fill-in lines -->
+  <line x1="50" y1="88" x2="128" y2="88" stroke="#ff5b65" stroke-width="4" stroke-linecap="round"/>
+  <line x1="50" y1="110" x2="128" y2="110" stroke="#ff5b65" stroke-width="4" stroke-linecap="round"/>
+  <line x1="50" y1="132" x2="100" y2="132" stroke="#ff5b65" stroke-width="4" stroke-linecap="round"/>
+  <!-- Cheeky "?" glyph -->
+  <text x="82" y="76" text-anchor="middle"
+        font-family="system-ui, sans-serif" font-weight="900" font-size="30"
+        fill="#ff5b65">?!</text>
+</svg>

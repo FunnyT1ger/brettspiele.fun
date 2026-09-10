@@ -1,0 +1,79 @@
+{
+  "title": {
+    "de": "Blank & Frech",
+    "en": "Blank & Cheeky",
+    "fr": "Blanc & Insolent",
+    "es": "Blanco y descarado",
+    "it": "Bianco & sfacciato",
+    "ru": "Пробел и дерзость",
+    "zh": "空白与毒舌",
+    "ja": "空欄と毒舌"
+  },
+  "subtitle": {
+    "de": "Freches Lückentext-Partyspiel",
+    "en": "Cheeky fill-in-the-blank party game",
+    "fr": "Jeu de phrases à trous insolent",
+    "es": "Juego de frases atrevidas",
+    "it": "Party game a frasi da completare",
+    "ru": "Дерзкая игра с пропусками",
+    "zh": "填空派对游戏",
+    "ja": "空欄補完パーティーゲーム"
+  },
+  "description": {
+    "de": "Host erstellt Raum, alle liefern Antworten, der Judge kürt die frechste Karte. Quasi gesellschaftsfähig. Fast.",
+    "en": "Host a room, everyone submits answers, the judge crowns the cheekiest card. Socially acceptable. Barely.",
+    "fr": "Créez une salle, envoyez vos réponses, le juge choisit la plus insolente. Presque présentable.",
+    "es": "Crea una sala, envía respuestas y el juez corona la más descarada. Casi aceptable.",
+    "it": "Crea una stanza, invia risposte e il giudice sceglie la più sfacciata. Quasi elegante.",
+    "ru": "Комната, ответы и судья, выбирающий самый дерзкий вариант. Почти прилично.",
+    "zh": "开房、提交答案，由裁判选出最毒舌的一张。勉强算文明。",
+    "ja": "部屋を作って回答を出し、判定役が一番ひねくれた答えを選ぶ。ぎりぎり健全。"
+  },
+  "players": {
+    "de": "3+ Spieler",
+    "en": "3+ players",
+    "fr": "3+ joueurs",
+    "es": "3+ jugadores",
+    "it": "3+ giocatori",
+    "ru": "3+ игроков",
+    "zh": "3+ 人",
+    "ja": "3人以上"
+  },
+  "minutes": "15–30 min",
+  "category": {
+    "de": "Party",
+    "en": "Party",
+    "fr": "Ambiance",
+    "es": "Fiesta",
+    "it": "Party",
+    "ru": "Вечеринка",
+    "zh": "派对",
+    "ja": "パーティー"
+  },
+  "tags": [
+    {
+      "de": "Raumcode",
+      "en": "Room code",
+      "fr": "Code de salle",
+      "es": "Código",
+      "it": "Codice stanza",
+      "ru": "Код комнаты",
+      "zh": "房间码",
+      "ja": "ルームコード"
+    },
+    {
+      "de": "Frech",
+      "en": "Cheeky",
+      "fr": "Insolent",
+      "es": "Descarado",
+      "it": "Sfacciato",
+      "ru": "Дерзко",
+      "zh": "毒舌",
+      "ja": "辛口"
+    }
+  ],
+  "image": "games/blank-frech/button.svg",
+  "accent": "#ff5b65",
+  "theme": "blank-frech",
+  "order": 30
+}

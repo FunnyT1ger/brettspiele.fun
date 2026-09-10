@@ -1,0 +1,793 @@
+<!DOCTYPE html>
+<html lang="de" data-game="warbound-atlas">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0,user-scalable=no">
+<title>Warbound Atlas</title>
+  <link rel="icon" href="data:image/svg+xml,%3Csvg%20xmlns='http://www.w3.org/2000/svg'%20viewBox='0%200%2016%2016'%3E%3Ctext%20y='14'%20font-size='14'%3E%F0%9F%97%BA%EF%B8%8F%3C/text%3E%3C/svg%3E">
+  <link rel="apple-touch-icon" href="data:image/svg+xml,%3Csvg%20xmlns='http://www.w3.org/2000/svg'%20viewBox='0%200%2016%2016'%3E%3Ctext%20y='14'%20font-size='14'%3E%F0%9F%97%BA%EF%B8%8F%3C/text%3E%3C/svg%3E">
+  <meta name="description" content="Rundenbasierte Eroberung auf einer 3D-Weltkarte: 7 Häuser, Gold, Ratskarten, Charaktere, Belagerungen und KI-Gegner. Gegen Bots oder im Hotseat. 1–7 Spieler." />
+  <link rel="canonical" href="https://brettspiele.fun/games/warbound-atlas/" />
+  <!--hreflang:auto-->
+  <link rel="alternate" hreflang="de" href="https://brettspiele.fun/games/warbound-atlas/" />
+  <link rel="alternate" hreflang="en" href="https://brettspiele.fun/en/games/warbound-atlas/" />
+  <link rel="alternate" hreflang="fr" href="https://brettspiele.fun/fr/games/warbound-atlas/" />
+  <link rel="alternate" hreflang="es" href="https://brettspiele.fun/es/games/warbound-atlas/" />
+  <link rel="alternate" hreflang="it" href="https://brettspiele.fun/it/games/warbound-atlas/" />
+  <link rel="alternate" hreflang="ru" href="https://brettspiele.fun/ru/games/warbound-atlas/" />
+  <link rel="alternate" hreflang="zh" href="https://brettspiele.fun/zh/games/warbound-atlas/" />
+  <link rel="alternate" hreflang="ja" href="https://brettspiele.fun/ja/games/warbound-atlas/" />
+  <link rel="alternate" hreflang="x-default" href="https://brettspiele.fun/games/warbound-atlas/" />
+  <!--/hreflang:auto-->
+  <meta property="og:type" content="website" />
+  <meta property="og:site_name" content="brettspiele.fun" />
+  <meta property="og:title" content="Warbound Atlas – brettspiele.fun" />
+  <meta property="og:description" content="Rundenbasierte Eroberung auf einer 3D-Weltkarte: 7 Häuser, Gold, Ratskarten, Charaktere, Belagerungen und KI-Gegner. Gegen Bots oder im Hotseat." />
+  <meta property="og:url" content="https://brettspiele.fun/games/warbound-atlas/" />
+  <meta property="og:image" content="https://brettspiele.fun/games/warbound-atlas/wallpaper.png" />
+  <meta property="og:locale" content="de_DE" />
+  <meta name="twitter:card" content="summary_large_image" />
+  <meta name="twitter:title" content="Warbound Atlas – brettspiele.fun" />
+  <meta name="twitter:description" content="Rundenbasierte Eroberung auf einer 3D-Weltkarte: 7 Häuser, Gold, Ratskarten, Charaktere, Belagerungen und KI-Gegner. Gegen Bots oder im Hotseat." />
+  <meta name="twitter:image" content="https://brettspiele.fun/games/warbound-atlas/wallpaper.png" />
+  <script type="application/ld+json">{"@context": "https://schema.org", "@type": "VideoGame", "name": "Warbound Atlas", "description": "Rundenbasierte Eroberung auf einer 3D-Weltkarte: 7 Häuser, Gold, Ratskarten, Charaktere, Belagerungen und KI-Gegner. Gegen Bots oder im Hotseat.", "url": "https://brettspiele.fun/games/warbound-atlas/", "image": "https://brettspiele.fun/games/warbound-atlas/wallpaper.png", "genre": "Strategiespiel", "playMode": "MultiPlayer", "applicationCategory": "Game", "operatingSystem": "Any (Web Browser)", "inLanguage": ["de", "en", "fr", "es", "it", "ru", "zh", "ja"]}</script>
+<link rel="stylesheet" href="styles.css?v=20260731-mobilesidebar">
+<!--
+  3D-Karte erstellt mit three.js (r128) — https://threejs.org
+  three.js ist unter der MIT-Lizenz lizenziert:
+  The MIT License — Copyright © 2010-2025 three.js authors
+  Permission is hereby granted, free of charge, to any person obtaining a copy
+  of this software and associated documentation files (the "Software"), to deal
+  in the Software without restriction, including without limitation the rights
+  to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+  copies of the Software, and to permit persons to whom the Software is
+  furnished to do so, subject to the following conditions:
+  The above copyright notice and this permission notice shall be included in all
+  copies or substantial portions of the Software.
+  THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+  IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+  FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+  AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+  LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+  SOFTWARE.
+-->
+<script src="three.min.js?v=20260614-three"></script>
+<script src="GLTFLoader.js?v=20260723-gltf"></script>
+<script src="SkeletonUtils.js?v=20260806-horse"></script>
+<script>try{var m=localStorage.getItem('brettspiele.themeMode')||'auto';var d=matchMedia('(prefers-color-scheme: dark)').matches;document.documentElement.dataset.theme=m==='auto'?(d?'dark':'light'):m;}catch(e){document.documentElement.dataset.theme='dark';}</script>
+<script src="../../assets/runtime-config.js?v=20260905-donation-on"></script><script src="../../assets/i18n/de.js?v=20260824-i18n-gaps"></script><script src="../../assets/i18n/en.js?v=20260824-i18n-gaps"></script><script src="../../assets/i18n/fr.js?v=20260824-i18n-gaps"></script><script src="../../assets/i18n/es.js?v=20260824-i18n-gaps"></script><script src="../../assets/i18n/it.js?v=20260824-i18n-gaps"></script><script src="../../assets/i18n/ru.js?v=20260824-i18n-gaps"></script><script src="../../assets/i18n/zh.js?v=20260824-i18n-gaps"></script><script src="../../assets/i18n/ja.js?v=20260824-i18n-gaps"></script><script src="../../assets/i18n.js?v=20260824-i18n-gaps"></script><script src="../../assets/auth.js?v=20260904-oauth-link"></script><script src="../../assets/consent.js?v=20260603-chrome"></script><script src="../../assets/game-chrome.js?v=20260625-nav"></script><link rel="stylesheet" href="../../assets/game-chrome.css?v=20260708-nohscroll"><style id="wb-chrome-offset">@media(min-width:681px){body:has(#game.active) .game-top-actions{top:72px}}.game-top-left{display:none}body:has(#mainMenu.active) .game-top-left{display:block}</style>
+<script src="../../assets/sounds/sound.js?v=20260615-diceroll"></script>
+<script src="sfx.js?v=20260604-wb-split"></script>
+
+  <link rel="stylesheet" href="../../assets/gamepad.css?v=20260824-pad" />
+</head>
+<body>
+<div class="game-top-actions">
+  <select class="game-language-select" data-language-select aria-label="Sprache"></select>
+  <button class="game-theme-toggle" id="themeToggle" type="button">Theme</button>
+</div>
+<!-- ===== HAUPTMENÜ ===== -->
+<div id="mainMenu" class="scene">
+  <div class="brand"><div class="eyebrow" data-i18n="warbound.brand.eyebrow">Reiche &amp; Kronen</div><h1>Warbound Atlas</h1><div class="tagline" data-i18n="warbound.brand.tagline">„Wo Kronen fallen, erheben sich Häuser."</div><div class="divider"></div></div>
+  <div class="menu-card"><h2 data-i18n="warbound.menu.title">Hauptmenü</h2>
+    <button class="menu-btn primary" onclick="startNewGame('sp')"><span class="btn-icon">✨</span><span class="btn-info"><span data-i18n="warbound.menu.new">Neues Spiel</span><span class="btn-sub" data-i18n="warbound.menu.new.sub">Fraktion wählen · Mit- &amp; Gegenspieler konfigurieren</span></span></button>
+    <button class="menu-btn" onclick="goScreen('joinMenu')"><span class="btn-icon">🌐</span><span class="btn-info"><span data-i18n="warbound.menu.join">Spiel beitreten</span><span class="btn-sub" data-i18n="warbound.menu.join.sub">Mit Spiel-Code einer Online-Partie beitreten</span></span></button>
+    <button class="menu-btn" onclick="openLoadScreen('all')"><span class="btn-icon">📜</span><span class="btn-info"><span data-i18n="warbound.menu.load">Spiel laden</span><span class="btn-sub" id="mainSaveHint">Gespeicherte Partie fortsetzen</span></span></button>
+    <button class="menu-btn" onclick="goScreen('howtoMenu')"><span class="btn-icon">📖</span><span class="btn-info"><span data-i18n="warbound.menu.howto">Anleitung</span><span class="btn-sub" data-i18n="warbound.menu.howto.sub">Spielregeln &amp; Strategie ausführlich</span></span></button>
+  </div>
+  <div class="menu-credit">3D-Karte erstellt mit <a href="https://threejs.org" target="_blank" rel="noopener">three.js</a> (r128) · MIT-Lizenz · © three.js-Autoren</div>
+</div>
+<!-- ===== ANLEITUNG ===== -->
+<div id="howtoMenu" class="scene">
+  <div class="brand"><div class="eyebrow" data-i18n="warbound.howto.eyebrow">Spielregeln</div><h1 style="font-size:clamp(34px,5vw,56px)" data-i18n="warbound.menu.howto">Anleitung</h1><div class="divider"></div></div>
+  <div class="howto-card">
+    <button class="menu-btn back" onclick="goScreen('mainMenu')" data-i18n="warbound.howto.back">◀ Zurück zum Hauptmenü</button>
+    <p class="howto-intro" data-i18n="warbound.howto.intro">Warbound Atlas ist ein rundenbasiertes Eroberungsspiel auf dem Kontinent Valcaryn. Erobere Gebiete, halte Kontinente für Boni und schalte deine Gegner aus.</p>
+
+    <div class="howto-sec">
+      <h3 data-i18n="warbound.howto.goal.h3">🎯 Ziel des Spiels</h3>
+      <p data-i18n-html="warbound.howto.goal.p">Je nach gewählter Siegbedingung gewinnst du, indem du <b>als letzte Fraktion übrig bleibst</b>, <b>die ganze Welt eroberst</b> oder <b>einen geheimen Auftrag erfüllst</b>. Die Bedingung legst du vor Spielbeginn in den Einstellungen fest.</p>
+    </div>
+
+    <div class="howto-sec">
+      <h3 data-i18n="warbound.howto.setup.h3">🛡 Aufbau &amp; Häuser</h3>
+      <p data-i18n-html="warbound.howto.setup.p">Es treten bis zu <b>7 Häuser</b> an, jedes mit eigener Farbe, Wappen und Bonus-Charakteren. Im Einzelspieler spielst du gegen die KI, im Mehrspieler im Hotseat an einem Gerät.</p>
+      <ul>
+        <li data-i18n="warbound.howto.setup.li1">Jeder Spieler wählt sein Haus über das Dropdown in der Lobby.</li>
+        <li data-i18n-html="warbound.howto.setup.li2"><b>Startarmeen &amp; Startgold</b> werden automatisch nach Spielerzahl und Modus vergeben.</li>
+        <li data-i18n-html="warbound.howto.setup.li3"><b>Frostmark</b> im Norden ist neutral und gehört keinem Haus.</li>
+      </ul>
+    </div>
+
+    <div class="howto-sec">
+      <h3 data-i18n="warbound.howto.modes.h3">⚙ Spielmodi</h3>
+      <ul>
+        <li data-i18n-html="warbound.howto.modes.li1"><b>Standard</b> — das volle Spiel mit Gold, Gebietskarten, Ratskarten und Charakteren.</li>
+        <li data-i18n-html="warbound.howto.modes.li2"><b>Gefecht</b> — pures Strategiespiel nur mit Truppen: kein Gold, keine Karten, keine Charaktere.</li>
+      </ul>
+    </div>
+
+    <div class="howto-sec">
+      <h3 data-i18n="warbound.howto.victory.h3">🏆 Siegbedingungen</h3>
+      <ul>
+        <li data-i18n-html="warbound.howto.victory.li1"><b>Letzte Fraktion stehend</b> — schalte alle Gegenspieler aus.</li>
+        <li data-i18n-html="warbound.howto.victory.li2"><b>Weltherrschaft</b> — erobere ALLE Gebiete, auch die neutralen.</li>
+        <li data-i18n-html="warbound.howto.victory.li3"><b>Ziele</b> — erfülle deinen geheimen Auftrag (z. B. einen bestimmten Kontinent erobern, 20 Gebiete halten oder 3 Hauptstädte einnehmen) UND halte gleichzeitig deine eigene Hauptstadt. Verlierst du deine Hauptstadt, scheidest du aus.</li>
+      </ul>
+    </div>
+
+    <div class="howto-sec">
+      <h3 data-i18n="warbound.howto.turn.h3">🔄 Ablauf einer Runde</h3>
+      <p data-i18n="warbound.howto.turn.p1">Du bist abwechselnd am Zug. Ein Zug besteht aus drei Phasen:</p>
+      <ul>
+        <li data-i18n-html="warbound.howto.turn.li1"><b>1. Verstärken</b> — du erhältst neue Truppen (abhängig von der Zahl deiner Gebiete und deinen Kontinent-Boni) und verteilst sie auf eigene Gebiete. Im Standard-Modus bekommst du außerdem Gold.</li>
+        <li data-i18n-html="warbound.howto.turn.li2"><b>2. Angreifen</b> — greife von einem eigenen Gebiet ein angrenzendes gegnerisches Gebiet an. Du kannst beliebig oft angreifen, solange du Truppen hast.</li>
+        <li data-i18n-html="warbound.howto.turn.li3"><b>3. Bewegen</b> — verschiebe am Ende Truppen zwischen zwei verbundenen eigenen Gebieten, um deine Grenzen zu sichern.</li>
+      </ul>
+      <p data-i18n-html="warbound.howto.turn.p2">In der <b>ersten Runde</b> kannst du nur verstärken — Angriff und Bewegung sind erst ab Runde 2 möglich.</p>
+    </div>
+
+    <div class="howto-sec">
+      <h3 data-i18n="warbound.howto.battle.h3">⚔ Der Kampf</h3>
+      <p data-i18n="warbound.howto.battle.p1">Beim Angriff würfeln Angreifer und Verteidiger. Höhere Augen gewinnen, bei Gleichstand gewinnt der Verteidiger. Verlierertruppen werden entfernt. Ein Gebiet ist erobert, wenn keine verteidigenden Truppen mehr übrig sind — du musst dann mindestens eine Truppe nachrücken lassen.</p>
+      <p data-i18n-html="warbound.howto.battle.p2">Eigene <b>Charaktere</b>, ausgespielte <b>Ratskarten</b> und Spezialeinheiten (Ritter, Turm, Belagerung) verändern die Kampfwerte. Greift dich die KI an, kannst du in der Verteidigung passende Karten oder Charaktere einsetzen.</p>
+    </div>
+
+    <div class="howto-sec">
+      <h3 data-i18n="warbound.howto.continents.h3">🗺 Kontinente &amp; Boni</h3>
+      <p data-i18n-html="warbound.howto.continents.p1">Hältst du <b>alle Gebiete eines Kontinents</b>, erhältst du jede Runde Bonus-Truppen. Auch die Inselgruppen zählen als eigene Kontinente mit eigenem Bonus: <b>Vergessene Inseln</b>, <b>Ostmeer-Archipel</b> und <b>Südsee-Inseln</b>.</p>
+      <p data-i18n-html="warbound.howto.continents.p2">Über den Knopf <b>🏆 Boni</b> im Spiel blendest du jederzeit eine vollständige farbige Kontinentkarte mit allen Boni über die Gefechtskarte ein.</p>
+      <p data-i18n-html="warbound.howto.continents.p3"><b>Häfen</b> verbinden Küstengebiete am selben Meer — darüber sind Angriffe und Bewegungen auch über das Wasser hinweg möglich.</p>
+    </div>
+
+    <div class="howto-sec">
+      <h3 data-i18n="warbound.howto.terrCards.h3">📜 Gebietskarten</h3>
+      <p data-i18n-html="warbound.howto.terrCards.p">Eroberst du in einem Zug mindestens ein Gebiet, erhältst du eine Gebietskarte (max. <b>5</b> auf der Hand). Drei passende Karten kannst du gegen zusätzliche Truppen eintauschen — beim Tausch werden gute Kombinationen hervorgehoben.</p>
+    </div>
+
+    <div class="howto-sec">
+      <h3 data-i18n="warbound.howto.council.h3">🏛 Hoher Rat (Ratskarten)</h3>
+      <p data-i18n-html="warbound.howto.council.p">Im Standard-Modus kaufst du im Hohen Rat mit Gold mächtige <b>Ratskarten</b> für einmalige Effekte. Sie werden getrennt von den Gebietskarten behandelt — du darfst maximal <b>3</b> davon auf der Hand halten. Manche eignen sich auch zur Verteidigung im Kampf.</p>
+    </div>
+
+    <div class="howto-sec">
+      <h3 data-i18n="warbound.howto.chars.h3">👥 Charaktere</h3>
+      <p data-i18n="warbound.howto.chars.p">Jedes Haus hat eigene Charaktere mit Kampf- oder Wirtschaftsboni. Sie wirken automatisch zu Zugbeginn oder im passenden Kampf. Im Gefecht-Modus sind Charaktere deaktiviert.</p>
+    </div>
+
+    <div class="howto-sec">
+      <h3 data-i18n="warbound.howto.tips.h3">💡 Tipps</h3>
+      <ul>
+        <li data-i18n="warbound.howto.tips.li1">Sichere zuerst einen kleinen, gut verteidigbaren Kontinent für stetige Bonus-Truppen.</li>
+        <li data-i18n="warbound.howto.tips.li2">Halte Grenzgebiete stark — greife nur an, wo du klar überlegen bist.</li>
+        <li data-i18n="warbound.howto.tips.li3">Spare Ratskarten und Charakter-Effekte für entscheidende Schlachten auf.</li>
+        <li data-i18n="warbound.howto.tips.li4">Speichere zwischendurch über das 💾-Symbol im Spiel.</li>
+      </ul>
+    </div>
+
+    <div class="howto-sec">
+      <h3 data-i18n="warbound.howto.credits.h3">ℹ Credits &amp; Lizenz</h3>
+      <p data-i18n-html="warbound.howto.credits.p">Die 3D-Karte wird mit <b>three.js</b> (Version r128) dargestellt — einer freien JavaScript-3D-Bibliothek unter der <b>MIT-Lizenz</b>, © die three.js-Autoren. Mehr Informationen unter <b>threejs.org</b>.</p>
+      <!-- Herkunftsangaben bitte mit THIRD-PARTY.md abgleichen, bevor hier
+           etwas ergänzt wird. -->
+      <p data-i18n-html="warbound.howto.credits.p2">Die Ritter- und Bogenschützen-Modelle stammen aus <b>GuardedCastle</b> von Alex P (<b>MIT-Lizenz</b>). Alle übrigen Figuren und die Kriegsmaschinen werden zur Laufzeit aus einfachen 3D-Körpern zusammengesetzt und sind Eigenbau. Die Landesgrenzen der Karten „Europa" und „Welt" beruhen auf <b>Natural Earth</b> (gemeinfrei).</p>
+    </div>
+
+    <button class="menu-btn back" onclick="goScreen('mainMenu')" data-i18n="warbound.howto.back">◀ Zurück zum Hauptmenü</button>
+  </div>
+</div>
+<!-- ===== SPIEL BEITRETEN ===== -->
+<div id="joinMenu" class="scene">
+  <div class="brand"><div class="eyebrow" data-i18n="warbound.join.eyebrow">Mehrspieler</div><h1 style="font-size:clamp(34px,5vw,56px)" data-i18n="warbound.menu.join">Spiel beitreten</h1><div class="divider"></div></div>
+  <div class="menu-card"><h2 data-i18n="warbound.join.h2">Online-Partie</h2>
+    <p style="color:var(--muted);font-size:13px;line-height:1.5;margin:0 0 12px">
+<span data-i18n-html="warbound.join.help">Gib den <b>Spiel-Code</b> des Gastgebers ein, um seiner Partie beizutreten. Bots und Hotseat-Mitspieler richtest du dagegen direkt unter „Neues Spiel" in der Lobby ein.</span>
+    </p>
+    <input id="joinName" maxlength="22" placeholder="Dein Name" style="width:100%;padding:12px 14px;border-radius:10px;border:1px solid var(--line);background:rgba(255,255,255,.04);color:var(--ink);font-size:14px;margin-bottom:10px"/>
+    <input id="joinCode" maxlength="12" placeholder="Spiel-Code (z. B. ABCD1234)" data-i18n-placeholder="warbound.join.placeholder"
+      style="width:100%;padding:12px 14px;border-radius:10px;border:1px solid var(--line);background:rgba(255,255,255,.04);color:var(--ink);font-size:16px;letter-spacing:.12em;text-align:center;text-transform:uppercase;margin-bottom:10px"/>
+    <button class="menu-btn primary" onclick="joinGameByCode()"><span class="btn-icon">🌐</span><span class="btn-info"><span data-i18n="warbound.join.btn">Beitreten</span><span class="btn-sub" data-i18n="warbound.join.btn.sub">Verbindung zum Gastgeber aufbauen</span></span></button>
+    <div id="joinStatus" style="min-height:18px;color:var(--gold2);font-size:12px;text-align:center;margin:4px 0 6px"></div>
+    <div class="public-rooms" id="wbPublicRoomsList" style="margin-top:6px">
+      <div class="public-rooms-head">Öffentliche Partien</div>
+      <div class="public-rooms-items" id="wbPublicRoomsItems">
+        <div class="public-rooms-empty muted">Aktuell keine öffentlichen Partien.</div>
+      </div>
+    </div>
+    <button class="menu-btn back" onclick="goScreen('mainMenu')" data-i18n="warbound.back">◀ Zurück</button>
+  </div>
+</div>
+<!-- ===== SPIEL LADEN ===== -->
+<div id="loadScreen" class="scene">
+  <div class="brand"><div class="eyebrow" id="loadEyebrow">Spielstände</div><h1 style="font-size:clamp(34px,5vw,56px)" data-i18n="warbound.menu.load">Spiel laden</h1><div class="divider"></div></div>
+  <div class="menu-card" style="max-width:540px"><h2 data-i18n="warbound.load.h2">Speicherstand wählen</h2>
+    <div class="saves-list" id="savesList"></div>
+    <button class="menu-btn back" id="loadBackBtn">◀ Zurück</button>
+  </div>
+</div>
+<!-- ===== OPTIONEN ===== -->
+<div id="lobby" class="scene">
+  <div class="lobby-header">
+    <a href="#" class="lobby-back-link" onclick="goScreen('mainMenu');return false" data-i18n="warbound.lobby.backMenu">◀ Hauptmenü</a>
+    <div class="lobby-brand">
+      <div class="eyebrow" id="lobbyEyebrow" data-i18n="warbound.lobby.eyebrow">Neue Partie</div>
+      <h1>👑 Warbound Atlas</h1>
+      <div class="tagline" data-i18n="warbound.brand.tagline">„Wo Kronen fallen, erheben sich Häuser."</div>
+    </div>
+  </div>
+
+  <div class="lobby-grid">
+    <!-- Left column: players + online -->
+    <div class="lobby-col">
+      <!-- Player slots -->
+      <div class="lobby-card">
+        <h2><span>⚔ <span data-i18n="warbound.lobby.players">Spieler</span></span><small id="playerCount">0 / 7</small></h2>
+        <div id="playerList"></div>
+        <div class="add-row">
+          <button id="addHumanBtn" class="add-btn"><span class="ico">👤</span><span data-i18n="warbound.lobby.addHuman">Spieler hinzufügen</span></button>
+          <button id="addBotEasyBtn" class="add-btn"><span class="ico">🤖</span><span data-i18n="warbound.lobby.botEasy">Bot (leicht)</span></button>
+          <button id="addBotNormalBtn" class="add-btn"><span class="ico">🤖</span><span data-i18n="warbound.lobby.botNormal">Bot (normal)</span></button>
+          <button id="addBotHardBtn" class="add-btn"><span class="ico">💀</span><span data-i18n="warbound.lobby.botHard">Bot (schwer)</span></button>
+        </div>
+      </div>
+
+      <!-- Online (komplett) -->
+      <div class="lobby-card" id="wbOnlineCard">
+        <h2><span>🌐 <span>Online</span></span><small><span id="wbOnlineDot" style="display:inline-block;width:9px;height:9px;border-radius:50%;background:#777;margin-right:4px"></span>Status</small></h2>
+        <div class="opt-row"><div><div class="opt-label">Online-Partie</div><div class="opt-sub">Andere können über einen Code oder die öffentliche Liste beitreten</div></div><div class="toggle" id="wbOnlineToggle"></div></div>
+        <div id="wbOnlineHostBox" style="display:none">
+          <div class="rule-row"><label>Spiel-Code</label><span id="wbRoomCodeOut" style="font-weight:700;letter-spacing:.12em">—</span></div>
+          <input id="wbInviteLink" readonly style="width:100%;padding:10px 12px;border-radius:10px;border:1px solid var(--line);background:rgba(255,255,255,.04);color:var(--ink);font-size:12px;margin:6px 0"/>
+          <div class="add-row">
+            <button id="wbCopyInviteBtn" class="add-btn"><span class="ico">🔗</span>Link kopieren</button>
+          </div>
+          <label class="public-room-toggle" style="margin-top:10px">
+            <input type="checkbox" id="wbPublicRoomCheck">
+            <span>Öffentlich sichtbar (im Spiele-Browser gelistet)</span>
+          </label>
+          <div id="wbLockHint" style="display:none;font-size:12px;color:var(--gold2);margin-top:6px">🔒 Einstellungen gesperrt, solange die Partie öffentlich gelistet ist. Häkchen entfernen, um Spieler, Bots, Karte oder Regeln zu ändern.</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Right column: map on top, further settings below -->
+    <div class="lobby-col">
+      <!-- Map -->
+      <div class="lobby-card">
+        <h2><span>🗺 <span data-i18n="warbound.lobby.map">Karte</span></span></h2>
+        <div class="map-select">
+          <div class="map-tile" data-map="valcaryn">
+            <div class="map-name">Valcaryn</div>
+            <div class="map-info" data-i18n="warbound.lobby.mapInfo">Großer Kontinent · 7 Häuser · Frostmark neutral</div>
+          </div>
+          <div class="map-tile" data-map="sturmsee">
+            <div class="map-name">Sturmsee</div>
+            <div class="map-info">Offene See · 7 Flotten · jedes Feld ein Schiff mit Banner-Segel · Schiffskampf ohne Burgen &amp; Häfen</div>
+          </div>
+          <div class="map-tile" data-map="europa">
+            <div class="map-name">Europa</div>
+            <div class="map-info">Historische Reiche der Alten Welt · echte Länder &amp; natürliche Grenzen · 54 Gebiete · z.&nbsp;B. Heiliges Römisches Reich, Imperium Romanum, Byzanz, Kalifat, Mongolenreich · geführt von historischen Herrschern (Barbarossa, Cäsar, Saladin, Dschingis Khan …)</div>
+          </div>
+          <div class="map-tile" data-map="welt">
+            <div class="map-name">Welt</div>
+            <div class="map-info">Die ganze Erde · echte Länder &amp; natürliche Grenzen · 164 Gebiete · 7 Erdteile (Nordamerika, Südamerika, Europa, Naher Osten, Afrika, Asien, Ozeanien) · je ein Haus pro Kontinent · Seewege verbinden die Erdteile</div>
+          </div>
+        </div>
+        <div id="lobbyMap" class="lobby-map"></div>
+      </div>
+
+      <!-- Weitere Einstellungen (Regeln + Optionen) -->
+      <div class="lobby-card">
+        <h2><span>⚙ <span data-i18n="warbound.lobby.settings">Weitere Einstellungen</span></span></h2>
+        <div class="rule-row">
+          <label data-i18n="warbound.lobby.mode">Spielmodus</label>
+          <select id="ruleMode">
+            <option value="standard" selected data-i18n="warbound.lobby.mode.standard">Standard — volles Spiel (Gold, Karten, Charaktere)</option>
+            <option value="gefecht" data-i18n="warbound.lobby.mode.skirmish">Gefecht — nur Truppen (kein Gold/Karten/Charaktere)</option>
+          </select>
+        </div>
+        <div class="rule-row">
+          <label data-i18n="warbound.lobby.start">Startarmeen & Gold</label>
+          <span style="color:var(--muted);font-size:13px" data-i18n="warbound.lobby.startAuto">automatisch nach Regeln (je nach Spielerzahl & Modus)</span>
+        </div>
+        <div class="rule-row">
+          <label data-i18n="warbound.lobby.win">Siegbedingung</label>
+          <select id="winCondition">
+            <option value="elim" data-i18n="warbound.lobby.win.elim">Letzte Fraktion stehend — alle Gegenspieler ausschalten</option>
+            <option value="dom" data-i18n="warbound.lobby.win.dom">Weltherrschaft — ALLE Gebiete erobern (auch neutrale)</option>
+            <option value="ziele" data-i18n="warbound.lobby.win.goals">Ziele — eigenen Auftrag erfüllen & Hauptstadt halten</option>
+          </select>
+        </div>
+        <div class="opt-row"><div><div class="opt-label" data-i18n="warbound.opt.autosave">Auto-Speichern</div><div class="opt-sub" data-i18n="warbound.opt.autosave.sub">Nach jeder Runde automatisch</div></div><div class="toggle" id="optAutoSave"></div></div>
+        <div class="opt-row"><div><div class="opt-label" data-i18n="warbound.opt.anim">Animationen</div><div class="opt-sub" data-i18n="warbound.opt.anim.sub">3D-Würfelanimation bei Kämpfen</div></div><div class="toggle on" id="optAnim"></div></div>
+        <div class="opt-row"><div><div class="opt-label" data-i18n="warbound.opt.figures">Truppen-Figuren</div><div class="opt-sub" data-i18n="warbound.opt.figures.sub">Risiko-Stil-Figuren statt Banner mit Zahl</div></div><div class="toggle" id="optTroopFigures"></div></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="lobby-footer">
+    <button id="startGameBtn" class="start-btn" data-i18n="warbound.lobby.startGame">🚀 SPIEL STARTEN</button>
+  </div>
+</div>
+
+<!-- =================== GAME =================== -->
+<div id="game" class="scene">
+  <!-- Topbar -->
+  <div class="topbar">
+    <!-- Quick-menu (top-left) -->
+    <div id="gameMenuWrap" class="gm-wrap">
+      <button id="gameMenuToggle" class="gm-toggle" title="Menü">☰</button>
+      <div id="gameMenuPanel" class="gm-panel" hidden>
+        <div class="gm-section-label">⚙ Optionen</div>
+        <div class="gm-opt-row"><span>Auto-Speichern</span><div class="toggle" id="gmOptAutoSave"></div></div>
+        <div class="gm-opt-row"><span>Animationen</span><div class="toggle" id="gmOptAnim"></div></div>
+        <div class="gm-opt-row"><span>Truppen-Figuren</span><div class="toggle" id="gmOptTroopFigures"></div></div>
+        <div class="gm-slider-row">
+          <span>🎵 Musik</span>
+          <input type="range" class="gm-slider" id="gmMusicVol" min="0" max="100" value="18">
+        </div>
+        <div class="gm-slider-row">
+          <span>🔊 Aktionen</span>
+          <input type="range" class="gm-slider" id="gmSfxVol" min="0" max="100" value="100">
+        </div>
+        <div class="gm-slider-row">
+          <span>🖱 Klicks</span>
+          <input type="range" class="gm-slider" id="gmClickVol" min="0" max="100" value="75">
+        </div>
+        <div class="gm-sep"></div>
+        <button class="gm-item" id="gmSaveBtn">💾 Spiel speichern</button>
+        <div class="gm-sep"></div>
+        <button class="gm-item gm-danger" id="gmMainMenuBtn">🏠 Hauptmenü …</button>
+      </div>
+    </div>
+    <div class="turn-info">
+      <div class="player-tag">
+        <span class="dot" id="currentDot"></span>
+        <strong id="currentName">—</strong>
+      </div>
+      <div class="phase-pill" id="phasePill" data-i18n="warbound.phase.ready">Bereit</div>
+    </div>
+    <div class="actions">
+      <span class="stat-chip" title="Gold">💰 <b id="statGold">0</b></span>
+      <span class="stat-chip" title="Gebiete">🗺 <b id="statRegions">0</b></span>
+      <span class="stat-chip" title="Truppenstärke">🛡 <b id="statTroops">0</b></span>
+      <span class="stat-chip" title="Hauptstädte">🏰 <b id="statCapitals">0</b></span>
+      <span class="stat-chip" title="Burgen">🗼 <b id="statCastles">0</b></span>
+      <span class="stat-chip" title="Häfen">⚓ <b id="statHarbors">0</b></span>
+      <div class="act-sep"></div>
+      <button id="bonusBtn" title="Kontinent-Boni einblenden" data-i18n-title="warbound.hud.bonusTitle">🏆 <span data-i18n="warbound.hud.bonus">Boni</span></button>
+      <button id="overviewBtn" title="Truppenübersicht aller Häuser" data-i18n-title="warbound.hud.overviewTitle">📊 <span data-i18n="warbound.hud.overview">Übersicht</span></button>
+      <button id="councilBtn" disabled>🏛 <span data-i18n="warbound.hud.council">Hoher Rat</span></button>
+      <div class="bp-act-gap"></div>
+      <button id="endPhaseBtn" class="primary"><span data-i18n="warbound.hud.endPhase">Phase beenden</span> ▶</button>
+    </div>
+    <b id="statCards" hidden>0</b>
+  </div>
+
+  <!-- Boni-Overlay über der Karte -->
+  <div id="bonusOverlay" style="display:none"></div>
+
+  <!-- Truppen-Übersicht über der Karte (alle Häuser: Truppen & Gebiete) -->
+  <div id="overviewOverlay" style="display:none"></div>
+
+  <!-- Map: Valcaryn 3D -->
+  <div id="map-wrap">
+    <div id="canvas-wrap"></div>
+    <!-- Karten-Ladebildschirm: sichtbar beim Spielstart/Laden, bis die 3D-Karte steht -->
+    <div id="mapLoader" hidden>
+      <div class="ml-inner">
+        <div class="ml-spin"><div class="ml-ring"></div><span class="ml-emblem">⚔</span></div>
+        <div class="ml-text">Karte wird geladen …</div>
+      </div>
+    </div>
+    <div id="mapZoomBtns">
+      <button onclick="map3d_camZoom(0.75)" title="Hereinzoomen" data-i18n-title="warbound.zoom.in">＋</button>
+      <button onclick="map3d_camZoom(1.4)"  title="Herauszoomen" data-i18n-title="warbound.zoom.out">－</button>
+      <button onclick="map3d_camReset()"    title="Kamera zurücksetzen" data-i18n-title="warbound.zoom.reset">⌂</button>
+    </div>
+    <div id="mapZoomHint" data-i18n="warbound.zoom.hint">Scroll=Zoom · Drag=Schwenken · Rechtsklick=Drehen</div>
+  </div>
+
+  <!-- Fraktion-Seitenleiste (linker Rand: große Wappen, Hover zeigt Details) -->
+  <div id="factionSidebar" class="faction-sidebar"></div>
+
+  <!-- Untere Leiste (kombiniert: Infos + Log) -->
+  <div class="bottom-panel" id="bottomPanel">
+    <div class="bp-strip">
+      <!-- Eigene Spielerinfos mit Hover-Popup -->
+      <div class="bps-item bps-hover" id="bpsPlayer" tabindex="0">
+        <span>⚔</span> <span id="stripName">—</span>
+        <div class="bps-pop">
+          <div class="bps-pop-title"><span data-i18n="warbound.lobby.players">Spieler</span> <small id="roundLabel">Runde 1</small></div>
+          <div class="player-info">
+            <div class="row"><span data-i18n="warbound.panel.faction">Fraktion</span><b id="piFaction">—</b></div>
+            <div class="row"><span data-i18n="warbound.hud.gold">Gold</span><b id="piGold">0</b></div>
+            <div class="row"><span data-i18n="warbound.hud.regions">Gebiete</span><b id="piRegions">0</b></div>
+            <div class="row"><span data-i18n="warbound.panel.troopsTotal">Truppen ges.</span><b id="piTotalTroops">0</b></div>
+            <div class="motto" id="piMotto">—</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Gebietskarten (klick öffnet Karten-Modal, Gebietskarten-Tab) -->
+      <div class="bps-item bps-btn bps-hover" id="bpsCardsBtn" role="button" tabindex="0"
+           onclick="openCardsModal('territory')" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();openCardsModal('territory');}"
+           aria-haspopup="dialog">
+        📜 <b id="stripCards">0</b> <span data-i18n="warbound.hud.terrCards">Gebietskarten</span>
+        <span class="bps-eye" aria-hidden="true">👁</span>
+      </div>
+
+      <!-- Ratskarten (klick öffnet Karten-Modal, Ratskarten-Tab) -->
+      <div class="bps-item bps-btn bps-hover" id="bpsCouncilCardsBtn" role="button" tabindex="0"
+           onclick="openCardsModal('council')" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();openCardsModal('council');}"
+           aria-haspopup="dialog">
+        🏛 <b id="stripCouncilCards">0</b> <span data-i18n="warbound.hud.councilCards">Ratskarten</span>
+        <span class="bps-eye" aria-hidden="true">👁</span>
+      </div>
+
+      <!-- Charaktere -->
+      <button id="charBtn" class="bps-char-btn">👥 <span data-i18n="warbound.hud.characters">Charaktere</span></button>
+
+      <!-- Spacer schiebt Log nach rechts -->
+      <div style="flex:1"></div>
+
+      <!-- Chronik / Log ganz rechts -->
+      <div class="bps-item bps-hover bps-chronicle" tabindex="0">📖
+        <div class="bps-pop bps-pop-log bps-pop-right">
+          <div class="bps-pop-title" data-i18n="warbound.panel.chronicle">Chronik</div>
+          <div class="log" id="log"></div>
+        </div>
+      </div>
+    </div>
+    <!-- hidden stubs für updateHUD()-Zugriffe auf entfernte Strip-Elemente -->
+    <b id="stripGold" hidden>0</b><b id="stripRegions" hidden>0</b><b id="stripTroops" hidden>0</b>
+  </div>
+</div>
+<!-- =================== MODALS =================== -->
+<!-- Card viewer (Gebiets- & Ratskarten) mit Tabs -->
+<div class="modal-backdrop" id="cardsModal" onclick="if(event.target===this)closeCardsModal()">
+  <div class="modal cards-modal">
+    <div class="cards-modal-head">
+      <h2 data-i18n="warbound.panel.yourCards">Deine Karten</h2>
+      <button type="button" class="cards-modal-close" onclick="closeCardsModal()" aria-label="Schließen">✕</button>
+    </div>
+    <div class="cards-modal-tabs">
+      <button class="cmt-tab active" id="tabTerrBtn">📜 Gebietskarten <span class="cmt-count" id="cardsLabel">0/5</span></button>
+      <button class="cmt-tab" id="tabCouncilBtn">🏛 Ratskarten <span class="cmt-count" id="councilLabel">0/3</span></button>
+    </div>
+    <div class="cards-modal-body">
+      <section class="cards-panel" id="tabTerrPanel">
+        <div class="cards-scroll" id="cardsScroll"></div>
+      </section>
+      <section class="cards-panel" id="tabCouncilPanel" hidden>
+        <div class="cards-scroll" id="councilHandScroll"></div>
+      </section>
+    </div>
+  </div>
+</div>
+<!-- Faction picker -->
+<div class="modal-backdrop" id="factionModal">
+  <div class="modal">
+    <h2 id="factionModalTitle" data-i18n="warbound.faction.title">Wähle deine Fraktion</h2>
+    <div class="sub" data-i18n="warbound.faction.sub">Jede Fraktion hat eigene Charakterkarten und Stärken.</div>
+    <div class="faction-grid" id="factionGrid"></div>
+    <div class="modal-actions">
+      <button id="factionCancelBtn" data-i18n="warbound.cancel">Abbrechen</button>
+      <button class="primary" id="factionConfirmBtn" data-i18n="warbound.confirm">Bestätigen</button>
+    </div>
+  </div>
+</div>
+
+<!-- Reinforce / deploy dialog -->
+<div class="modal-backdrop" id="deployModal">
+  <div class="modal" style="max-width:440px">
+    <h2 id="deployTitle" data-i18n="warbound.deploy.title">Truppen platzieren</h2>
+    <div class="sub" id="deploySub">—</div>
+    <div class="deploy-dialog">
+      <div id="deployTroopRow">
+        <div class="big-num" id="deployNum">1</div>
+        <div class="controls">
+          <button id="deployMinus">−</button>
+          <input type="range" id="deployRange" min="1" max="1" value="1" style="width:200px"/>
+          <button id="deployPlus">+</button>
+        </div>
+      </div>
+      <div class="special-toggle" id="specialToggle"></div>
+    </div>
+    <div class="modal-actions">
+      <button id="deployCancelBtn" data-i18n="warbound.cancel">Abbrechen</button>
+      <button class="primary" id="deployConfirmBtn" data-i18n="warbound.deploy.confirm">Platzieren</button>
+    </div>
+  </div>
+</div>
+
+<!-- Character cards modal -->
+<div class="modal-backdrop" id="charModal">
+  <div class="modal" style="max-width:780px">
+    <h2 id="charModalTitle" data-i18n="warbound.char.title">Charakterkarten</h2>
+    <div class="sub" id="charModalSub" data-i18n="warbound.char.sub">Charaktere kosten Gold und haben besondere Effekte.</div>
+    <div class="char-grid" id="charGrid"></div>
+    <div class="modal-actions">
+      <button class="primary" id="charCloseBtn" data-i18n="warbound.close">Schließen</button>
+    </div>
+  </div>
+</div>
+
+<!-- Battle overlay -->
+<div id="battle-overlay">
+  <div class="battle-panel">
+    <div class="battle-head">
+      <h2 id="battleTitle">⚔ <span data-i18n="warbound.battle.title">Schlacht</span></h2>
+      <div class="battle-phase" id="battlePhase">Bereit</div>
+    </div>
+    <div class="battle-body">
+      <div class="battle-side a">
+        <div class="side-head"><span data-i18n="warbound.battle.attacker">Angreifer</span><span data-i18n="warbound.battle.blackDice">Schwarze Würfel</span></div>
+        <div class="side-name" id="atkName">—</div>
+        <div class="troops"><span id="atkTroops">0</span><small data-i18n="warbound.battle.troops">Truppen</small></div>
+        <div class="specials-line" id="atkSpecials"></div>
+        <div class="dice-row" id="atkDice"></div>
+      </div>
+      <div class="vs">VS</div>
+      <div class="battle-side d">
+        <div class="side-head"><span data-i18n="warbound.battle.defender">Verteidiger</span><span data-i18n="warbound.battle.whiteDice">Weiße Würfel</span></div>
+        <div class="side-name" id="defName">—</div>
+        <div class="troops"><span id="defTroops">0</span><small data-i18n="warbound.battle.troops">Truppen</small></div>
+        <div class="specials-line" id="defSpecials"></div>
+        <div class="dice-row" id="defDice"></div>
+      </div>
+    </div>
+    <div class="battle-result" style="display:none">
+      <div class="res-text" id="battleResultText">Würfel bereit…</div>
+      <div class="res-pill" id="battleResultPill">Kampf beginnt</div>
+    </div>
+    <div id="defensePanel" style="display:none"></div>
+    <div class="battle-actions">
+      <!-- Angreifer Würfelauswahl -->
+      <div class="dice-choose">
+        <div class="dice-choose-label" data-i18n="warbound.battle.chooseDice">⚔ Angreifer — Würfelanzahl wählen</div>
+        <div class="dice-choose-btns" id="atkDiceSel">
+          <button class="sel-btn" data-side="atk" data-n="1">
+            <span class="dcb-num">1</span><span class="dcb-sub">Würfel</span>
+          </button>
+          <button class="sel-btn" data-side="atk" data-n="2">
+            <span class="dcb-num">2</span><span class="dcb-sub">Würfel</span>
+          </button>
+          <button class="sel-btn" data-side="atk" data-n="3">
+            <span class="dcb-num">3</span><span class="dcb-sub">Würfel</span>
+          </button>
+        </div>
+      </div>
+      <!-- Haupt-Aktionen -->
+      <div class="main-btns">
+        <button id="battleRetreatBtn">↩ <span data-i18n="warbound.battle.retreat">Zurückziehen</span></button>
+        <button class="primary" id="battleRollBtn">⚔ <span data-i18n="warbound.battle.atkReady">Angreifer bereit</span></button>
+        <button class="primary def-btn" id="battleDefendBtn" style="display:none">🛡 <span data-i18n="warbound.battle.defReady">Verteidiger bereit</span></button>
+      </div>
+      <!-- Auto-Kampf -->
+      <div class="auto-divider"><span data-i18n="warbound.battle.auto">Auto-Kampf bis zum Ende</span></div>
+      <div class="auto-roll-row">
+        <button class="auto-btn" id="autoBtn1">🎲 ×1 Würfel</button>
+        <button class="auto-btn" id="autoBtn2">🎲 ×2 Würfel</button>
+        <button class="auto-btn" id="autoBtn3">🎲 ×3 Würfel</button>
+        <button class="auto-btn stop" id="autoStopBtn" style="display:none">⏹ Stop</button>
+      </div>
+    </div>
+    <!-- Kampfeffekte (relativ zum Panel) -->
+    <div class="battle-flash" id="battleFlash"></div>
+    <div class="battle-slash" id="battleSlash"></div>
+    <div class="battle-clash" id="battleClash"><div class="ring"></div><div class="swords">⚔</div></div>
+  </div>
+</div>
+
+<!-- Conquer banner -->
+<div class="conquer-banner" id="conquerBanner" data-i18n="warbound.banner.conquered">Gebiet erobert!</div>
+
+<!-- Hoher Rat Phase Overlay -->
+<div class="cpo-overlay" id="councilPhaseOverlay" style="display:none">
+  <div class="cpo-panel">
+    <div class="cpo-title">🏛 <span data-i18n="warbound.council.title">Der Hohe Rat</span></div>
+    <div class="cpo-sub" id="cpoSub" data-i18n="warbound.council.sub">Eine Karte wartet auf dich…</div>
+    <div class="cpo-card-area">
+      <div class="cpo-card" id="cpoCard">
+        <div class="cpo-back">
+          <div class="cpo-back-icon">🏛</div>
+          <div class="cpo-back-label" data-i18n="warbound.hud.council">Hoher Rat</div>
+        </div>
+        <div class="cpo-front" id="cpoFront"></div>
+      </div>
+    </div>
+    <div class="cpo-actions" id="cpoActions">
+      <button class="primary" id="cpoDrawBtn">🏛 <span data-i18n="warbound.council.draw">Karte aufdecken</span></button>
+      <button id="cpoSkipPhaseBtn" style="margin-top:6px;opacity:.55;font-size:12px" data-i18n="warbound.council.skip">Überspringen</button>
+    </div>
+  </div>
+</div>
+
+<!-- Karten-Einlöse-Modal -->
+<div class="modal-backdrop" id="exchangeModal">
+  <div class="modal" style="max-width:500px;max-height:90vh;overflow-y:auto">
+    <h2 style="margin-bottom:4px">📜 <span data-i18n="warbound.exchange.title">Karten einlösen</span></h2>
+    <div class="sub" id="exchModalSub">—</div>
+    <div id="exchangeModalBody" style="margin-top:14px"></div>
+    <div style="display:flex;justify-content:flex-end;margin-top:14px">
+      <button onclick="$('exchangeModal').classList.remove('show')" data-i18n="warbound.close">Schließen</button>
+    </div>
+  </div>
+</div>
+
+<!-- Toast -->
+<!-- Zugankündigung -->
+<div id="turnBanner" style="
+  display:none;position:fixed;top:50%;left:50%;transform:translate(-50%,-50%) scale(.8);
+  z-index:300;background:var(--panel);border:2px solid var(--gold);border-radius:16px;
+  padding:24px 36px;text-align:center;min-width:260px;
+  box-shadow:0 8px 40px rgba(0,0,0,.7);pointer-events:none;
+  transition:transform .25s,opacity .25s;opacity:0">
+  <div id="turnBannerFaction" style="font-size:34px;margin-bottom:4px">🏴</div>
+  <div id="turnBannerName" style="font-size:18px;font-weight:900;color:var(--gold);margin-bottom:3px">—</div>
+  <div id="turnBannerSub" style="font-size:11px;color:var(--muted);margin-bottom:10px" data-i18n="warbound.banner.turn">ist am Zug</div>
+  <div id="turnBannerTroops" style="font-size:38px;font-weight:900;color:var(--gold2);letter-spacing:-.02em;line-height:1"></div>
+  <div id="turnBannerTroopsSub" style="font-size:11px;color:var(--muted);margin-top:3px;display:none">neue Truppen</div>
+</div>
+
+<!-- Custom in-game confirm dialog -->
+<div id="gameConfirmOverlay" class="gc-overlay" hidden>
+  <div class="gc-modal">
+    <div class="gc-msg" id="gcMsg">Sicher?</div>
+    <div class="gc-actions">
+      <button class="gc-btn" id="gcCancelBtn">Abbrechen</button>
+      <button class="gc-btn gc-btn-danger" id="gcConfirmBtn">Bestätigen</button>
+    </div>
+  </div>
+</div>
+<div id="toast"></div>
+
+<!-- Tooltip -->
+<div class="tooltip" id="tooltip"></div>
+<script src="maps/valcaryn/valcaryn.js?v=20260726-roggenau"></script><script src="maps/sturmsee/sturmsee.js?v=20260801-figures"></script><script src="maps/europa/europa.js?v=20260801-merge30"></script><script src="maps/welt/welt.js?v=20260801-brazil2"></script><script>try{var _wbMap=new URLSearchParams(location.search).get('map')||localStorage.getItem('warbound.map');if(_wbMap==='weltkarte'){_wbMap='europa';try{localStorage.setItem('warbound.map','europa');}catch(e){}}if(_wbMap)window.WB_ACTIVE_MAP=_wbMap;}catch(e){}</script><script src="game.js?v=20260801-mapswitch"></script><script src="game.render3d.js?v=20260731-sizes"></script>
+<script src="i18n/de.js?v=20260708-naval"></script><script src="i18n/en.js?v=20260708-naval"></script><script src="i18n/fr.js?v=20260708-naval"></script><script src="i18n/es.js?v=20260708-naval"></script><script src="i18n/it.js?v=20260708-naval"></script><script src="i18n/ru.js?v=20260708-naval"></script><script src="i18n/zh.js?v=20260708-naval"></script><script src="i18n/ja.js?v=20260708-naval"></script><script src="maps/valcaryn/i18n/de.js?v=20260824-contshort"></script><script src="maps/valcaryn/i18n/en.js?v=20260824-contshort"></script><script src="maps/valcaryn/i18n/fr.js?v=20260824-contshort"></script><script src="maps/valcaryn/i18n/es.js?v=20260824-contshort"></script><script src="maps/valcaryn/i18n/it.js?v=20260824-contshort"></script><script src="maps/valcaryn/i18n/ru.js?v=20260824-contshort"></script><script src="maps/valcaryn/i18n/zh.js?v=20260824-contshort"></script><script src="maps/valcaryn/i18n/ja.js?v=20260824-contshort"></script><script src="maps/sturmsee/i18n/de.js?v=20260824-contshort"></script><script src="maps/sturmsee/i18n/en.js?v=20260824-contshort"></script><script src="maps/sturmsee/i18n/fr.js?v=20260824-contshort"></script><script src="maps/sturmsee/i18n/es.js?v=20260824-contshort"></script><script src="maps/sturmsee/i18n/it.js?v=20260824-contshort"></script><script src="maps/sturmsee/i18n/ru.js?v=20260824-contshort"></script><script src="maps/sturmsee/i18n/zh.js?v=20260824-contshort"></script><script src="maps/sturmsee/i18n/ja.js?v=20260824-contshort"></script><script src="maps/europa/i18n/de.js?v=20260824-contshort"></script><script src="maps/europa/i18n/en.js?v=20260824-contshort"></script><script src="maps/europa/i18n/fr.js?v=20260824-contshort"></script><script src="maps/europa/i18n/es.js?v=20260824-contshort"></script><script src="maps/europa/i18n/it.js?v=20260824-contshort"></script><script src="maps/europa/i18n/ru.js?v=20260824-contshort"></script><script src="maps/europa/i18n/zh.js?v=20260824-contshort"></script><script src="maps/europa/i18n/ja.js?v=20260824-contshort"></script><script src="maps/welt/i18n/de.js?v=20260824-contshort"></script><script src="maps/welt/i18n/en.js?v=20260824-contshort"></script><script src="maps/welt/i18n/fr.js?v=20260824-contshort"></script><script src="maps/welt/i18n/es.js?v=20260824-contshort"></script><script src="maps/welt/i18n/it.js?v=20260824-contshort"></script><script src="maps/welt/i18n/ru.js?v=20260824-contshort"></script><script src="maps/welt/i18n/zh.js?v=20260824-contshort"></script><script src="maps/welt/i18n/ja.js?v=20260824-contshort"></script><script src="map3d.js?v=20260824-contshort"></script>
+<script id="wb-integration">
+(function(){
+  var I18N = window.BFI18N || null;
+
+  /* ---- Lokale HUD-Übersetzungen ---------------------------------------
+     Diese vier Schlüssel gehören ins gemeinsame Site-Wörterbuch
+     (../../assets/i18n/*.js) — das liegt außerhalb dieses Spielordners und
+     ist serverseitig gesperrt, die Datei selbst kann hier also nicht ergänzt
+     werden. Statt die Beschriftungen nur nachträglich in den DOM zu schreiben,
+     speisen wir die Werte zusätzlich zur Laufzeit direkt in das bereits im
+     Speicher liegende Shared-Wörterbuch (window.BFI18N_DATA[lang].dict) ein —
+     das ist nur ein JS-Objekt, keine gesperrte Datei. So kennt das Shared-
+     System die Keys selbst (applyDomTranslations löst sie nativ auf) und der
+     Testlauf findet sie im dict. Der DOM-Nachtrag unten bleibt als Fallback. */
+  var WB_HUD_TX = {
+    'warbound.hud.terrCards':    {de:'Gebietskarten', en:'Territory cards', fr:'Cartes de territoire', es:'Cartas de territorio', it:'Carte territorio', ru:'Карты территорий', zh:'领地卡', ja:'領地カード'},
+    'warbound.hud.councilCards': {de:'Ratskarten', en:'Council cards', fr:'Cartes du Conseil', es:'Cartas del Consejo', it:'Carte del Consiglio', ru:'Карты совета', zh:'议会卡', ja:'評議会カード'},
+    'warbound.hud.overview':     {de:'Übersicht', en:'Overview', fr:'Aperçu', es:'Resumen', it:'Panoramica', ru:'Обзор', zh:'总览', ja:'概要'},
+    'warbound.hud.overviewTitle':{de:'Truppenübersicht aller Häuser', en:'Troop overview of all houses', fr:'Aperçu des troupes de toutes les maisons', es:'Resumen de tropas de todas las casas', it:'Panoramica delle truppe di tutte le casate', ru:'Обзор войск всех домов', zh:'所有家族的部队总览', ja:'全ハウスの兵力概要'}
+  };
+  /* Werte ins Shared-dict aller vorhandenen Sprachen spiegeln. Idempotent &
+     defensiv (Struktur/Zeitpunkt des Shared-Loaders sind nicht garantiert). */
+  function _wbSeedSharedI18n(){
+    try{
+      var data = window.BFI18N_DATA;
+      if(!data || typeof data !== 'object') return false;
+      var seeded = false;
+      Object.keys(WB_HUD_TX).forEach(function(key){
+        var perLang = WB_HUD_TX[key];
+        Object.keys(perLang).forEach(function(l){
+          var slot = data[l];
+          if(!slot || typeof slot !== 'object') return;
+          if(!slot.dict || typeof slot.dict !== 'object') slot.dict = slot.dict || {};
+          if(slot.dict[key] == null){ slot.dict[key] = perLang[l]; seeded = true; }
+        });
+      });
+      return seeded;
+    }catch(e){ return false; }
+  }
+  /* Der Shared-Loader kann verzögert laden — ein paar Versuche, dann Ruhe. */
+  (function(){
+    var tries = 0;
+    (function retry(){
+      var ok = _wbSeedSharedI18n();
+      if(ok || tries++ >= 20) return;   // ~ bis zu 4 s
+      setTimeout(retry, 200);
+    })();
+  })();
+  function _wbLang(){
+    // Quelle der Wahrheit ist BFI18N selbst (damit unser Nachtrag exakt der vom
+    // Shared-System gewählten Sprache folgt); danach übliche Fallbacks.
+    var l = I18N && (I18N.lang || I18N.locale || I18N.current ||
+            (typeof I18N.getLanguage === 'function' && I18N.getLanguage()) ||
+            (typeof I18N.getLang === 'function' && I18N.getLang())) || null;
+    if(!l){ try{ var lm = localStorage.getItem('brettspiele.languageMode'); if(lm && lm !== 'auto') l = lm; }catch(e){} }
+    if(!l && document.documentElement.lang) l = document.documentElement.lang;
+    if(!l) l = navigator.language || 'de';
+    l = String(l).slice(0,2).toLowerCase();
+    return WB_HUD_TX['warbound.hud.overview'][l] ? l : 'de';
+  }
+  function _wbApplyHudI18n(){
+    var lang = _wbLang();
+    Object.keys(WB_HUD_TX).forEach(function(key){
+      var val = WB_HUD_TX[key][lang]; if(!val) return;
+      document.querySelectorAll('[data-i18n="'+key+'"]').forEach(function(el){ el.textContent = val; });
+      document.querySelectorAll('[data-i18n-title="'+key+'"]').forEach(function(el){ el.setAttribute('title', val); });
+    });
+  }
+
+  // theme toggle now handled by shared assets/game-chrome.js
+  // ---- re-apply translations on language change ----
+  window.addEventListener('brettspiele-language-change', function(){
+    _wbSeedSharedI18n();   // ggf. lazy nachgeladene Sprache mitversorgen
+    if(I18N&&I18N.applyDomTranslations) I18N.applyDomTranslations(document);
+    _wbApplyHudI18n();   // nach der Shared-Übersetzung, damit unser Nachtrag gewinnt
+    // refresh the lobby chrome if it is currently visible
+    try{ if(document.getElementById('lobby')&&document.getElementById('lobby').classList.contains('active')&&typeof renderLobby==='function') renderLobby(); }catch(e){}
+  });
+  _wbSeedSharedI18n();   // vor der ersten Shared-Übersetzung ins dict spiegeln
+  if(I18N&&I18N.applyDomTranslations) I18N.applyDomTranslations(document);
+  _wbApplyHudI18n();
+
+  /* ---- Topbar-Höhe an die Fraktions-Sidebar melden ---------------------
+     Der In-Game-Topbar ist fixed und bricht auf schmalen Viewports in mehrere
+     Reihen um (bis ~135px hoch). Die Fraktions-Wappen links (position:fixed)
+     wurden dadurch oben teilweise verdeckt. Wir messen die reale Topbar-Höhe
+     und legen sie als CSS-Variable --wb-topbar-h ab; die mobile CSS-Regel für
+     .faction-sidebar richtet ihre Oberkante daran aus (siehe styles.css). */
+  (function(){
+    var topbar = document.querySelector('#game .topbar') || document.querySelector('.topbar');
+    if(!topbar) return;
+    var raf = 0;
+    function sync(){
+      raf = 0;
+      var h = Math.round(topbar.getBoundingClientRect().height);
+      if(h > 0) document.documentElement.style.setProperty('--wb-topbar-h', h + 'px');
+    }
+    // Direkt UND per rAF messen: der Topbar wird erst beim Spielstart sichtbar
+    // (vorher height 0), und ein reiner ResizeObserver/rAF feuerte dabei nicht
+    // immer zuverlässig — der direkte Aufruf deckt diesen Übergang mit ab.
+    function schedule(){ sync(); if(!raf) raf = requestAnimationFrame(sync); }
+    schedule();
+    window.addEventListener('resize', schedule);
+    window.addEventListener('orientationchange', schedule);
+    if(window.ResizeObserver){ try{ new ResizeObserver(schedule).observe(topbar); }catch(e){} }
+    // #game wird beim Spielstart auf .active geschaltet → dann ist der Topbar
+    // erstmals gemessen werden kann; auf Klassenwechsel neu synchronisieren.
+    var game = document.getElementById('game');
+    if(game && window.MutationObserver){
+      try{ new MutationObserver(schedule).observe(game, {attributes:true, attributeFilter:['class']}); }catch(e){}
+    }
+  })();
+
+  // ---- Kartenauswahl: Kachel anklicken -> Karte merken (OHNE Reload) ----
+  // Die Lobby zeigt nur eine leichte 2D-Minimap (renderLobbyMap), die zur
+  // Aufrufzeit beliebige Kartendaten rendert. Der Wechsel läuft daher reload-
+  // frei: nur Auswahl markieren, Minimap + Figuren-Schalter aktualisieren. Der
+  // eine unvermeidbare Reload (die 3D-Engine wird für die geladene Karte gebaut)
+  // passiert erst beim "Spiel starten", falls die gewählte Karte abweicht.
+  (function(){
+    var tiles = document.querySelectorAll('.map-tile[data-map]');
+    var sel = (window.WB_LOBBY_MAP) || (window.WB_ACTIVE_MAP) || 'valcaryn';
+    window.WB_LOBBY_MAP = sel;
+    function highlight(id){ tiles.forEach(function(x){ x.classList.toggle('active', x.getAttribute('data-map') === id); }); }
+    highlight(sel);
+    tiles.forEach(function(t){
+      var id = t.getAttribute('data-map');
+      t.style.cursor = 'pointer';
+      t.addEventListener('click', function(){
+        if(id === window.WB_LOBBY_MAP) return;
+        window.WB_LOBBY_MAP = id;
+        try{ localStorage.setItem('warbound.map', id); }catch(e){}
+        highlight(id);
+        if(typeof renderLobbyMap === 'function') renderLobbyMap(id);
+        if(typeof wbUpdateFigureToggle === 'function') wbUpdateFigureToggle(id);
+      });
+    });
+  })();
+})();
+</script>
+  <script src="../../assets/gamepad.js?v=20260824-pad"></script>
+</body>
+</html>

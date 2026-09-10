@@ -1,0 +1,16 @@
+# Erzeugnisse und Betriebskonfiguration — entstehen beim Deploy neu und
+# gehören nicht ins öffentliche Repository.
+www/assets/runtime-config.js
+www/games/catalog.json
+www/sitemap.xml
+www/en/
+www/fr/
+www/es/
+www/it/
+www/ru/
+www/zh/
+www/ja/
+__pycache__/
+*.bak
+*.bak-*
+*.broken-*

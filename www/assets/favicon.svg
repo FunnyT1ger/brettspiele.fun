@@ -1,0 +1,11 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 256 256" role="img" aria-label="brettspiele.fun">
+  <rect width="256" height="256" rx="58" fill="#15140f"/>
+  <rect x="46" y="46" width="164" height="164" rx="30" fill="#f1ece2" transform="rotate(-8 128 128)"/>
+  <g fill="#c8492a" transform="rotate(-8 128 128)">
+    <circle cx="84" cy="84" r="15"/>
+    <circle cx="172" cy="84" r="15"/>
+    <circle cx="128" cy="128" r="15"/>
+    <circle cx="84" cy="172" r="15"/>
+    <circle cx="172" cy="172" r="15"/>
+  </g>
+</svg>

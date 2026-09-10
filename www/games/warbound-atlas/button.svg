@@ -1,0 +1,53 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 800" role="img" aria-label="Warbound Atlas">
+  <defs>
+    <linearGradient id="wbGold" x1="0" y1="0" x2="0" y2="1">
+      <stop stop-color="#fff8e6"/><stop offset=".5" stop-color="#f3d890"/><stop offset="1" stop-color="#8a6a26"/>
+    </linearGradient>
+    <radialGradient id="wbBg" cx="30%" cy="18%" r="90%">
+      <stop stop-color="#13182400"/><stop offset="1" stop-color="#05070b"/>
+    </radialGradient>
+    <filter id="wbShadow"><feDropShadow dx="0" dy="20" stdDeviation="22" flood-opacity=".55"/></filter>
+  </defs>
+
+  <rect width="640" height="800" rx="72" fill="#0a0e16"/>
+  <rect width="640" height="800" rx="72" fill="url(#wbBg)"/>
+  <circle cx="520" cy="150" r="190" fill="#d6aa4d" opacity=".10"/>
+  <circle cx="120" cy="690" r="220" fill="#345b98" opacity=".10"/>
+
+  <!-- faint hex/territory grid -->
+  <g stroke="#d6aa4d" stroke-width="2" opacity=".14" fill="none">
+    <path d="M120 470l60-34 60 34v68l-60 34-60-34z"/>
+    <path d="M240 540l60-34 60 34v68l-60 34-60-34z"/>
+    <path d="M360 470l60-34 60 34v68l-60 34-60-34z"/>
+    <path d="M300 400l60-34 60 34v68l-60 34-60-34z"/>
+  </g>
+
+  <g filter="url(#wbShadow)">
+    <!-- crossed swords -->
+    <g stroke="url(#wbGold)" stroke-width="14" stroke-linecap="round" fill="none">
+      <path d="M214 560 L420 250"/>
+      <path d="M426 560 L220 250"/>
+    </g>
+    <g fill="url(#wbGold)">
+      <path d="M420 246l24-16 8 22-22 8z"/>
+      <path d="M220 246l-24-16-8 22 22 8z"/>
+    </g>
+    <rect x="300" y="548" width="40" height="20" rx="5" fill="#8a6a26"/>
+
+    <!-- crown -->
+    <path d="M210 250 L246 168 L290 224 L320 150 L350 224 L394 168 L430 250 Z"
+          fill="url(#wbGold)" stroke="#8a6a26" stroke-width="4" stroke-linejoin="round"/>
+    <rect x="208" y="250" width="224" height="34" rx="10" fill="url(#wbGold)" stroke="#8a6a26" stroke-width="4"/>
+    <circle cx="246" cy="168" r="13" fill="#f3d890" stroke="#8a6a26" stroke-width="3"/>
+    <circle cx="320" cy="150" r="15" fill="#f3d890" stroke="#8a6a26" stroke-width="3"/>
+    <circle cx="394" cy="168" r="13" fill="#f3d890" stroke="#8a6a26" stroke-width="3"/>
+    <circle cx="266" cy="267" r="6" fill="#7a1d1d"/>
+    <circle cx="320" cy="267" r="6" fill="#1d3a7a"/>
+    <circle cx="374" cy="267" r="6" fill="#1d6a3a"/>
+  </g>
+
+  <text x="320" y="690" text-anchor="middle" font-family="Georgia, 'Times New Roman', serif"
+        font-size="62" font-weight="900" letter-spacing="3" fill="url(#wbGold)">WARBOUND</text>
+  <text x="320" y="742" text-anchor="middle" font-family="Georgia, 'Times New Roman', serif"
+        font-size="40" font-weight="700" letter-spacing="14" fill="#9a907c">ATLAS</text>
+</svg>

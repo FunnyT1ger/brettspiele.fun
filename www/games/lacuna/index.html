@@ -1,0 +1,226 @@
+<!doctype html><html lang="de" data-game="lacuna"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title data-i18n="lacuna.pageTitle">Lacuna – brettspiele.fun</title>
+  <meta name="description" content="Steckt gemeinsam die Lücke ab und legt reihum passende Zahlen hinein – wer als Letzte(r) trifft, gewinnt den Stich. Online-Räume, Bots, animierter 3D-Tisch. 2–6 Spieler." />
+  <link rel="canonical" href="https://brettspiele.fun/games/lacuna/" />
+  <!--hreflang:auto-->
+  <link rel="alternate" hreflang="de" href="https://brettspiele.fun/games/lacuna/" />
+  <link rel="alternate" hreflang="en" href="https://brettspiele.fun/en/games/lacuna/" />
+  <link rel="alternate" hreflang="fr" href="https://brettspiele.fun/fr/games/lacuna/" />
+  <link rel="alternate" hreflang="es" href="https://brettspiele.fun/es/games/lacuna/" />
+  <link rel="alternate" hreflang="it" href="https://brettspiele.fun/it/games/lacuna/" />
+  <link rel="alternate" hreflang="ru" href="https://brettspiele.fun/ru/games/lacuna/" />
+  <link rel="alternate" hreflang="zh" href="https://brettspiele.fun/zh/games/lacuna/" />
+  <link rel="alternate" hreflang="ja" href="https://brettspiele.fun/ja/games/lacuna/" />
+  <link rel="alternate" hreflang="x-default" href="https://brettspiele.fun/games/lacuna/" />
+  <!--/hreflang:auto-->
+  <meta property="og:type" content="website" />
+  <meta property="og:site_name" content="brettspiele.fun" />
+  <meta property="og:title" content="Lacuna – brettspiele.fun" />
+  <meta property="og:description" content="Steckt gemeinsam die Lücke ab und legt reihum passende Zahlen hinein – wer als Letzte(r) trifft, gewinnt den Stich." />
+  <meta property="og:url" content="https://brettspiele.fun/games/lacuna/" />
+  <meta property="og:image" content="https://brettspiele.fun/games/lacuna/button.svg" />
+  <meta property="og:locale" content="de_DE" />
+  <meta name="twitter:card" content="summary_large_image" />
+  <meta name="twitter:title" content="Lacuna – brettspiele.fun" />
+  <meta name="twitter:description" content="Steckt gemeinsam die Lücke ab und legt reihum passende Zahlen hinein." />
+  <meta name="twitter:image" content="https://brettspiele.fun/games/lacuna/button.svg" />
+  <script type="application/ld+json">{"@context": "https://schema.org", "@type": "VideoGame", "name": "Lacuna", "description": "Steckt gemeinsam die Lücke ab und legt reihum passende Zahlen hinein.", "url": "https://brettspiele.fun/games/lacuna/", "image": "https://brettspiele.fun/games/lacuna/button.svg", "genre": "Kartenspiel", "playMode": "MultiPlayer", "applicationCategory": "Game", "operatingSystem": "Any (Web Browser)", "inLanguage": ["de", "en", "fr", "es", "it", "ru", "zh", "ja"]}</script><link rel="icon" href="./button.svg" type="image/svg+xml"><script>try{let m=localStorage.getItem('brettspiele.themeMode')||'auto';let d=matchMedia('(prefers-color-scheme: dark)').matches;document.documentElement.dataset.theme=m==='auto'?(d?'dark':'light'):m}catch(e){document.documentElement.dataset.theme='dark'}</script><script src="../../assets/runtime-config.js?v=20260904-init"></script><script src="../../assets/i18n/de.js?v=20260625-public-rooms"></script><script src="../../assets/i18n/en.js?v=20260625-public-rooms"></script><script src="../../assets/i18n/fr.js?v=20260625-public-rooms"></script><script src="../../assets/i18n/es.js?v=20260625-public-rooms"></script><script src="../../assets/i18n/it.js?v=20260625-public-rooms"></script><script src="../../assets/i18n/ru.js?v=20260625-public-rooms"></script><script src="../../assets/i18n/zh.js?v=20260625-public-rooms"></script><script src="../../assets/i18n/ja.js?v=20260625-public-rooms"></script><script src="i18n/de.js?v=20260905-trickend"></script><script src="i18n/en.js?v=20260905-trickend"></script><script src="i18n/fr.js?v=20260905-trickend"></script><script src="i18n/es.js?v=20260905-trickend"></script><script src="i18n/it.js?v=20260905-trickend"></script><script src="i18n/ru.js?v=20260905-trickend"></script><script src="i18n/zh.js?v=20260905-trickend"></script><script src="i18n/ja.js?v=20260905-trickend"></script><script src="../../assets/i18n.js?v=20260625-public-rooms"></script><script src="../../assets/auth.js?v=20260722-totp"></script><script src="../../assets/consent.js?v=20260603-chrome"></script><link rel="stylesheet" href="./styles.css?v=20260905-trickend"><link rel="stylesheet" href="../../assets/game-chrome.css?v=20260708-nohscroll"></head>
+<body>
+<div class="app">
+  <header class="top">
+    <div class="brand">
+      <div class="logo">🕳️</div>
+      <div>
+        <h1>Lacuna</h1>
+        <div class="subtitle" data-i18n="lacuna.subtitle">Stichspiel um die Lücke</div>
+      </div>
+    </div>
+    <div class="game-top-actions">
+      <select class="game-language-select" data-language-select aria-label="Sprache"></select>
+      <button class="game-theme-toggle" id="themeToggle" type="button">Theme</button>
+    </div>
+  </header>
+
+  <div class="layout">
+    <aside class="card leftbar">
+      <div class="pad">
+        <div class="section-title"><h2 data-i18n="lacuna.room">Raum</h2><span class="pill"><strong id="roomOut">—</strong></span></div>
+
+        <div id="menuBox">
+          <div class="grid2 lobby-tabs" role="tablist">
+            <button type="button" class="secondary lobby-tab active" id="modeCreateTab" role="tab" aria-selected="true" data-i18n="lacuna.createRoom">Raum erstellen</button>
+            <button type="button" class="secondary lobby-tab" id="modeJoinTab" role="tab" aria-selected="false" data-i18n="lacuna.join">Beitreten</button>
+          </div>
+          <p class="tab-hint muted" data-i18n="lacuna.tabHint">Die Reiter öffnen nur den Bereich – danach unten noch auf den Button tippen.</p>
+          <label data-i18n="lacuna.name">Name</label>
+          <input id="nameInput" maxlength="24" placeholder="Dein Name" data-i18n-placeholder="lacuna.yourName">
+
+          <div id="createFields">
+            <label data-i18n="lacuna.bots">Bots (füllen freie Plätze)</label>
+            <input id="botCountInput" type="number" min="0" max="5" value="2">
+            <label class="public-room-toggle"><input type="checkbox" id="publicRoomCheck"><span data-i18n="lacuna.publicRoom">Öffentlich sichtbar (im Spiele-Browser gelistet)</span></label>
+          </div>
+
+          <div id="joinFields" class="hidden">
+            <label data-i18n="lacuna.roomCode">Raumcode</label>
+            <input id="roomInput" maxlength="12" placeholder="ABCD12" data-i18n-placeholder="lacuna.roomCode">
+            <div class="public-rooms" id="publicRoomsList">
+              <div class="public-rooms-head" data-i18n="lacuna.publicRooms.title">Öffentliche Spiele</div>
+              <div class="public-rooms-items" id="publicRoomsItems"><div class="public-rooms-empty muted" data-i18n="lacuna.publicRooms.empty">Aktuell keine öffentlichen Räume.</div></div>
+            </div>
+          </div>
+
+          <button id="menuActionBtn" style="width:100%;margin-top:10px" data-i18n="lacuna.createRoom">Raum erstellen</button>
+        </div>
+
+        <div id="lobbyBox" class="hidden">
+          <label data-i18n="lacuna.yourName">Dein Name</label>
+          <input id="hostNameInput" maxlength="24">
+          <label data-i18n="lacuna.inviteLink">Einladungslink</label>
+          <input id="inviteInput" readonly>
+          <div class="grid2" style="margin-top:10px">
+            <button class="secondary" id="copyBtn" data-i18n="lacuna.copyLink">Link kopieren</button>
+            <button class="good" id="startBtn" data-i18n="lacuna.startGame">Spiel starten</button>
+          </div>
+        </div>
+
+        <div id="rulesBox" class="rules-box">
+          <div class="section-title" style="margin-top:16px"><h2 data-i18n="lacuna.rules.title">So funktioniert die Lücke</h2></div>
+          <ol class="rule-list" id="ruleList">
+            <li data-i18n="lacuna.rules.r1"></li>
+            <li data-i18n="lacuna.rules.r2"></li>
+            <li data-i18n="lacuna.rules.r3"></li>
+            <li data-i18n="lacuna.rules.r4"></li>
+            <li data-i18n="lacuna.rules.r5"></li>
+            <li data-i18n="lacuna.rules.r6"></li>
+          </ol>
+        </div>
+      </div>
+    </aside>
+
+    <main class="card">
+      <div class="pad" id="stage">
+        <div id="menuHero" class="center lobbyHero">
+          <div>
+            <div class="big">Lac<span class="accent">una</span></div>
+            <p class="muted" data-i18n="lacuna.lobbyHelp">Steckt gemeinsam die Lücke ab und legt reihum passende Zahlen hinein – wer als Letzte(r) trifft, gewinnt den Stich.</p>
+          </div>
+        </div>
+
+        <div id="charSelectStage" class="hidden">
+          <div class="char-select-head">
+            <button type="button" class="secondary small" id="charBackBtn" data-i18n="lacuna.char.back">Zurück</button>
+            <h2 data-i18n="lacuna.char.title">Wähle deinen Spielstein</h2>
+            <p class="muted" data-i18n="lacuna.char.subtitle">Bereits vergebene Spielsteine sind markiert, lassen sich aber trotzdem wählen.</p>
+          </div>
+          <div class="char-select-body">
+            <div class="char-preview">
+              <canvas id="charPreviewCanvas"></canvas>
+              <div class="char-preview-name" id="charPreviewName"></div>
+            </div>
+            <div class="char-grid" id="charGrid"></div>
+          </div>
+          <div class="seat-select-head" data-i18n="lacuna.seat.title">Wähle deinen Sitzplatz</div>
+          <div class="seat-grid" id="seatGrid"></div>
+          <button id="charConfirmBtn" style="width:100%;margin-top:14px"></button>
+        </div>
+
+        <div id="gameStage" class="hidden">
+          <div class="table-wrap">
+            <canvas id="tableCanvas"></canvas>
+            <div class="turn-banner" id="turnBanner"></div>
+            <div class="round-banner" id="roundBanner"></div>
+          </div>
+
+          <!-- Hand cards are rendered as a fanned-out group inside the 3D
+               scene above (docked to the bottom of the table view, picked
+               via raycasting/tap) — this panel only holds controls that
+               still make sense as plain UI: the pass button and the hint. -->
+          <div class="hand-panel" id="handPanel">
+            <div class="hand-panel-head">
+              <span id="handLabel" data-i18n="lacuna.yourHand">Deine Hand</span>
+              <span class="pill" id="scorePill">0</span>
+            </div>
+            <div class="action-hint" id="actionHint"></div>
+            <div class="action-bar" id="actionBar">
+              <button class="danger" id="passBtn" data-i18n="lacuna.pass">Passen</button>
+            </div>
+          </div>
+
+          <div class="board-panel">
+            <div class="board-panel-head">
+              <h3 data-i18n="lacuna.trick.title">Aktueller Stich</h3>
+              <span class="muted" id="trickPointsOut"></span>
+            </div>
+            <div id="trickBoard" class="trick-board"></div>
+          </div>
+        </div>
+
+        <div id="roundEndBox" class="hidden center">
+          <div>
+            <h2 data-i18n="lacuna.roundOver">Runde vorbei</h2>
+            <ol id="roundScores" class="ranking"></ol>
+            <div class="continue-box">
+              <button class="good" id="nextRoundBtn" data-i18n="lacuna.nextRound">Nächste Runde</button>
+            </div>
+            <div class="trick-end-waiting muted" id="roundEndWaiting"></div>
+          </div>
+        </div>
+
+        <div id="gameOverBox" class="hidden victory">
+          <div class="crown">🏆</div>
+          <div class="champ-name" id="winnerName"></div>
+          <div class="champ-sub" data-i18n="lacuna.winnerSub">gewinnt mit der höchsten Punktzahl!</div>
+          <ol class="ranking" id="finalScores"></ol>
+          <div class="endmenu">
+            <button class="good" id="rematchBtn" data-i18n="lacuna.rematch">Nochmal spielen</button>
+          </div>
+          <div class="trick-end-waiting muted" id="gameOverWaiting"></div>
+        </div>
+      </div>
+    </main>
+
+    <aside class="card rightbar">
+      <div class="pad">
+        <div class="section-title"><h2 data-i18n="lacuna.players">Spieler</h2><span class="muted" id="phaseOut">Lobby</span></div>
+        <div id="playersList" class="list"></div>
+        <div class="section-title log-section-title"><h2 data-i18n="lacuna.log.title">Verlauf</h2></div>
+        <div id="logList" class="log-list"></div>
+      </div>
+    </aside>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<div id="fiveChoiceOverlay" class="gc-overlay" hidden>
+  <div class="gc-modal">
+    <div class="gc-msg" data-i18n="lacuna.five.title">Wie soll die Karte gespielt werden?</div>
+    <div id="fiveOptions" class="five-options"></div>
+    <div class="gc-actions"><button class="secondary small" id="fiveCancelBtn" data-i18n="lacuna.cancel">Abbrechen</button></div>
+  </div>
+</div>
+
+<div id="trickEndOverlay" class="gc-overlay" hidden>
+  <div class="gc-modal trick-end-modal">
+    <div class="gc-msg" id="trickEndWinner"></div>
+    <ul class="trick-end-reasons" id="trickEndReasons"></ul>
+    <div class="trick-end-marker hidden" id="trickEndMarker"></div>
+    <div class="gc-actions"><button class="good" id="trickEndNextBtn" data-i18n="lacuna.trickEnd.next">Weiter</button></div>
+    <div class="trick-end-waiting muted" id="trickEndWaiting"></div>
+  </div>
+</div>
+
+<div id="gameConfirmOverlay" class="gc-overlay" hidden>
+  <div class="gc-modal">
+    <div class="gc-msg" id="gcMsg">Sicher?</div>
+    <div class="gc-actions"><button class="secondary" id="gcCancelBtn">Abbrechen</button><button class="danger" id="gcConfirmBtn">Bestätigen</button></div>
+  </div>
+</div>
+
+<script src="../../assets/game-chrome.js?v=20260625-nav"></script>
+<script src="three.min.js?v=20260904-init"></script>
+<script src="GLTFLoader.js?v=20260905-trickend"></script>
+<script src="game.render3d.js?v=20260905-trickend"></script>
+<script src="game.js?v=20260905-trickend"></script>
+</body>
+</html>

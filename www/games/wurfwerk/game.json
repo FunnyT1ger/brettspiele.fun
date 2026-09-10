@@ -1,0 +1,33 @@
+{
+  "title": "Wurfwerk",
+  "subtitle": {
+    "de": "Three.js-Würfelspiel",
+    "en": "Three.js Dice Game",
+    "fr": "Jeu de dés Three.js",
+    "es": "Juego de dados Three.js",
+    "it": "Gioco di dadi Three.js",
+    "ru": "Игра в кости на Three.js",
+    "zh": "Three.js 骰子游戏",
+    "ja": "Three.js ダイスゲーム"
+  },
+  "description": {
+    "de": "3D-Würfel, Online-Räume, Bots, animierte Realtime-Synchronisation und ausklappbare Scoreboards.",
+    "en": "3D dice, online rooms, bots, animated realtime sync and expandable scoreboards.",
+    "fr": "Dés 3D, salles en ligne, bots, synchronisation temps réel animée et scores dépliables.",
+    "es": "Dados 3D, salas online, bots, sincronización animada en tiempo real y marcadores plegables.",
+    "it": "Dadi 3D, stanze online, bot, sincronizzazione animata in tempo reale e punteggi espandibili.",
+    "ru": "3D-кубики, онлайн-комнаты, боты, анимированная синхронизация и раскрываемые таблицы очков.",
+    "zh": "3D 骰子、在线房间、机器人、实时动画同步和可展开计分板。",
+    "ja": "3Dダイス、オンラインルーム、ボット、アニメ付きリアルタイム同期、展開式スコアボード。"
+  },
+  "players": {
+    "de": "1–6 Spieler", "en": "1–6 players", "fr": "1–6 joueurs", "es": "1–6 jugadores", "it": "1–6 giocatori", "ru": "1–6 игроков", "zh": "1–6 名玩家", "ja": "1〜6人"
+  },
+  "minutes": "20–45 min",
+  "category": { "de": "Würfel", "en": "Dice", "fr": "Dés", "es": "Dados", "it": "Dadi", "ru": "Кости", "zh": "骰子", "ja": "ダイス" },
+  "tags": ["Three.js", "Bots", "Realtime"],
+  "image": "games/wurfwerk/button.svg",
+  "accent": "#f59e0b",
+  "theme": "wurfwerk",
+  "order": 10
+}

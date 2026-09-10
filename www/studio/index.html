@@ -1,0 +1,640 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="robots" content="noindex, nofollow">
+<title>Spiele-Studio – brettspiele.fun</title>
+<script>try{var m=localStorage.getItem('brettspiele.themeMode')||'auto';var d=matchMedia('(prefers-color-scheme: dark)').matches;document.documentElement.dataset.theme=m==='auto'?(d?'dark':'light'):m;}catch(e){document.documentElement.dataset.theme='dark';}</script>
+<style>
+  :root{--bg:#0f1420;--panel:#182131;--panel2:#1f2a3d;--line:rgba(255,255,255,.12);--text:#eef2f8;--muted:#93a0b4;--gold:#d4a84f;--green:#57d68d;--red:#ff6b6b;--chip:rgba(255,255,255,.07)}
+  :root[data-theme="light"]{--bg:#eef1f6;--panel:#fff;--panel2:#f3f5f9;--line:rgba(0,0,0,.12);--text:#141a24;--muted:#5a6675;--gold:#a9812f;--green:#1e9e5a;--red:#c53434;--chip:rgba(0,0,0,.05)}
+  *{box-sizing:border-box}
+  html,body{height:100%}
+  body{margin:0;background:var(--bg);color:var(--text);font:14px/1.5 system-ui,-apple-system,Segoe UI,Roboto,sans-serif;display:flex;flex-direction:column;height:100vh;overflow:hidden}
+  .gate{display:none;margin:auto;max-width:460px;background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:28px;text-align:center}
+  .gate a{color:var(--gold)}
+  header{display:flex;gap:10px;align-items:center;padding:10px 14px;background:var(--panel);border-bottom:1px solid var(--line);flex-wrap:wrap}
+  header .title{font-weight:800;color:var(--gold);white-space:nowrap}
+  header input.game-title{background:var(--chip);border:1px solid var(--line);border-radius:8px;color:var(--text);font:inherit;padding:7px 10px;min-width:160px;flex:1}
+  .btn{font:700 13px/1 system-ui;padding:9px 12px;border-radius:9px;border:1px solid var(--line);background:var(--chip);color:var(--text);cursor:pointer;white-space:nowrap}
+  .btn:hover{filter:brightness(1.12)}
+  .btn.primary{background:rgba(212,168,79,.18);border-color:rgba(212,168,79,.45);color:var(--gold)}
+  .btn.on{background:rgba(87,214,141,.18);border-color:rgba(87,214,141,.45);color:var(--green)}
+  .btn.small{padding:6px 9px;font-size:12px}
+  a.back{color:var(--muted);text-decoration:none;font-size:13px;white-space:nowrap}
+  main{flex:1;display:flex;min-height:0}
+  .side{width:280px;background:var(--panel);border-right:1px solid var(--line);overflow:auto;padding:14px;display:flex;flex-direction:column;gap:16px}
+  .side h3{margin:0 0 8px;font-size:12px;text-transform:uppercase;letter-spacing:.05em;color:var(--muted)}
+  .field{display:flex;flex-direction:column;gap:5px;margin-bottom:10px}
+  .field label{font-size:12px;color:var(--muted)}
+  .field input,.field select{background:var(--chip);border:1px solid var(--line);border-radius:8px;color:var(--text);font:inherit;padding:8px 10px}
+  .row{display:flex;gap:8px;align-items:center;flex-wrap:wrap}
+  .btn:disabled{opacity:.45;cursor:not-allowed}
+  .palette{display:flex;flex-wrap:wrap;gap:8px}
+  .ptype{position:relative;width:52px;height:52px;border-radius:10px;border:2px solid var(--line);background:var(--panel2);display:flex;align-items:center;justify-content:center;font-size:24px;cursor:pointer;user-select:none}
+  .ptype.armed{border-color:var(--gold);box-shadow:0 0 0 2px rgba(212,168,79,.35)}
+  .ptype .x{position:absolute;top:-7px;right:-7px;width:18px;height:18px;border-radius:50%;background:var(--red);color:#fff;font-size:12px;line-height:18px;text-align:center;display:none}
+  .ptype:hover .x{display:block}
+  .stage-wrap{flex:1;overflow:auto;padding:22px;display:flex}
+  .board{position:relative;margin:auto;border-radius:12px;border:1px solid var(--line);box-shadow:0 10px 40px rgba(0,0,0,.35);overflow:hidden;flex:none}
+  .board.grid{background-image:linear-gradient(rgba(255,255,255,.06) 1px,transparent 1px),linear-gradient(90deg,rgba(255,255,255,.06) 1px,transparent 1px);background-size:40px 40px}
+  .piece{position:absolute;display:flex;align-items:center;justify-content:center;cursor:grab;user-select:none;touch-action:none;font-size:26px;transition:box-shadow .1s}
+  .piece.token{border-radius:50%;color:#0b0f16;font-weight:800;font-size:14px;box-shadow:0 3px 8px rgba(0,0,0,.4)}
+  .piece.selected{outline:2px solid var(--gold);outline-offset:2px}
+  .piece.flipped{filter:grayscale(1) brightness(.6)}
+  .hint{color:var(--muted);font-size:12px}
+  .dice-out{font-size:22px;font-weight:800;color:var(--gold);min-height:28px}
+  .toast{position:fixed;left:50%;bottom:22px;transform:translateX(-50%);background:var(--panel);border:1px solid var(--line);border-radius:10px;padding:10px 16px;box-shadow:0 8px 24px rgba(0,0,0,.4);opacity:0;transition:opacity .2s;pointer-events:none}
+  .toast.show{opacity:1}
+  body.play .editor-only{display:none!important}
+  body.play .side{width:230px}
+</style>
+  <link rel="stylesheet" href="../assets/gamepad.css?v=20260824-pad" />
+</head>
+<body>
+<div class="gate" id="gate">
+  <h2>🔒 Ersteller-Recht nötig</h2>
+  <p id="gateMsg">Zum Erstellen eigener Spiele brauchst du das Ersteller-Recht.</p>
+  <div id="reqForm" style="display:none;text-align:left;margin-top:12px">
+    <textarea id="reqMsg" placeholder="Optional: kurz beschreiben, was du bauen möchtest…" style="width:100%;min-height:60px;background:var(--chip);border:1px solid var(--line);border-radius:8px;color:var(--text);font:inherit;padding:8px"></textarea>
+    <button class="btn primary" id="reqBtn" style="width:100%;margin-top:8px">Ersteller-Recht beantragen</button>
+  </div>
+  <p id="reqPending" style="display:none;color:var(--green)">✓ Antrag gestellt – warte auf Freigabe durch einen Admin. <a href="#" id="reqCancel" style="color:var(--muted)">zurückziehen</a></p>
+  <p style="margin-top:12px"><a href="/">Zur Startseite</a></p>
+</div>
+
+<header id="app" style="display:none">
+  <span class="title">🎲 Studio</span>
+  <input class="game-title" id="gameTitle" maxlength="60" placeholder="Titel deines Spiels">
+  <button class="btn editor-only" id="btnMode">▶ Testen</button>
+  <button class="btn primary" id="btnSave">🔗 Speichern &amp; Link</button>
+  <button class="btn editor-only" id="btnNew">Neu</button>
+  <a class="back" href="/">← zur Seite</a>
+</header>
+
+<main id="appMain" style="display:none">
+  <aside class="side">
+    <div class="editor-only" id="aiPanel" style="display:none">
+      <h3>🤖 Mit KI erstellen</h3>
+      <div id="aiLinkRow">
+        <p class="hint">Verknüpfe deinen eigenen Claude-Account (Anthropic-API-Key). Die KI erstellt Spiele mit deinem Guthaben; der Schlüssel wird serverseitig gespeichert und nie angezeigt.</p>
+        <div class="row">
+          <input class="field" id="aiKey" type="password" placeholder="sk-ant-…" style="flex:1" autocomplete="off">
+          <button class="btn small" id="aiLinkBtn">Verknüpfen</button>
+        </div>
+      </div>
+      <div id="aiGenRow" style="display:none">
+        <p class="hint">Claude verknüpft ✓ · <a href="#" id="aiUnlinkBtn" style="color:var(--muted)">trennen</a></p>
+        <textarea id="aiPrompt" placeholder="Beschreibe dein Spiel, z.B. „Schach-Grundaufstellung auf 8×8&#34; oder „Mensch-ärgere-dich-Startfeld für 4 Spieler&#34;…" style="width:100%;min-height:64px;background:var(--chip);border:1px solid var(--line);border-radius:8px;color:var(--text);font:inherit;padding:8px"></textarea>
+        <button class="btn primary small" id="aiGenBtn" style="width:100%;margin-top:6px">✨ Spiel generieren</button>
+        <p class="hint" id="aiStatus"></p>
+      </div>
+    </div>
+
+    <div class="editor-only" id="myGamesBox" style="display:none">
+      <h3>💾 Meine Spiele</h3>
+      <select id="myGames" class="field" style="width:100%"></select>
+      <div class="row" style="margin-top:8px">
+        <button class="btn small" id="loadGameBtn">Laden</button>
+        <button class="btn small" id="delGameBtn">Löschen</button>
+      </div>
+      <!-- Altbestand: Spiele aus der Zeit vor der Rechte-Zusicherung. Sie
+           stillschweigend offline zu nehmen wäre unfair — stattdessen wird die
+           Bestätigung hier eingefordert. -->
+      <div id="termsGap" style="display:none;margin-top:8px;padding:8px 10px;border-radius:8px;background:#3d2b16;color:#e6c07b;font-size:12px;line-height:1.45">
+        <div style="margin-bottom:6px">⚠ Für dieses Spiel liegt noch keine Rechte-Zusicherung vor. Bitte einmalig nachholen.</div>
+        <button class="btn small" id="termsGapBtn" style="width:100%">✔ Rechte-Zusicherung nachholen</button>
+      </div>
+      <p class="hint" id="pubStatus" style="margin-top:6px"></p>
+      <label class="row" id="pubTermsRow" style="display:none;align-items:flex-start;gap:8px;margin-top:6px;cursor:pointer">
+        <input type="checkbox" id="pubTerms" style="margin-top:3px;flex:0 0 auto">
+        <span class="hint" style="flex:1">Ich versichere, dass ich über alle erforderlichen Rechte an diesem Spiel und an allen darin verwendeten Inhalten verfüge, und stimme den <a href="/nutzungsbedingungen/" target="_blank" rel="noopener" style="color:inherit">Nutzungsbedingungen</a> zu.</span>
+      </label>
+      <button class="btn small" id="pubBtn" style="display:none;width:100%"></button>
+      <p class="hint" style="margin-top:6px">„Speichern" aktualisiert das geladene Spiel bzw. legt ein neues an.</p>
+    </div>
+
+    <div class="editor-only">
+      <h3>Spielbrett</h3>
+      <div class="field"><label>Hintergrundfarbe</label><input type="color" id="bgColor" value="#204d3b"></div>
+      <div class="row" style="margin-bottom:10px">
+        <div class="field" style="flex:1"><label>Breite</label><input type="number" id="bw" min="300" max="2000" step="20" value="900"></div>
+        <div class="field" style="flex:1"><label>Höhe</label><input type="number" id="bh" min="200" max="1600" step="20" value="620"></div>
+      </div>
+      <label class="row" style="cursor:pointer"><input type="checkbox" id="gridOn" checked> <span class="hint">Raster anzeigen</span></label>
+    </div>
+
+    <div class="editor-only">
+      <h3>Figuren-Typen</h3>
+      <div class="palette" id="palette"></div>
+      <div class="row" style="margin-top:10px">
+        <input class="field" id="newEmoji" style="width:64px;padding:8px" maxlength="2" placeholder="♟">
+        <input type="color" id="newColor" value="#d4a84f" title="Farbe (falls kein Emoji)">
+        <button class="btn small" id="addType">+ Typ</button>
+      </div>
+      <p class="hint" style="margin-top:6px">Typ anklicken, dann aufs Brett tippen zum Platzieren. Emoji leer lassen → farbige Spielsteine.</p>
+    </div>
+
+    <div>
+      <h3>Würfel</h3>
+      <div class="row">
+        <select id="diceSides" class="field" style="flex:1"><option value="6">W6</option><option value="4">W4</option><option value="8">W8</option><option value="10">W10</option><option value="12">W12</option><option value="20">W20</option></select>
+        <button class="btn" id="rollBtn">🎲 Würfeln</button>
+      </div>
+      <div class="dice-out" id="diceOut"></div>
+    </div>
+
+    <div>
+      <h3>Mehrspieler</h3>
+      <div id="syncIdle">
+        <div class="row">
+          <input class="field" id="roomInput" style="flex:1" maxlength="8" placeholder="Raumcode" autocomplete="off">
+          <button class="btn small" id="joinBtn">Beitreten</button>
+        </div>
+        <button class="btn small" id="hostBtn" style="margin-top:8px;width:100%">Raum hosten</button>
+        <p class="hint" style="margin-top:6px">Hosten erzeugt einen Raumcode. Mitspieler treten per Code oder Einladungslink bei und sehen dein Brett live.</p>
+      </div>
+      <div id="syncActive" style="display:none">
+        <p class="hint">Raum <strong id="roomLabel"></strong> · <span id="syncStatus">verbunden</span></p>
+        <div class="row">
+          <button class="btn small" id="copyRoomLink">🔗 Einladung</button>
+          <button class="btn small" id="leaveBtn">Verlassen</button>
+        </div>
+      </div>
+    </div>
+
+    <div>
+      <h3>Auswahl</h3>
+      <button class="btn small editor-only" id="delPiece" disabled>Ausgewählte Figur entfernen</button>
+      <p class="hint">Ziehen = bewegen · Doppelklick = drehen · Rechtsklick = umdrehen</p>
+    </div>
+  </aside>
+
+  <div class="stage-wrap">
+    <div class="board" id="board"></div>
+  </div>
+</main>
+
+<div class="toast" id="toast"></div>
+
+<script>
+const $ = (id)=>document.getElementById(id);
+function toast(m){const t=$('toast');t.textContent=m;t.className='toast show';clearTimeout(toast._t);toast._t=setTimeout(()=>t.className='toast',2000);}
+function uid(){return Math.random().toString(36).slice(2,9);}
+
+/* ── Spiel-Definition ── */
+let game = null;
+function blankGame(){
+  return {version:1, title:'', board:{w:900,h:620,bg:'#204d3b',grid:true},
+    pieceTypes:[{id:uid(),emoji:'♟',color:'#d4a84f'},{id:uid(),emoji:'♜',color:'#7bd4a8'},{id:uid(),emoji:'',color:'#e0574a'}],
+    pieces:[]};
+}
+let armedType=null, selected=null, playMode=false;
+
+/* ── Link-Codierung (UTF-8-sicheres base64) ── */
+function encodeGame(g){ return btoa(unescape(encodeURIComponent(JSON.stringify(g)))); }
+function decodeGame(s){ try{ return JSON.parse(decodeURIComponent(escape(atob(s)))); }catch(e){ return null; } }
+
+/* ── Rendering ── */
+function renderAll(){ renderBoardFrame(); renderPalette(); renderPieces(); syncFields(); }
+function syncFields(){
+  $('gameTitle').value = game.title||'';
+  $('bgColor').value = game.board.bg;
+  $('bw').value = game.board.w; $('bh').value = game.board.h;
+  $('gridOn').checked = !!game.board.grid;
+}
+function renderBoardFrame(){
+  const b=$('board');
+  b.style.width=game.board.w+'px'; b.style.height=game.board.h+'px';
+  b.style.background=game.board.bg;
+  b.classList.toggle('grid', !!game.board.grid);
+}
+function renderPalette(){
+  const p=$('palette'); p.innerHTML='';
+  game.pieceTypes.forEach(t=>{
+    const el=document.createElement('div'); el.className='ptype'+(armedType===t.id?' armed':'');
+    el.style.background = t.emoji? 'var(--panel2)' : t.color;
+    el.textContent = t.emoji || '';
+    el.title='Platzieren';
+    el.addEventListener('click',()=>{ armedType = armedType===t.id?null:t.id; renderPalette(); });
+    const x=document.createElement('div'); x.className='x'; x.textContent='×'; x.title='Typ löschen';
+    x.addEventListener('click',(e)=>{ e.stopPropagation(); game.pieceTypes=game.pieceTypes.filter(z=>z.id!==t.id); if(armedType===t.id)armedType=null; renderPalette(); renderPieces(); syncTypes(); });
+    el.appendChild(x); p.appendChild(el);
+  });
+}
+function typeById(id){ return game.pieceTypes.find(t=>t.id===id); }
+function renderPieces(){
+  const b=$('board');
+  b.querySelectorAll('.piece').forEach(e=>e.remove());
+  game.pieces.forEach(pc=>{
+    const t=typeById(pc.typeId); if(!t) return;
+    const el=document.createElement('div'); el.className='piece'+(t.emoji?'':' token')+(pc.flipped?' flipped':'')+(selected===pc.id?' selected':'');
+    const size = t.emoji?40:34;
+    el.style.width=size+'px'; el.style.height=size+'px';
+    el.style.left=pc.x+'px'; el.style.top=pc.y+'px';
+    el.style.transform='rotate('+(pc.rot||0)+'deg)';
+    if(t.emoji){ el.textContent=t.emoji; } else { el.style.background=t.color; }
+    el.dataset.id=pc.id;
+    attachPieceHandlers(el, pc);
+    b.appendChild(el);
+  });
+}
+
+/* ── Platzieren ── */
+$('board') && $('board').addEventListener('click',(e)=>{
+  if(!armedType) return;
+  if(e.target!==$('board')) return;           // nur auf leeres Brett
+  const r=$('board').getBoundingClientRect();
+  const np={id:uid(),typeId:armedType,x:Math.round(e.clientX-r.left-20),y:Math.round(e.clientY-r.top-20),rot:0,flipped:false};
+  game.pieces.push(np);
+  renderPieces();
+  sendOp({t:'add',piece:np}); schedulePersist();
+});
+
+/* ── Figuren: ziehen / auswählen / drehen / umdrehen ── */
+function attachPieceHandlers(el, pc){
+  let drag=null;
+  el.addEventListener('pointerdown',(e)=>{
+    e.preventDefault();
+    select(pc.id);
+    const r=$('board').getBoundingClientRect();
+    drag={dx:e.clientX-r.left-pc.x, dy:e.clientY-r.top-pc.y};
+    el.setPointerCapture(e.pointerId); el.style.cursor='grabbing';
+  });
+  let lastSent=0;
+  el.addEventListener('pointermove',(e)=>{
+    if(!drag) return;
+    const r=$('board').getBoundingClientRect();
+    pc.x=Math.max(0,Math.min(game.board.w-10, Math.round(e.clientX-r.left-drag.dx)));
+    pc.y=Math.max(0,Math.min(game.board.h-10, Math.round(e.clientY-r.top-drag.dy)));
+    el.style.left=pc.x+'px'; el.style.top=pc.y+'px';
+    const now=performance.now(); if(now-lastSent>55){ lastSent=now; sendOp({t:'move',id:pc.id,x:pc.x,y:pc.y}); }
+  });
+  const end=(e)=>{ if(drag){drag=null; el.style.cursor='grab'; try{el.releasePointerCapture(e.pointerId);}catch(_){} sendOp({t:'move',id:pc.id,x:pc.x,y:pc.y}); schedulePersist();} };
+  el.addEventListener('pointerup',end); el.addEventListener('pointercancel',end);
+  el.addEventListener('dblclick',(e)=>{ e.preventDefault(); pc.rot=((pc.rot||0)+45)%360; el.style.transform='rotate('+pc.rot+'deg)'; sendOp({t:'xform',id:pc.id,rot:pc.rot,flipped:!!pc.flipped}); schedulePersist(); });
+  el.addEventListener('contextmenu',(e)=>{ e.preventDefault(); pc.flipped=!pc.flipped; el.classList.toggle('flipped',pc.flipped); sendOp({t:'xform',id:pc.id,rot:pc.rot||0,flipped:pc.flipped}); schedulePersist(); });
+}
+function select(id){ selected=id; $('delPiece').disabled=!id||playMode;
+  $('board').querySelectorAll('.piece').forEach(e=>e.classList.toggle('selected', e.dataset.id===id)); }
+
+/* ── Editor-Controls ── */
+function syncBoard(){ sendOp({t:'board',board:game.board}); schedulePersist(); }
+function syncTypes(){ sendOp({t:'types',pieceTypes:game.pieceTypes}); schedulePersist(); }
+let titleT=null;
+$('gameTitle').addEventListener('input',e=>{ game.title=e.target.value; clearTimeout(titleT); titleT=setTimeout(()=>{ sendOp({t:'title',title:game.title}); schedulePersist(); },250); });
+$('bgColor').addEventListener('input',e=>{game.board.bg=e.target.value;renderBoardFrame();syncBoard();});
+$('bw').addEventListener('change',e=>{game.board.w=+e.target.value||900;renderBoardFrame();syncBoard();});
+$('bh').addEventListener('change',e=>{game.board.h=+e.target.value||620;renderBoardFrame();syncBoard();});
+$('gridOn').addEventListener('change',e=>{game.board.grid=e.target.checked;renderBoardFrame();syncBoard();});
+$('addType').addEventListener('click',()=>{
+  const emoji=$('newEmoji').value.trim(), color=$('newColor').value;
+  game.pieceTypes.push({id:uid(),emoji:emoji,color:color}); $('newEmoji').value=''; renderPalette(); syncTypes();
+});
+$('delPiece').addEventListener('click',()=>{ if(!selected)return; const id=selected; game.pieces=game.pieces.filter(p=>p.id!==id); selected=null; $('delPiece').disabled=true; renderPieces(); sendOp({t:'remove',id}); schedulePersist(); });
+document.addEventListener('keydown',e=>{ if((e.key==='Delete'||e.key==='Backspace')&&selected&&!playMode&&document.activeElement.tagName!=='INPUT'){ $('delPiece').click(); }});
+
+/* ── Würfel ── */
+$('rollBtn').addEventListener('click',()=>{ const s=+$('diceSides').value; const v=1+Math.floor(Math.random()*s); $('diceOut').textContent='🎲 '+v+' (W'+s+')'; sendOp({t:'dice',value:v,sides:s}); });
+
+/* ── Modus ── */
+function setMode(play){
+  playMode=play; document.body.classList.toggle('play',play); armedType=null; select(null);
+  $('btnMode').textContent = play?'✏ Bearbeiten':'▶ Testen';
+  renderPalette();
+}
+$('btnMode').addEventListener('click',()=>setMode(!playMode));
+// Der "Bearbeiten"-Button existiert nur editor-only; im Play-Modus zurück über Header-Button, der sichtbar bleibt:
+$('btnMode').classList.remove('editor-only');
+
+/* ── Speichern / Laden ──
+   Primär serverseitig unter kurzer ID (/api/studio/save → Link #id=XYZ),
+   Fallback bleibt die Link-Codierung (#g=…), z.B. wenn der Server nicht
+   erreichbar ist. */
+let serverId='';
+
+/* ── Rechte-Zusicherung ──
+   Fällig bei JEDER Aktualisierung, nicht nur beim Einreichen: Änderungen an
+   einem veröffentlichten Spiel gehen ohne erneute Prüfung live, der Inhalt von
+   heute ist also nicht der, den jemand vor Wochen zugesichert hat. Damit das
+   nicht bei jedem Klick nervt, gilt eine Bestätigung für die laufende
+   Bearbeitung dieses Spiels — der Server schreibt den Zeitpunkt bei jedem
+   Speichern neu mit, die Zusicherung deckt also immer den aktuellen Stand. */
+let termsOkFor='';   // Spiel-ID (bzw. '#neu'), für die in dieser Sitzung bestätigt wurde
+function termsText(){
+  return 'Rechte-Zusicherung\n\n'
+    + 'Ich versichere, dass ich über alle erforderlichen Rechte an diesem Spiel '
+    + 'und an allen darin verwendeten Inhalten verfüge (Grafiken, Symbole, Texte, '
+    + 'Klänge) — sei es, weil ich sie selbst erstellt habe, sei es aufgrund einer '
+    + 'Lizenz, die die Nutzung auf brettspiele.fun deckt.\n\n'
+    + 'Es gelten die Nutzungsbedingungen: ' + location.origin + '/nutzungsbedingungen/';
+}
+function ensureTerms(){
+  const key = serverId || '#neu';
+  if(termsOkFor === key) return true;
+  if(!confirm(termsText())) return false;
+  termsOkFor = key;
+  return true;
+}
+
+$('btnSave').addEventListener('click',async ()=>{
+  if(!ensureTerms()){ toast('Ohne Rechte-Zusicherung wird nicht gespeichert'); return; }
+  const code=encodeGame(game);
+  try{ localStorage.setItem('studio.last', code); }catch(e){}
+  try{
+    const d=await apiPost('/api/studio/save', serverId?{id:serverId,game,terms:true}:{game,terms:true});
+    serverId=d.id;
+    history.replaceState(null,'','#id='+serverId);
+    refreshMyGames();
+    const url=location.origin+location.pathname+'#id='+serverId;
+    try{ await navigator.clipboard.writeText(url); toast('Gespeichert – Link kopiert, teilbar zum Mitspielen'); }
+    catch(e){ toast('Gespeichert (Link in der Adressleiste)'); }
+  }catch(e){
+    if(e.message==='too_many_games'){ toast('Limit erreicht – bitte alte Spiele löschen'); return; }
+    if(e.message==='game_not_found'){ serverId=''; toast('Gespeichertes Spiel existiert nicht mehr – bitte erneut speichern'); return; }
+    if(e.message==='terms_required'){ termsOkFor=''; toast('Rechte-Zusicherung fehlt – bitte erneut speichern und bestätigen'); return; }
+    const url=location.origin+location.pathname+'#g='+code;
+    history.replaceState(null,'','#g='+code);
+    try{ await navigator.clipboard.writeText(url); toast('Server nicht erreichbar – Link mit Spiel kopiert'); }
+    catch(_){ toast('Gespeichert (Link in der Adressleiste)'); }
+  }
+});
+$('btnNew').addEventListener('click',()=>{ if(!confirm('Neues, leeres Spiel? Ungespeicherte Änderungen gehen verloren.'))return; game=blankGame(); serverId=''; if(!sync.connected) history.replaceState(null,'',location.pathname); renderAll(); if(sync.connected){ sendMsg({type:'op',op:{t:'full',game}}); schedulePersist(); } });
+
+async function loadInitial(){
+  const idm=location.hash.match(/#id=([A-Za-z0-9]+)/);
+  if(idm){
+    try{
+      const d=await apiGet('/api/studio/game?id='+encodeURIComponent(idm[1].toLowerCase()));
+      if(d.game){ game=d.game; serverId=d.id; return; }
+    }catch(e){ toast('Gespeichertes Spiel nicht gefunden'); }
+  }
+  const h=location.hash.match(/#g=(.+)$/);
+  if(h){ const g=decodeGame(h[1]); if(g){ game=g; return; } }
+  try{ const s=localStorage.getItem('studio.last'); if(s){ const g=decodeGame(s); if(g){ game=g; return; } } }catch(e){}
+  game=blankGame();
+}
+
+/* ── Meine Spiele (serverseitig gespeichert) ── */
+let myGamesMeta={};
+function statusMark(g){
+  return g.status==='submitted'?' ⏳':g.status==='published'?' ✅':g.status==='rejected'?' ❌':'';
+}
+async function refreshMyGames(){
+  try{
+    const d=await apiGet('/api/studio/games');
+    const sel=$('myGames'); sel.innerHTML=''; myGamesMeta={};
+    (d.games||[]).forEach(g=>{
+      myGamesMeta[g.id]=g;
+      const o=document.createElement('option'); o.value=g.id;
+      o.textContent=(g.title||'(ohne Titel)')+' · '+g.id+statusMark(g);
+      if(g.id===serverId) o.selected=true;
+      sel.appendChild(o);
+    });
+    $('myGamesBox').style.display=(d.games||[]).length?'':'none';
+    updatePubBox();
+  }catch(e){}
+}
+
+/* ── Veröffentlichung (Einreichen + Freigabe durch Admin) ── */
+function updatePubBox(){
+  const g=myGamesMeta[$('myGames').value];
+  const st=$('pubStatus'), btn=$('pubBtn');
+  if(!g){ st.textContent=''; btn.style.display='none'; $('pubTermsRow').style.display='none'; $('termsGap').style.display='none'; return; }
+  if(g.status==='submitted'){ st.textContent='⏳ Eingereicht – wartet auf Freigabe durch einen Admin.'; btn.textContent='Einreichung zurückziehen'; }
+  else if(g.status==='published'){ st.textContent='✅ Veröffentlicht – sichtbar in der Community-Galerie der Startseite.'; btn.textContent='Veröffentlichung zurückziehen'; }
+  else if(g.status==='rejected'){ st.textContent='❌ Abgelehnt'+(g.rejectReason?': „'+g.rejectReason+'"':'')+' – überarbeiten und erneut einreichen.'; btn.textContent='📣 Erneut einreichen'; }
+  else { st.textContent='Entwurf – nur über den geteilten Link erreichbar.'; btn.textContent='📣 Zur Veröffentlichung einreichen'; }
+  btn.dataset.mode=(g.status==='submitted'||g.status==='published')?'withdraw':'submit';
+  btn.style.display='';
+  // Die Veröffentlichung ist der Punkt, an dem fremde Inhalte zum Problem des
+  // Anbieters werden — deshalb geht sie nur mit ausdrücklicher Rechte-
+  // Zusicherung. Der Server verlangt sie ohnehin (Fehler `terms_required`);
+  // hier wird sie nur sichtbar und pro Einreichung neu abgefragt.
+  // Fehlende Zusicherung (Altbestand) sichtbar machen — unabhängig davon, ob
+  // das Spiel gerade Entwurf, eingereicht oder veröffentlicht ist.
+  $('termsGap').style.display = g.termsAcceptedAt ? 'none' : '';
+  const submitting=btn.dataset.mode==='submit';
+  $('pubTermsRow').style.display=submitting?'':'none';
+  if(!submitting) $('pubTerms').checked=false;
+  btn.disabled=submitting && !$('pubTerms').checked;
+}
+$('myGames').addEventListener('change', updatePubBox);
+$('termsGapBtn').addEventListener('click', async ()=>{
+  const id=$('myGames').value; if(!id) return;
+  if(!confirm(termsText())) return;
+  try{
+    await apiPost('/api/studio/accept-terms',{id, terms:true});
+    termsOkFor=id;
+    toast('Zusicherung vermerkt');
+    refreshMyGames();
+  }catch(e){ toast(e.message==='not_owner'?'Das ist nicht dein Spiel':'Konnte nicht vermerkt werden'); }
+});
+$('pubTerms').addEventListener('change', ()=>{ $('pubBtn').disabled=!$('pubTerms').checked; });
+$('pubBtn').addEventListener('click', async ()=>{
+  const id=$('myGames').value; const g=myGamesMeta[id]; if(!g) return;
+  if($('pubBtn').dataset.mode==='withdraw'){
+    if(g.status==='published' && !confirm('Veröffentlichung zurückziehen? Das Spiel verschwindet aus der Community-Galerie.')) return;
+    try{ await apiPost('/api/studio/withdraw',{id}); toast('Zurückgezogen'); }catch(e){ toast('Fehlgeschlagen'); }
+  } else {
+    if(!$('pubTerms').checked){ toast('Bitte zuerst die Rechte-Zusicherung bestätigen'); return; }
+    termsOkFor = id;   // Häkchen im Panel zählt als Bestätigung für dieses Spiel
+    try{ await apiPost('/api/studio/submit',{id, terms:true}); toast('Eingereicht – ein Admin schaut drüber'); }
+    catch(e){ toast(e.message==='terms_required'?'Bitte zuerst die Rechte-Zusicherung bestätigen':'Einreichen fehlgeschlagen'); }
+  }
+  refreshMyGames();
+});
+$('loadGameBtn').addEventListener('click',async ()=>{
+  const id=$('myGames').value; if(!id) return;
+  try{
+    const d=await apiGet('/api/studio/game?id='+encodeURIComponent(id));
+    if(!d.game) return;
+    game=d.game; if(!game.pieces)game.pieces=[]; if(!game.pieceTypes)game.pieceTypes=[];
+    serverId=d.id; armedType=null; selected=null;
+    if(!sync.connected) history.replaceState(null,'','#id='+serverId);
+    renderAll();
+    if(sync.connected){ sendMsg({type:'op',op:{t:'full',game}}); schedulePersist(); }
+    toast('Geladen: '+(d.title||d.id));
+  }catch(e){ toast('Laden fehlgeschlagen'); }
+});
+$('delGameBtn').addEventListener('click',async ()=>{
+  const id=$('myGames').value; if(!id) return;
+  if(!confirm('Gespeichertes Spiel „'+id+'" wirklich löschen?')) return;
+  try{
+    await apiPost('/api/studio/delete',{id});
+    if(serverId===id){ serverId=''; history.replaceState(null,'',location.pathname); }
+    refreshMyGames(); toast('Gelöscht');
+  }catch(e){ toast('Löschen fehlgeschlagen'); }
+});
+
+/* ── Live-Synchronisation über den WebSocket-Relay ──
+   Jede Änderung wird als kompakte "op" an alle im Raum gesendet; alle wenden sie
+   an (eigene per clientId gefiltert). Zusätzlich sichert ein gedrosseltes
+   "persist" den Gesamtzustand serverseitig, damit spätere Beitretende via
+   sessionState den aktuellen Stand bekommen. */
+const clientId = uid();
+let sync = { ws:null, room:'', connected:false };
+function wsUrl(){ return (location.protocol==='https:'?'wss:':'ws:')+'//'+location.host+'/ws'; }
+function genRoom5(){ let s=''; const A='ABCDEFGHJKLMNPQRSTUVWXYZ23456789'; for(let i=0;i<5;i++) s+=A[Math.floor(Math.random()*A.length)]; return s; }
+function pieceById(id){ return game.pieces.find(p=>p.id===id); }
+function updatePieceEl(id){
+  const el=$('board').querySelector('.piece[data-id="'+id+'"]'); const pc=pieceById(id);
+  if(!el||!pc) return;
+  el.style.left=pc.x+'px'; el.style.top=pc.y+'px';
+  el.style.transform='rotate('+(pc.rot||0)+'deg)'; el.classList.toggle('flipped',!!pc.flipped);
+}
+function sendMsg(o){ if(sync.ws&&sync.ws.readyState===1){ try{ sync.ws.send(JSON.stringify(Object.assign({game:'studio',room:sync.room,clientId},o))); }catch(e){} } }
+function sendOp(op){ if(sync.connected) sendMsg({type:'op', op}); }
+let persistT=null;
+function schedulePersist(){ if(!sync.connected) return; clearTimeout(persistT); persistT=setTimeout(()=>sendMsg({type:'persist', snapshot:game}), 500); }
+function applyOp(op){
+  switch(op.t){
+    case 'move':   { const p=pieceById(op.id); if(p){p.x=op.x;p.y=op.y;updatePieceEl(op.id);} break; }
+    case 'xform':  { const p=pieceById(op.id); if(p){p.rot=op.rot;p.flipped=op.flipped;updatePieceEl(op.id);} break; }
+    case 'add':    { if(op.piece && !pieceById(op.piece.id)){ game.pieces.push(op.piece); renderPieces(); } break; }
+    case 'remove': { game.pieces=game.pieces.filter(p=>p.id!==op.id); if(selected===op.id)selected=null; renderPieces(); break; }
+    case 'board':  { game.board=op.board; renderBoardFrame(); syncFields(); break; }
+    case 'types':  { game.pieceTypes=op.pieceTypes; renderPalette(); renderPieces(); break; }
+    case 'title':  { game.title=op.title; $('gameTitle').value=op.title||''; break; }
+    case 'dice':   { $('diceOut').textContent='🎲 '+op.value+' (W'+op.sides+')'; break; }
+    case 'full':   { loadRemoteGame(op.game); break; }
+  }
+}
+function loadRemoteGame(snap){
+  if(!snap||!snap.board) return;
+  game=snap; if(!game.pieces)game.pieces=[]; if(!game.pieceTypes)game.pieceTypes=[];
+  armedType=null; selected=null; renderAll();
+}
+function setSyncUI(active, dropped){
+  $('syncIdle').style.display = active?'none':'';
+  $('syncActive').style.display = active?'':'none';
+  if(active){ $('roomLabel').textContent=sync.room; $('syncStatus').textContent='verbunden'; }
+  if(dropped){ toast('Verbindung getrennt'); }
+}
+function connect(room, asHost){
+  room=String(room||'').toUpperCase().replace(/[^A-Z0-9]/g,'').slice(0,8);
+  if(!room){ toast('Ungültiger Raumcode'); return; }
+  try{ sync.ws&&sync.ws.close(); }catch(e){}
+  sync.room=room;
+  const ws=new WebSocket(wsUrl()); sync.ws=ws;
+  ws.onopen=()=>{
+    sync.connected=true;
+    sendMsg({type: asHost?'create':'join'});
+    if(asHost) sendMsg({type:'persist', snapshot:game});   // aktuellen Stand für Beitretende sichern
+    setSyncUI(true);
+    history.replaceState(null,'','#room='+room);
+  };
+  ws.onmessage=(e)=>{
+    let m; try{ m=JSON.parse(e.data); }catch(_){ return; }
+    if(m.type==='sessionState'){ if(m.snapshot && !asHost) loadRemoteGame(m.snapshot); return; }
+    if(m.clientId===clientId) return;   // eigene Nachrichten ignorieren
+    if(m.type==='op' && m.op) applyOp(m.op);
+  };
+  ws.onclose=()=>{ const was=sync.connected; sync.connected=false; setSyncUI(false, was); };
+  ws.onerror=()=>{ toast('Verbindungsfehler'); };
+}
+function leaveRoom(){ try{ sync.ws&&sync.ws.close(); }catch(e){} sync.connected=false; sync.room=''; setSyncUI(false); history.replaceState(null,'',location.pathname); }
+$('hostBtn').addEventListener('click',()=>connect(genRoom5(), true));
+$('joinBtn').addEventListener('click',()=>connect($('roomInput').value, false));
+$('leaveBtn').addEventListener('click',leaveRoom);
+$('copyRoomLink').addEventListener('click',async()=>{
+  const url=location.origin+location.pathname+'#room='+sync.room;
+  try{ await navigator.clipboard.writeText(url); toast('Einladungslink kopiert'); }catch(e){ toast('Raumcode: '+sync.room); }
+});
+
+/* ── KI-Spielerstellung ── */
+async function apiPost(path, body){
+  const r=await fetch(path,{method:'POST',credentials:'same-origin',headers:{'Content-Type':'application/json'},body:JSON.stringify(body||{})});
+  const d=await r.json().catch(()=>({}));
+  if(!r.ok) throw Object.assign(new Error(d.error||('HTTP '+r.status)),{status:r.status,data:d});
+  return d;
+}
+async function apiGet(path){
+  const r=await fetch(path,{credentials:'same-origin'});
+  const d=await r.json().catch(()=>({}));
+  if(!r.ok) throw Object.assign(new Error(d.error||('HTTP '+r.status)),{status:r.status,data:d});
+  return d;
+}
+function setAiLinked(linked){ $('aiLinkRow').style.display=linked?'none':''; $('aiGenRow').style.display=linked?'':'none'; }
+$('aiLinkBtn').addEventListener('click', async ()=>{
+  const key=$('aiKey').value.trim();
+  if(!key){ toast('Bitte API-Key eingeben'); return; }
+  try{ await apiPost('/api/ai/link',{apiKey:key}); $('aiKey').value=''; setAiLinked(true); toast('Claude verknüpft'); }
+  catch(e){ toast(e.message==='invalid_key'?'Ungültiger Key (sk-ant-…)':'Verknüpfen fehlgeschlagen'); }
+});
+$('aiUnlinkBtn').addEventListener('click', async (e)=>{ e.preventDefault(); try{ await apiPost('/api/ai/unlink'); setAiLinked(false); toast('Verknüpfung getrennt'); }catch(_){} });
+$('aiGenBtn').addEventListener('click', async ()=>{
+  const p=$('aiPrompt').value.trim();
+  if(!p){ toast('Bitte beschreibe dein Spiel'); return; }
+  const btn=$('aiGenBtn'); btn.disabled=true; $('aiStatus').textContent='Claude entwirft dein Spiel… (kann ein paar Sekunden dauern)';
+  try{
+    const d=await apiPost('/api/ai/generate-game',{prompt:p});
+    if(d.game && d.game.board){
+      game=d.game; if(!game.pieces)game.pieces=[]; if(!game.pieceTypes)game.pieceTypes=[];
+      armedType=null; selected=null; renderAll();
+      if(sync.connected){ sendMsg({type:'op',op:{t:'full',game}}); schedulePersist(); }
+      $('aiStatus').textContent='Fertig – jetzt anpassen und speichern.';
+    } else { $('aiStatus').textContent='Keine gültige Antwort.'; }
+  }catch(e){
+    const map={ai_not_linked:'Bitte zuerst Claude verknüpfen.',forbidden:'Kein KI-Recht.',missing_prompt:'Bitte beschreibe dein Spiel.',ai_bad_output:'Die KI-Antwort war unbrauchbar – bitte nochmal versuchen.',ai_request_failed:'Claude-Aufruf fehlgeschlagen (Key/Guthaben prüfen).'};
+    $('aiStatus').textContent=map[e.message]||('Fehler: '+e.message);
+  } finally { btn.disabled=false; }
+});
+
+/* ── Antrag auf Ersteller-Recht (Freigabe durch Admin) ── */
+$('reqBtn').addEventListener('click', async ()=>{
+  try{
+    const d=await apiPost('/api/creator/request',{message:$('reqMsg').value.trim()});
+    if(d.alreadyCreator){ location.reload(); return; }
+    $('reqForm').style.display='none'; $('reqPending').style.display=''; toast('Antrag gestellt');
+  }catch(e){ toast(e.status===401?'Bitte zuerst einloggen':'Antrag fehlgeschlagen'); }
+});
+$('reqCancel').addEventListener('click', async (e)=>{ e.preventDefault();
+  try{ await apiPost('/api/creator/cancel'); $('reqPending').style.display='none'; $('reqForm').style.display=''; toast('Antrag zurückgezogen'); }catch(_){}
+});
+
+/* ── Zugriffskontrolle (Ersteller-Recht) ── */
+async function init(){
+  let me=null;
+  try{ const r=await fetch('/api/me',{credentials:'same-origin'}); me=await r.json(); }catch(e){}
+  const u = me && me.user;
+  const hasCreator = u && (u.isAdmin || (u.caps && u.caps.creator));
+  const allowed = hasCreator && !u.twofaRequired;
+  const shareLink = /#(id|g|room)=/.test(location.hash);
+  if(!allowed && shareLink){
+    // Geteilter Link (gespeichertes Spiel / Einladung): jede*r darf mitspielen —
+    // nur der Editor bleibt Erstellern vorbehalten.
+    $('app').style.display=''; $('appMain').style.display='';
+    $('btnMode').style.display='none'; $('btnSave').style.display='none'; $('btnNew').style.display='none';
+    $('gameTitle').disabled=true;
+    await loadInitial();
+    setMode(true); renderAll();
+    const vrm=location.hash.match(/#room=([A-Za-z0-9]+)/);
+    if(vrm) connect(vrm[1], false);
+    return;
+  }
+  if(!allowed){
+    if(!u){
+      $('gateMsg').textContent='Bitte zuerst einloggen (Profil-Button oben rechts) – danach kannst du das Ersteller-Recht beantragen.';
+    } else if(hasCreator && u.twofaRequired){
+      $('gateMsg').innerHTML='Zum Schutz deines Ersteller-Kontos ist Zwei-Faktor-Authentifizierung Pflicht. <a href="/account/2fa/">Jetzt 2FA einrichten</a> – danach steht dir das Studio offen.';
+    } else {
+      $('gateMsg').textContent='Zum Erstellen eigener Spiele brauchst du das Ersteller-Recht. Stelle einen Antrag – ein Admin gibt ihn frei.';
+      if(u.creatorRequested){ $('reqPending').style.display=''; } else { $('reqForm').style.display=''; }
+    }
+    $('gate').style.display='block';
+    return;
+  }
+  $('app').style.display=''; $('appMain').style.display='';
+  if(u.caps && u.caps.ai){ $('aiPanel').style.display=''; setAiLinked(!!u.aiLinked); }
+  await loadInitial(); renderAll();
+  refreshMyGames();
+  const rm=location.hash.match(/#room=([A-Za-z0-9]+)/);
+  if(rm) connect(rm[1], false);   // per Einladungslink direkt beitreten
+}
+init();
+</script>
+  <script src="../assets/gamepad.js?v=20260824-pad"></script>
+</body>
+</html>

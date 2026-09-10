@@ -1,0 +1,292 @@
+<!DOCTYPE html>
+<html lang="de" data-game="gruftgesindel">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0,user-scalable=no">
+<title>Gruftgesindel</title>
+  <meta name="description" content="Schaurig-lustige 3D-Grusel-Party für die Couch: Würfeln, durch die Gruft wanken, Taler und Seelenkristalle raffen. Lokaler Hotseat, ohne App und ohne Konto." />
+  <link rel="canonical" href="https://brettspiele.fun/games/gruftgesindel/" />
+  <meta property="og:type" content="website" />
+  <meta property="og:site_name" content="brettspiele.fun" />
+  <meta property="og:title" content="Gruftgesindel – brettspiele.fun" />
+  <meta property="og:description" content="Schaurig-lustige 3D-Grusel-Party für die Couch: würfeln, durch die Gruft wanken, Taler und Seelenkristalle raffen. Lokaler Hotseat." />
+  <meta property="og:url" content="https://brettspiele.fun/games/gruftgesindel/" />
+  <meta property="og:image" content="https://brettspiele.fun/games/gruftgesindel/button.svg" />
+  <meta property="og:locale" content="de_DE" />
+  <meta name="twitter:card" content="summary_large_image" />
+  <meta name="twitter:title" content="Gruftgesindel – brettspiele.fun" />
+  <meta name="twitter:description" content="Schaurig-lustige 3D-Grusel-Party für die Couch." />
+  <meta name="twitter:image" content="https://brettspiele.fun/games/gruftgesindel/button.svg" />
+  <script type="application/ld+json">{"@context": "https://schema.org", "@type": "VideoGame", "name": "Gruftgesindel", "description": "Schaurig-lustige 3D-Grusel-Party für die Couch: würfeln, durch die Gruft wanken, Taler und Seelenkristalle raffen. Lokaler Hotseat.", "url": "https://brettspiele.fun/games/gruftgesindel/", "image": "https://brettspiele.fun/games/gruftgesindel/button.svg", "genre": "Partyspiel", "playMode": "MultiPlayer", "applicationCategory": "Game", "operatingSystem": "Any (Web Browser)", "inLanguage": ["de"]}</script>
+<link rel="icon" href="./button.svg" type="image/svg+xml">
+<script>try{var m=localStorage.getItem('brettspiele.themeMode')||'auto';var d=matchMedia('(prefers-color-scheme: dark)').matches;document.documentElement.dataset.theme=m==='auto'?(d?'dark':'light'):m;}catch(e){document.documentElement.dataset.theme='dark';}</script><link rel="stylesheet" href="../../assets/fonts/gruftgesindel.css?v=20260904-selfhost" />
+<script src="../../assets/runtime-config.js?v=20260905-donation-on"></script><script src="../../assets/i18n/de.js?v=20260824-i18n-gaps"></script><script src="../../assets/i18n/en.js?v=20260824-i18n-gaps"></script><script src="../../assets/i18n/fr.js?v=20260824-i18n-gaps"></script><script src="../../assets/i18n/es.js?v=20260824-i18n-gaps"></script><script src="../../assets/i18n/it.js?v=20260824-i18n-gaps"></script><script src="../../assets/i18n/ru.js?v=20260824-i18n-gaps"></script><script src="../../assets/i18n/zh.js?v=20260824-i18n-gaps"></script><script src="../../assets/i18n/ja.js?v=20260824-i18n-gaps"></script><script src="i18n/de.js?v=20260709-chaoscrew"></script><script src="i18n/en.js?v=20260709-chaoscrew"></script><script src="i18n/fr.js?v=20260709-chaoscrew"></script><script src="i18n/es.js?v=20260709-chaoscrew"></script><script src="i18n/it.js?v=20260709-chaoscrew"></script><script src="i18n/ru.js?v=20260709-chaoscrew"></script><script src="i18n/zh.js?v=20260709-chaoscrew"></script><script src="i18n/ja.js?v=20260709-chaoscrew"></script><script src="../../assets/i18n.js?v=20260824-i18n-gaps"></script><script src="../../assets/auth.js?v=20260904-oauth-link"></script><script src="../../assets/consent.js?v=20260603-chrome"></script><script src="../../assets/game-chrome.js?v=20260625-nav"></script><link rel="stylesheet" href="../../assets/game-chrome.css?v=20260708-nohscroll">
+<link rel="stylesheet" href="styles.css?v=20260709-chaoscrew">
+<!-- Resume without a menu flash: if a game was running in this tab, hide the menu
+     before first paint so the shell can relaunch straight into the game. -->
+<style>html.cc-resuming #menuScene,html.cc-resuming #howtoScene{display:none!important}</style>
+<script>try{var _ccl=JSON.parse(sessionStorage.getItem('cc.launch')||'null');if(_ccl&&_ccl.room)document.documentElement.classList.add('cc-resuming');}catch(e){}</script>
+  <link rel="stylesheet" href="../../assets/gamepad.css?v=20260824-pad" />
+</head>
+<body>
+<div class="app">
+  <header class="top">
+    <div class="brand">
+      <div class="logo">💀</div>
+      <div>
+        <h1>Gruftgesindel</h1>
+        <div class="subtitle" data-i18n="party.brand.subtitle">Schaurige 3D-Grusel-Party</div>
+      </div>
+    </div>
+    <div class="game-top-actions">
+      <select class="game-language-select" data-language-select aria-label="Sprache"></select>
+      <button class="game-theme-toggle" id="themeToggle" type="button">Theme</button>
+    </div>
+  </header>
+
+  <!-- ===== MENÜ ===== -->
+  <section id="menuScene" class="menu-wrap">
+    <div class="card menu-card"><div class="pad">
+      <div class="hero-emoji">🎲💀</div>
+      <div class="menu-title">Gruftgesindel</div>
+      <p class="menu-lead" data-i18n="party.menu.lead">Wanke durch die Gruft, raffe Taler und schnapp dir die meisten Seelenkristalle.</p>
+
+      <div class="menu-tabs" id="menuTabs">
+        <button class="menu-tab on" data-tab="create" data-i18n="party.menu.create">Spiel erstellen</button>
+        <button class="menu-tab" data-tab="join" data-i18n="party.menu.join">Spiel beitreten</button>
+      </div>
+
+      <!-- Erstellen: lokal an einem Gerät und/oder online, Freunde treten dem Raum bei -->
+      <div class="tabpane" data-pane="create">
+        <p class="pane-lead" data-i18n="party.create.lead">Starte eine Partie am eigenen Gerät oder lade Freunde per Raumcode ein.</p>
+        <div class="menu-actions">
+          <button class="btn good" onclick="startGame('create')"><span class="em">💀</span><span data-i18n="party.menu.start">Los geht's</span></button>
+          <button class="btn secondary" onclick="showScene('howtoScene')"><span class="em">📖</span><span data-i18n="party.menu.howto">Anleitung</span></button>
+        </div>
+      </div>
+
+      <!-- Beitreten: Raumcode eingeben oder offenen Raum wählen -->
+      <div class="tabpane hidden" data-pane="join">
+        <p class="pane-lead" data-i18n="party.join.lead">Gib den Code eines Raums ein oder wähle unten eine offene Runde.</p>
+        <input id="joinName" class="menu-input" maxlength="16" data-i18n-placeholder="party.join.name" placeholder="Dein Name">
+        <div class="join-row">
+          <input id="joinCode" class="menu-input code" maxlength="8" autocomplete="off" data-i18n-placeholder="party.join.codePh" placeholder="Raumcode">
+          <button class="btn good" onclick="joinGame()"><span data-i18n="party.join.go">Beitreten</span></button>
+        </div>
+        <div class="public-rooms">
+          <div class="pr-title" data-i18n="party.join.public">Offene Räume</div>
+          <div id="publicRooms" class="pr-list"><div class="pr-empty" data-i18n="party.join.loading">Suche…</div></div>
+        </div>
+      </div>
+    </div></div>
+  </section>
+
+  <!-- ===== ANLEITUNG ===== -->
+  <section id="howtoScene" class="menu-wrap hidden">
+    <div class="card howto-card"><div class="pad">
+      <button class="btn secondary howto-back" onclick="showScene('menuScene')" data-i18n="party.howto.back">◀ Zurück zum Menü</button>
+      <h2 data-i18n="party.howto.title">Anleitung</h2>
+      <p class="howto-lead" data-i18n="party.howto.lead">Gruftgesindel ist eine schaurig-lustige 3D-Grusel-Party für die Couch. Würfelt, wankt durch die Gruft und rafft fleißig.</p>
+
+      <div class="howto-sec">
+        <h3 data-i18n="party.howto.goal.h3">🎯 Ziel</h3>
+        <p data-i18n-html="party.howto.goal.p">Sammle unterwegs <b>Taler</b> und <b>Seelenkristalle</b>. Wer am Ende die meisten Seelenkristalle hat, gewinnt die Gruft.</p>
+      </div>
+      <div class="howto-sec">
+        <h3 data-i18n="party.howto.turn.h3">🎲 Am Zug</h3>
+        <p data-i18n-html="party.howto.turn.p">Würfle und zieh dein Monster übers Brett. Felder lösen schaurige Ereignisse aus — mal gibt's Taler, mal einen Sturz in die Grube.</p>
+      </div>
+      <div class="howto-sec">
+        <h3 data-i18n="party.howto.players.h3">👥 Mitspieler</h3>
+        <p data-i18n-html="party.howto.players.p">Lokal an einem Gerät im Hotseat — reihum ist jeder dran. Reine Grusel-Party, ohne Konto und ohne App.</p>
+      </div>
+
+      <div class="menu-actions">
+        <button class="btn good" onclick="startGame()"><span class="em">💀</span><span data-i18n="party.menu.start">Los geht's</span></button>
+      </div>
+    </div></div>
+  </section>
+</div>
+
+<!-- ===== SPIEL (eingebettet) ===== -->
+<div id="game"><iframe id="gameFrame" data-pad-delegate title="Gruftgesindel" allow="autoplay; gamepad"></iframe></div>
+
+<script>
+(function () {
+  'use strict';
+  var frameLoaded = false;
+  var scenes = ['menuScene', 'howtoScene'];
+
+  window.showScene = function (id) {
+    scenes.forEach(function (s) { document.getElementById(s).classList.toggle('hidden', s !== id); });
+    document.getElementById('game').classList.remove('shown');
+    document.body.classList.remove('in-game');
+    // Returning to the menu ends any resumable session, so a later reload starts fresh.
+    if (id === 'menuScene') { document.documentElement.classList.remove('cc-resuming'); endSession(); }
+    // resume browsing open rooms only when the join tab is the one on screen
+    if (id === 'menuScene' && menuMode === 'join') startPublicPolling(); else stopPublicPolling();
+    window.scrollTo(0, 0);
+  };
+
+  // Launch the embedded game. mode 'create' hosts a fresh room (also fully
+  // playable solo/local); mode 'guest' joins an existing room by code. The chosen
+  // mode/room/name ride along as query params — play.html owns the connection.
+  window.startGame = function (mode, opts) {
+    opts = opts || {};
+    var frame = document.getElementById('gameFrame');
+    var q = new URLSearchParams();
+    q.set('mode', mode === 'guest' ? 'guest' : 'host');
+    if (opts.room) q.set('room', String(opts.room).toUpperCase());
+    if (opts.name) q.set('name', opts.name);
+    // Root-absolute so it also resolves from localized copies (/en/games/…).
+    // In the /testing/ preview, embed the sibling play.html instead so local
+    // edits are visible before deploy; live and localized copies keep the
+    // root-absolute path unchanged.
+    var playBase = location.pathname.indexOf('/testing/') !== -1 ? 'play.html' : '/games/gruftgesindel/play.html';
+    frame.src = playBase + '?' + q.toString();
+    frameLoaded = true;
+    stopPublicPolling();
+    scenes.forEach(function (s) { document.getElementById(s).classList.add('hidden'); });
+    document.getElementById('game').classList.add('shown');
+    document.body.classList.add('in-game');
+  };
+
+  window.joinGame = function () {
+    var code = (document.getElementById('joinCode').value || '').trim().toUpperCase();
+    var name = (document.getElementById('joinName').value || '').trim();
+    if (!code) { document.getElementById('joinCode').focus(); return; }
+    startGame('guest', { room: code, name: name });
+  };
+
+  // ---- menu tabs ----
+  var menuMode = 'create';
+  function setTab(tab) {
+    menuMode = tab;
+    document.querySelectorAll('#menuTabs .menu-tab').forEach(function (b) {
+      b.classList.toggle('on', b.dataset.tab === tab);
+    });
+    document.querySelectorAll('.tabpane').forEach(function (p) {
+      p.classList.toggle('hidden', p.dataset.pane !== tab);
+    });
+    if (tab === 'join') startPublicPolling(); else stopPublicPolling();
+  }
+  document.getElementById('menuTabs').addEventListener('click', function (e) {
+    var b = e.target.closest('.menu-tab'); if (b) setTab(b.dataset.tab);
+  });
+  document.getElementById('joinCode').addEventListener('keydown', function (e) {
+    if (e.key === 'Enter') window.joinGame();
+  });
+
+  // ---- open public rooms (read-only browse of joinable games) ----
+  var pollTimer = null;
+  function tr(key, fallback) {
+    var i = window.BFI18N; return (i && i.t) ? i.t(key, {}, fallback) : fallback;
+  }
+  function esc(s) { return String(s == null ? '' : s).replace(/[&<>"]/g, function (m) {
+    return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[m]; }); }
+  async function fetchPublicRooms() {
+    var box = document.getElementById('publicRooms'); if (!box) return;
+    try {
+      var res = await fetch('/api/rooms?game=gruftgesindel', { credentials: 'include' });
+      if (!res.ok) throw new Error('http ' + res.status);
+      var data = await res.json();
+      var items = Array.isArray(data.items) ? data.items : [];
+      if (!items.length) {
+        box.innerHTML = '<div class="pr-empty">' + esc(tr('party.join.publicEmpty', 'Gerade keine offenen Räume.')) + '</div>';
+        return;
+      }
+      box.innerHTML = items.map(function (it) {
+        return '<button type="button" class="pr-row" data-room="' + esc(it.room) + '">' +
+          '<span class="pr-code">' + esc(it.room) + '</span>' +
+          '<span class="pr-host">' + esc(it.hostName || tr('party.join.host', 'Host')) + '</span>' +
+          '<span class="pr-count">👥 ' + esc(it.playerCount) + '</span></button>';
+      }).join('');
+    } catch (_) {
+      // Browsing is a nice-to-have; keep the last list (or a hint) on failure.
+      if (!box.querySelector('.pr-row')) box.innerHTML = '<div class="pr-empty">' + esc(tr('party.join.publicEmpty', 'Gerade keine offenen Räume.')) + '</div>';
+    }
+  }
+  function startPublicPolling() { stopPublicPolling(); fetchPublicRooms(); pollTimer = setInterval(fetchPublicRooms, 4000); }
+  function stopPublicPolling() { if (pollTimer) { clearInterval(pollTimer); pollTimer = null; } }
+  document.getElementById('publicRooms').addEventListener('click', function (e) {
+    var row = e.target.closest('.pr-row'); if (!row || !row.dataset.room) return;
+    document.getElementById('joinCode').value = row.dataset.room;
+    window.joinGame();
+  });
+
+  // ---- Resilience bridge ----------------------------------------------------
+  // The game lives in the iframe, so a reload of this shell would normally blank it
+  // and dump the player back on the menu. We keep the active room both in the URL
+  // (shareable invite link, survives a hard reload) and in sessionStorage (per-tab,
+  // remembers it was *our* session), and relaunch the iframe into it on load. The
+  // embedded game (play.html) rejoins the room and, if no host is left, seeds itself
+  // back into the host role from its last snapshot.
+  // play.html owns these keys (it writes cc.launch/cc.snap directly to the shared,
+  // same-origin sessionStorage); the shell only reads cc.launch to decide whether to
+  // relaunch, and wipes them when the player deliberately returns to the menu.
+  var SESSION_KEYS = ['cc.launch', 'cc.net', 'cc.snap'];
+  function setUrlRoom(code) {
+    try {
+      var u = new URL(location.href);
+      if (code) u.searchParams.set('room', code); else u.searchParams.delete('room');
+      history.replaceState(null, '', u.href);
+    } catch (e) {}
+  }
+  function readLaunch() { try { return JSON.parse(sessionStorage.getItem('cc.launch') || 'null'); } catch (e) { return null; } }
+  function endSession() {
+    try { SESSION_KEYS.forEach(function (k) { sessionStorage.removeItem(k); }); } catch (e) {}
+    setUrlRoom(null);
+    // stop the (possibly hidden) game so it can't re-arm the resume behind our back
+    try { var f = document.getElementById('gameFrame'); if (f && f.contentWindow) f.contentWindow.postMessage({ type: 'chaoscrew-stop' }, '*'); } catch (e) {}
+  }
+
+  // the embedded game reports its room (kept in the URL as a shareable invite), or
+  // asks to return to the menu (leave lobby / dead room)
+  window.addEventListener('message', function (e) {
+    var d = e && e.data; if (!d) return;
+    if (d.type === 'chaoscrew-session' && d.room) {
+      setUrlRoom(d.room);
+    } else if (d.type === 'chaoscrew-leave') {
+      window.showScene('menuScene');
+    }
+  });
+
+  // On load: resume our own interrupted game (relaunch the iframe, which rejoins as a
+  // guest and re-seeds a host if needed); otherwise, an invite link (?room=CODE)
+  // pre-fills the join tab; otherwise just show the menu.
+  (function bootShell() {
+    var launch = readLaunch();
+    if (launch && launch.room) {
+      window.startGame('guest', { room: launch.room, name: launch.name || '' });
+      return;   // keep the menu hidden (html.cc-resuming) while the game reloads
+    }
+    document.documentElement.classList.remove('cc-resuming');
+    var urlRoom = '';
+    try { urlRoom = (new URL(location.href)).searchParams.get('room') || ''; } catch (e) {}
+    if (urlRoom) {
+      setTab('join');
+      var f = document.getElementById('joinCode');
+      if (f) f.value = urlRoom.toUpperCase();
+    }
+  })();
+
+  function inGame() { return document.getElementById('game').classList.contains('shown'); }
+
+  // Mehrstufige Navigation für den geteilten Zurück-Button (game-chrome.js):
+  //  - atTop() == true  -> nächster "Zurück" verlässt zur Spieleübersicht
+  //  - up()             -> eine Ebene zurück innerhalb der Seite
+  window.__brettBack = {
+    atTop: function () {
+      // On the main menu (not in game, menu scene visible) the next back leaves to the site.
+      return !inGame() && !document.getElementById('menuScene').classList.contains('hidden');
+    },
+    up: function () {
+      // From the game or the how-to screen, walk back to the main menu.
+      window.showScene('menuScene');
+    }
+  };
+})();
+</script>
+  <script src="../../assets/gamepad.js?v=20260824-pad"></script>
+</body>
+</html>

@@ -1,0 +1,72 @@
+{
+  "title": {
+    "de": "Texas Hold'em",
+    "en": "Texas Hold'em",
+    "fr": "Texas Hold'em",
+    "es": "Texas Hold'em",
+    "it": "Texas Hold'em",
+    "ru": "Техасский холдем",
+    "zh": "德州扑克",
+    "ja": "テキサスホールデム"
+  },
+  "subtitle": {
+    "de": "Poker am animierten 3D-Tisch",
+    "en": "Poker at an animated 3D table",
+    "fr": "Poker sur une table 3D animée",
+    "es": "Póker en una mesa 3D animada",
+    "it": "Poker su un tavolo 3D animato",
+    "ru": "Покер за анимированным 3D-столом",
+    "zh": "动画3D牌桌德州扑克",
+    "ja": "アニメーション3Dテーブルでのポーカー"
+  },
+  "description": {
+    "de": "Klassisches No-Limit Texas Hold'em: Blinds, Flop, Turn, River, Showdown. Online-Räume mit Raumcode, Bots zum Auffüllen, animierter ovaler 3D-Pokertisch mit sitzenden Mitspielern.",
+    "en": "Classic no-limit Texas Hold'em: blinds, flop, turn, river, showdown. Online rooms with room codes, bots to fill seats, animated oval 3D poker table with seated opponents.",
+    "fr": "Texas Hold'em no-limit classique : blindes, flop, turn, river, showdown. Salles en ligne avec code, bots pour compléter la table, table de poker 3D ovale animée avec adversaires assis.",
+    "es": "Texas Hold'em sin límite clásico: ciegas, flop, turn, river, showdown. Salas online con código, bots para completar la mesa, mesa de póker 3D ovalada animada con rivales sentados.",
+    "it": "Texas Hold'em no-limit classico: bui, flop, turn, river, showdown. Stanze online con codice, bot per riempire i posti, tavolo da poker 3D ovale animato con avversari seduti.",
+    "ru": "Классический безлимитный техасский холдем: блайнды, флоп, тёрн, ривер, вскрытие. Онлайн-комнаты с кодом, боты для заполнения мест, анимированный овальный 3D-покерный стол с сидящими соперниками.",
+    "zh": "经典无限注德州扑克:盲注、翻牌、转牌、河牌、摊牌。支持房间码在线对战、机器人补位,还有坐满对手的动画椭圆3D牌桌。",
+    "ja": "クラシックなノーリミット・テキサスホールデム:ブラインド、フロップ、ターン、リバー、ショーダウン。ルームコードでのオンライン対戦、席を埋めるボット、対戦相手が座る楕円形アニメーション3Dポーカーテーブル。"
+  },
+  "players": {
+    "de": "2–6 Spieler",
+    "en": "2–6 players",
+    "fr": "2–6 joueurs",
+    "es": "2–6 jugadores",
+    "it": "2–6 giocatori",
+    "ru": "2–6 игроков",
+    "zh": "2–6 名玩家",
+    "ja": "2〜6人"
+  },
+  "minutes": "20–60 min",
+  "category": {
+    "de": "Karten",
+    "en": "Cards",
+    "fr": "Cartes",
+    "es": "Cartas",
+    "it": "Carte",
+    "ru": "Карты",
+    "zh": "卡牌",
+    "ja": "カード"
+  },
+  "tags": [
+    {
+      "de": "Online-Räume", "en": "Online rooms", "fr": "Salles en ligne", "es": "Salas online",
+      "it": "Stanze online", "ru": "Онлайн-комнаты", "zh": "在线房间", "ja": "オンラインルーム"
+    },
+    {
+      "de": "Bots", "en": "Bots", "fr": "Bots", "es": "Bots",
+      "it": "Bot", "ru": "Боты", "zh": "机器人", "ja": "ボット"
+    },
+    {
+      "de": "3D-Tisch", "en": "3D table", "fr": "Table 3D", "es": "Mesa 3D",
+      "it": "Tavolo 3D", "ru": "3D-стол", "zh": "3D牌桌", "ja": "3Dテーブル"
+    }
+  ],
+  "image": "games/texas-hold-em/button.svg",
+  "accent": "#e0ac2b",
+  "theme": "texas-hold-em",
+  "order": 61,
+  "comingSoon": false
+}

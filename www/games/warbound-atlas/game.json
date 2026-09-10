@@ -1,0 +1,66 @@
+{
+  "title": "Warbound Atlas",
+  "subtitle": {
+    "de": "3D-Eroberungsstrategie auf Valcaryn",
+    "en": "3D conquest strategy on Valcaryn",
+    "fr": "Stratégie de conquête 3D sur Valcaryn",
+    "es": "Estrategia de conquista 3D en Valcaryn",
+    "it": "Strategia di conquista 3D su Valcaryn",
+    "ru": "3D-стратегия завоевания на Валкарине",
+    "zh": "瓦尔卡林 3D 征服策略",
+    "ja": "ヴァルカリンの3D征服ストラテジー"
+  },
+  "description": {
+    "de": "Rundenbasierte Eroberung auf einer 3D-Weltkarte: 7 Häuser, Gold, Ratskarten, Charaktere, Belagerungen und KI-Gegner. Gegen Bots oder im Hotseat.",
+    "en": "Turn-based conquest on a 3D world map: 7 houses, gold, council cards, characters, sieges and AI opponents. Play vs bots or hotseat.",
+    "fr": "Conquête au tour par tour sur une carte 3D : 7 maisons, or, cartes du conseil, personnages, sièges et IA. Contre des bots ou en hotseat.",
+    "es": "Conquista por turnos en un mapa 3D: 7 casas, oro, cartas del consejo, personajes, asedios e IA. Contra bots o en hotseat.",
+    "it": "Conquista a turni su una mappa 3D: 7 casate, oro, carte del consiglio, personaggi, assedi e IA. Contro bot o in hotseat.",
+    "ru": "Пошаговое завоевание на 3D-карте мира: 7 домов, золото, карты совета, персонажи, осады и ИИ. Против ботов или за одним устройством.",
+    "zh": "在 3D 世界地图上进行回合制征服：7 个家族、金币、议会卡、角色、攻城与 AI 对手。可对战机器人或同屏。",
+    "ja": "3D世界地図でのターン制征服：7つの家、ゴールド、評議会カード、キャラ、攻城戦、AI対戦。ボット戦やホットシートに対応。"
+  },
+  "players": {
+    "de": "1–7 Spieler",
+    "en": "1–7 players",
+    "fr": "1–7 joueurs",
+    "es": "1–7 jugadores",
+    "it": "1–7 giocatori",
+    "ru": "1–7 игроков",
+    "zh": "1–7 名玩家",
+    "ja": "1〜7人"
+  },
+  "minutes": "30–90 min",
+  "category": {
+    "de": "Strategie",
+    "en": "Strategy",
+    "fr": "Stratégie",
+    "es": "Estrategia",
+    "it": "Strategia",
+    "ru": "Стратегия",
+    "zh": "策略",
+    "ja": "ストラテジー"
+  },
+  "tags": [
+    {
+      "de": "Three.js", "en": "Three.js", "fr": "Three.js", "es": "Three.js",
+      "it": "Three.js", "ru": "Three.js", "zh": "Three.js", "ja": "Three.js"
+    },
+    {
+      "de": "Eroberung", "en": "Conquest", "fr": "Conquête", "es": "Conquista",
+      "it": "Conquista", "ru": "Завоевание", "zh": "征服", "ja": "征服"
+    },
+    {
+      "de": "Bots", "en": "Bots", "fr": "Bots", "es": "Bots",
+      "it": "Bot", "ru": "Боты", "zh": "机器人", "ja": "ボット"
+    },
+    {
+      "de": "Hotseat", "en": "Hotseat", "fr": "Hotseat", "es": "Hotseat",
+      "it": "Hotseat", "ru": "Hotseat", "zh": "同屏", "ja": "ホットシート"
+    }
+  ],
+  "image": "games/warbound-atlas/button.svg",
+  "accent": "#d6aa4d",
+  "theme": "warbound-atlas",
+  "order": 5
+}

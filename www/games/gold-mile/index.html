@@ -1,0 +1,2858 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>GOLDMEILE – Das große Straßen-Handelsspiel</title>
+<link rel="stylesheet" href="../../assets/fonts/gold-mile.css?v=20260904-selfhost" />
+<style>
+:root{
+  --felt:#123c2c; --felt2:#0d3223; --ink:#12241c; --bg:#0a1a13;
+  --brass:#cba650; --brass2:#e6cf88; --parch:#f3ead2; --parch2:#e7d9b6;
+  --line:rgba(203,166,80,.35); --shadow:rgba(0,0,0,.45);
+  /* Gruppenfarben bewusst hoch gesättigt: sie tragen die Farbbänder der Felder
+     im 3D-Brett (Canvas-Textur + Bordstein) und müssen unter Licht/Tonemapping
+     kräftig bleiben. */
+  --g-braun:#9c4a10; --g-hellblau:#12bdf2; --g-magenta:#f10b83;
+  --g-orange:#ff7900; --g-rot:#f21207; --g-gelb:#ffd400;
+  --g-gruen:#00b04e; --g-blau:#1540f5;
+  --p0:#d24b3e; --p1:#2f74c0; --p2:#31a862; --p3:#e0b02f;
+  --tilt:48deg;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+html,body{height:100%}
+body{
+  font-family:'Jost',system-ui,sans-serif;
+  background:radial-gradient(1200px 700px at 50% -10%, #164534 0%, var(--bg) 60%),var(--bg);
+  color:var(--parch); min-height:100vh; padding:18px;-webkit-font-smoothing:antialiased;
+}
+h1,h2,h3,.deco{font-family:'Cinzel',Georgia,serif;letter-spacing:.04em}
+button{font-family:'Jost',sans-serif;cursor:pointer;border:none;color:inherit}
+button:focus-visible{outline:2px solid var(--brass2);outline-offset:2px}
+.wrap{max-width:min(94vw,1640px);margin:0 auto}
+.topbar{display:flex;align-items:center;justify-content:space-between;gap:16px;margin-bottom:14px;flex-wrap:wrap}
+.brand{display:flex;align-items:baseline;gap:12px}
+.brand .logo{font-family:'Cinzel';font-weight:700;font-size:clamp(22px,3.2vw,34px);color:var(--brass2);text-shadow:0 2px 0 rgba(0,0,0,.4)}
+.brand .sub{font-size:12px;letter-spacing:.28em;text-transform:uppercase;color:var(--brass);opacity:.85}
+.coin{display:inline-block;width:26px;height:26px;border-radius:50%;background:radial-gradient(circle at 32% 30%,var(--brass2),#a07d2b 70%);
+  box-shadow:inset 0 0 0 2px rgba(0,0,0,.25),0 2px 4px rgba(0,0,0,.4);vertical-align:middle;position:relative;margin-right:6px}
+.coin::after{content:"G";position:absolute;inset:0;display:grid;place-items:center;font-family:'Cinzel';font-weight:700;font-size:13px;color:#5a4413}
+.card{background:linear-gradient(180deg,rgba(20,60,44,.9),rgba(9,32,23,.94));border:1px solid var(--line);border-radius:14px;box-shadow:0 12px 40px var(--shadow)}
+.setup{max-width:640px;margin:6vh auto;padding:28px}
+.setup h2{color:var(--brass2);font-size:24px;margin-bottom:4px}
+.setup p.lead{color:var(--parch2);opacity:.85;margin-bottom:20px;font-size:15px}
+.count-row{display:flex;gap:10px;margin:10px 0 22px}
+.count-row button{flex:1;padding:12px;border-radius:10px;background:rgba(0,0,0,.25);border:1px solid var(--line);color:var(--parch);font-size:16px;transition:.15s}
+.count-row button.active{background:var(--brass);color:#2a2008;font-weight:600;border-color:var(--brass2)}
+.slots{display:flex;flex-direction:column;gap:10px;margin-bottom:22px}
+.slot{display:flex;align-items:center;gap:12px;padding:10px 12px;border-radius:10px;background:rgba(0,0,0,.22);border:1px solid var(--line);flex-wrap:wrap}
+.slot .dot{width:22px;height:22px;border-radius:50%;flex:none;box-shadow:inset 0 0 0 2px rgba(255,255,255,.25)}
+/* Figuren-Karussell: große Vorschau mit ‹ / › und Wischgeste, eindeutig pro Spieler */
+.slot .tokcar{display:flex;align-items:center;gap:6px;flex:none}
+.slot .tokcar .nav{width:30px;height:46px;border-radius:8px;border:1px solid var(--line);background:rgba(0,0,0,.28);color:var(--brass2);font-size:20px;line-height:1;padding:0;cursor:pointer;display:flex;align-items:center;justify-content:center;flex:none;transition:.15s}
+.slot .tokcar .nav:hover{background:rgba(0,0,0,.45);color:var(--parch)}
+.slot .tokcar .nav:active{transform:scale(.92)}
+.slot .tokcar .disp{width:120px;display:flex;flex-direction:column;align-items:center;gap:2px;user-select:none;touch-action:pan-y;overflow:hidden}
+.slot .tokcar .fig{width:44px;height:44px;border-radius:50%;display:flex;align-items:center;justify-content:center;box-shadow:inset 0 0 0 2px rgba(255,255,255,.28),0 2px 6px rgba(0,0,0,.35)}
+.slot .tokcar .lbl{font-size:12px;color:var(--parch2);white-space:nowrap;max-width:118px;overflow:hidden;text-overflow:ellipsis}
+@keyframes gmFigR{from{opacity:0;transform:translateX(16px) scale(.86)}to{opacity:1;transform:none}}
+@keyframes gmFigL{from{opacity:0;transform:translateX(-16px) scale(.86)}to{opacity:1;transform:none}}
+.slot .tokcar .fig.slR{animation:gmFigR .22s ease}
+.slot .tokcar .fig.slL{animation:gmFigL .22s ease}
+.slot input{flex:1;background:rgba(0,0,0,.3);border:1px solid var(--line);color:var(--parch);padding:9px 11px;border-radius:8px;font-size:15px;font-family:inherit}
+.slot input:focus{outline:none;border-color:var(--brass)}
+.toggle{display:flex;border:1px solid var(--line);border-radius:8px;overflow:hidden;flex:none}
+.toggle button{padding:9px 14px;background:rgba(0,0,0,.25);font-size:13px;color:var(--parch2)}
+.toggle button.on{background:var(--brass);color:#2a2008;font-weight:600}
+.btn-primary{width:100%;padding:15px;border-radius:11px;font-size:17px;font-weight:600;background:linear-gradient(180deg,var(--brass2),var(--brass));color:#2a2008;
+  font-family:'Cinzel',Georgia,serif;letter-spacing:.05em;box-shadow:0 6px 18px rgba(0,0,0,.4);transition:.15s}
+.btn-primary:hover{filter:brightness(1.06);transform:translateY(-1px)}
+/* Das Brett ist quadratisch (prozentuales Padding ⇒ Shell-Höhe == Shell-Breite),
+   darum genügt eine Breiten-Obergrenze aus der freien Viewport-Höhe, damit es
+   nie über den Bildschirm hinauswächst. --gm-chrome = fixe Kopfleiste (52px)
+   + body-Padding (2×18px) + etwas Luft. */
+.game{display:grid;grid-template-columns:minmax(0,var(--gm-fit)) clamp(258px,24vw,320px);gap:18px;align-items:start;justify-content:center;
+  --gm-chrome:96px;
+  --gm-fit:max(280px,calc(100vh - var(--gm-chrome)))}
+@supports(height:100dvh){.game{--gm-fit:max(280px,calc(100dvh - var(--gm-chrome)))}}
+@media(max-width:900px){.game{grid-template-columns:minmax(0,var(--gm-fit));--gm-chrome:120px}}
+.board-shell{background:radial-gradient(120% 120% at 50% 40%,#1a5540 0%,var(--felt) 55%,var(--felt2) 100%);
+  border:2px solid var(--brass);border-radius:16px;padding:2.2%;box-shadow:0 18px 50px var(--shadow),inset 0 0 60px rgba(0,0,0,.35);
+  perspective:1500px;perspective-origin:50% 42%;
+  width:100%;max-width:var(--gm-fit);margin-inline:auto;position:relative}
+/* Ansage-Banner über dem Brett: sagt in einem Satz, was gerade passiert ist. */
+.ann{position:absolute;left:50%;top:5%;z-index:6;max-width:88%;
+  padding:11px 20px;border-radius:12px;text-align:center;text-wrap:balance;
+  background:linear-gradient(180deg,rgba(20,60,44,.96),rgba(8,26,19,.96));
+  border:1px solid var(--brass);box-shadow:0 14px 40px rgba(0,0,0,.55);
+  color:var(--parch);font-size:clamp(14px,1.45vw,19px);line-height:1.35;
+  opacity:0;transform:translate(-50%,-10px);pointer-events:none;
+  transition:opacity .22s ease,transform .22s ease}
+.ann.show{opacity:1;transform:translate(-50%,0)}
+.ann b{color:var(--brass2)}
+.ann .ann-ico{font-size:1.3em;margin-right:.35em;vertical-align:-.06em}
+@media(prefers-reduced-motion:reduce){.ann{transition:opacity .22s ease}.ann,.ann.show{transform:translate(-50%,0)}}
+.board{display:grid;grid-template-columns:repeat(11,1fr);grid-template-rows:repeat(11,1fr);aspect-ratio:1/1;gap:0;width:100%;position:relative;
+  transform-style:preserve-3d;transform:rotateX(var(--tilt)) scale(.98) translateY(3%);transition:transform .4s ease}
+/* Echtes 3D (three.js): #board wird zum WebGL-Host, Grid/Tilt neutralisiert */
+.board-shell.gm3d{perspective:none;padding:1.2%}
+#board.gm3d{display:block;transform:none;transform-style:flat;aspect-ratio:1/1;width:100%;position:relative;background:transparent;overflow:hidden;border-radius:12px}
+#board.gm3d canvas{display:block;width:100%;height:100%}
+/* 3D-Modus füllt die GANZE Fläche: das Brett ist kein quadratischer Ausschnitt
+   mehr, sondern spannt sich über die volle Breite und Höhe. Die frühere
+   Seitenspalte (Spieler/Am Zug/Verlauf) schwebt jetzt als HUD über dem Brett,
+   sodass Zugreihenfolge, Würfeln, Kaufen usw. ohne Scrollen sichtbar sind.
+   Kamera-Seitenverhältnis regelt resize()/loop() selbst. */
+.game:has(.board-shell.gm3d){grid-template-columns:minmax(0,1fr);position:relative;--gm-chrome:26px}
+body:has(.board-shell.gm3d){padding:8px}
+body:has(.board-shell.gm3d) .wrap{max-width:none;padding-top:0}
+.board-shell.gm3d{max-width:none}
+#board.gm3d{aspect-ratio:auto;height:var(--gm-fit)}
+/* HUD-Overlay: die Panels liegen absolut über dem Brett, die Hülle selbst lässt
+   Klicks durch (pointer-events:none), nur die Panels sind bedienbar. */
+.game:has(.board-shell.gm3d) .side{position:absolute;inset:0;display:block;gap:0;z-index:7;pointer-events:none}
+.game:has(.board-shell.gm3d) .side .panel{position:absolute;pointer-events:auto;margin:0;
+  background:linear-gradient(180deg,rgba(20,60,44,.82),rgba(9,32,23,.88));backdrop-filter:blur(7px);
+  box-shadow:0 10px 34px rgba(0,0,0,.5);border:1px solid var(--brass)}
+.game:has(.board-shell.gm3d) .panel-players{top:14px;left:14px;width:min(30vw,250px);max-height:44vh;overflow:auto}
+.game:has(.board-shell.gm3d) .panel-log{top:60px;right:14px;width:min(28vw,240px)}
+.game:has(.board-shell.gm3d) .panel-log .log{height:clamp(70px,14vh,150px)}
+.game:has(.board-shell.gm3d) .panel-turn{left:50%;bottom:16px;transform:translateX(-50%);
+  width:min(94vw,440px);max-width:440px}
+.game:has(.board-shell.gm3d) .panel-turn .actions{flex-direction:row;flex-wrap:wrap;justify-content:center}
+.game:has(.board-shell.gm3d) .panel-turn .actions>.btn{flex:1 1 auto;width:auto;min-width:120px}
+.game:has(.board-shell.gm3d) .panel-turn .actions>.btn-row{flex:1 1 100%}
+/* Handy: HUD schmaler und Panels an die Ränder gedrückt, damit das Brett frei bleibt */
+@media(max-width:640px){
+  .game:has(.board-shell.gm3d) .panel-players{width:44vw;max-height:38vh;padding:9px}
+  .game:has(.board-shell.gm3d) .panel-log{width:44vw}
+  .game:has(.board-shell.gm3d) .panel-log .log{height:clamp(56px,11vh,110px)}
+  .game:has(.board-shell.gm3d) .panel-turn{width:96vw}
+}
+.tile{position:relative;background:linear-gradient(180deg,#f6eed9,#e9dcbb);border:1px solid rgba(60,40,10,.35);overflow:hidden;
+  display:flex;flex-direction:column;min-width:0;color:#20180a}
+.tile .bar{height:20%;min-height:9px;width:100%;border-bottom:1px solid rgba(0,0,0,.25)}
+.tile .body{flex:1;display:flex;flex-direction:column;justify-content:space-between;padding:5% 6%;text-align:center}
+.tile .tname{font-size:min(1.05vw,10px);line-height:1.05;font-weight:600;text-transform:uppercase;letter-spacing:.01em}
+.tile .tprice{font-size:min(1vw,9px);font-weight:600;opacity:.75}
+.tile .ico{font-size:min(2.3vw,20px);text-align:center;margin:auto 0}
+.tile.corner{background:linear-gradient(135deg,#f6eed9,#e4d3ac)}
+.tile.corner .body{padding:6%;justify-content:center;gap:3px}
+.tile.special .body{justify-content:center}
+.tile .houses{position:absolute;top:1px;left:0;right:0;display:flex;justify-content:center;gap:1px;pointer-events:none;z-index:3}
+.tile .hs{width:min(.7vw,6px);height:min(.7vw,6px);background:#2f9257;border:.5px solid #1c5c37;border-radius:1px}
+.tile .ht{width:min(1vw,9px);height:min(.7vw,6px);background:#c33b34;border:.5px solid #7a201c;border-radius:1px}
+.tile .mort{position:absolute;inset:0;background:rgba(120,90,20,.55);display:grid;place-items:center;font-size:min(1vw,9px);font-weight:700;color:#fff;z-index:2}
+.tile .tokens{position:absolute;bottom:1px;left:1px;right:1px;display:flex;flex-wrap:wrap;gap:1px;justify-content:center;z-index:4}
+.tok{width:min(1.5vw,13px);height:min(1.5vw,13px);border-radius:50%;border:1.5px solid rgba(255,255,255,.85);box-shadow:0 1px 2px rgba(0,0,0,.5);
+  display:grid;place-items:center;font-size:min(1vw,8px);color:#fff;font-weight:700}
+.tile.highlight{box-shadow:inset 0 0 0 3px var(--brass2);z-index:5}
+/* 2.5D: upright player pawns in their own 3D layer over the tilted board */
+.pieces{position:absolute;inset:0;transform-style:preserve-3d;pointer-events:none;z-index:8}
+.pawn{position:absolute;width:min(3.6vw,30px);height:min(4.8vw,40px);
+  margin-left:calc(min(3.6vw,30px) / -2);margin-top:calc(min(4.8vw,40px) * -1);
+  transform-origin:bottom center;
+  transform:translateX(var(--off,0)) rotateX(calc(-1 * var(--tilt)));
+  filter:drop-shadow(0 5px 3px rgba(0,0,0,.5));pointer-events:none}
+.pawn svg{width:100%;height:100%;display:block;overflow:visible}
+.pl .pdot svg,.slot .dot svg{display:block}
+.center{grid-column:2/11;grid-row:2/11;display:flex;flex-direction:column;align-items:center;justify-content:center;position:relative;pointer-events:none}
+.center .title{font-family:'Cinzel';font-weight:700;color:var(--brass2);font-size:clamp(20px,4vw,44px);transform:rotate(-45deg);
+  text-shadow:0 3px 6px rgba(0,0,0,.4);letter-spacing:.06em;line-height:1}
+.center .title small{display:block;font-size:.28em;letter-spacing:.4em;color:var(--parch2);margin-top:.4em}
+.side{display:flex;flex-direction:column;gap:14px}
+.panel{padding:14px}
+.panel h3{color:var(--brass2);font-size:13px;letter-spacing:.14em;text-transform:uppercase;margin-bottom:10px;border-bottom:1px solid var(--line);padding-bottom:7px}
+.panel h3.h3row{display:flex;align-items:center;justify-content:space-between;gap:8px}
+.voice-btn{font-size:14px;line-height:1;padding:4px 8px;border-radius:7px;background:rgba(0,0,0,.28);
+  border:1px solid var(--line);opacity:.5;transition:.15s}
+.voice-btn.on{opacity:1;border-color:var(--brass);background:rgba(203,166,80,.16)}
+.voice-btn:disabled{opacity:.25;cursor:not-allowed}
+.pl{display:flex;align-items:center;gap:10px;padding:8px;border-radius:9px;margin-bottom:6px;background:rgba(0,0,0,.2);border:1px solid transparent;transition:.15s;cursor:pointer}
+.pl.active{border-color:var(--brass);background:rgba(203,166,80,.14)}
+.pl.dead{opacity:.4;text-decoration:line-through}
+.pl .pdot{width:20px;height:20px;border-radius:50%;flex:none;display:grid;place-items:center;color:#fff;font-weight:700;font-size:11px;box-shadow:inset 0 0 0 2px rgba(255,255,255,.3)}
+.pl .pname{flex:1;font-size:14px;font-weight:500;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.pl .pcash{font-variant-numeric:tabular-nums;font-weight:600;color:var(--brass2);font-size:14px}
+.pill{display:inline-block;font-size:10px;background:rgba(0,0,0,.35);padding:1px 6px;border-radius:5px;color:var(--parch2);margin-left:4px}
+.actions{display:flex;flex-direction:column;gap:8px}
+.status{text-align:center;font-size:14px;color:var(--parch2);min-height:20px;line-height:1.4}
+.status b{color:var(--brass2)}
+.btn{padding:11px;border-radius:9px;font-size:14px;font-weight:500;background:rgba(0,0,0,.28);border:1px solid var(--line);color:var(--parch);transition:.13s;width:100%}
+.btn:hover:not(:disabled){background:rgba(203,166,80,.18);border-color:var(--brass)}
+.btn:disabled{opacity:.35;cursor:not-allowed}
+.btn.gold{background:linear-gradient(180deg,var(--brass2),var(--brass));color:#2a2008;font-weight:600;border:none}
+.btn.gold:hover:not(:disabled){filter:brightness(1.07)}
+.btn.danger{border-color:rgba(195,59,52,.6);color:#f0b5b1}
+.btn.danger:hover:not(:disabled){background:rgba(195,59,52,.25)}
+.btn-row{display:flex;gap:8px}
+.btn-row .btn{flex:1}
+.dice{display:flex;gap:10px;justify-content:center;margin:6px 0}
+.die{width:44px;height:44px;background:#faf5e6;border-radius:9px;box-shadow:0 4px 10px rgba(0,0,0,.4),inset 0 0 0 1px rgba(0,0,0,.2);
+  display:grid;grid-template-columns:repeat(3,1fr);grid-template-rows:repeat(3,1fr);padding:6px;gap:2px}
+.die.roll{animation:shake .5s ease}
+@keyframes shake{0%,100%{transform:translateY(0) rotate(0)}25%{transform:translateY(-6px) rotate(-8deg)}50%{transform:translateY(2px) rotate(6deg)}75%{transform:translateY(-3px) rotate(-4deg)}}
+.pip{width:100%;height:100%;border-radius:50%;background:#2a2008;align-self:center;justify-self:center;visibility:hidden}
+.pip.on{visibility:visible}
+.log{height:clamp(84px,16vh,170px);overflow-y:auto;font-size:12.5px;line-height:1.5;color:var(--parch2);display:flex;flex-direction:column-reverse}
+.log .l{padding:3px 0;border-bottom:1px solid rgba(203,166,80,.1)}
+.log .l b{color:var(--brass2)}
+.log .l .pc{font-weight:700}
+.overlay{position:fixed;inset:0;background:rgba(6,16,11,.78);backdrop-filter:blur(3px);display:none;place-items:center;z-index:50;padding:18px}
+.overlay.show{display:grid}
+.modal{max-width:560px;width:100%;max-height:88vh;overflow-y:auto;padding:24px}
+.modal h2{color:var(--brass2);font-size:22px;margin-bottom:6px;display:flex;align-items:center;gap:10px}
+.modal .mtext{color:var(--parch2);line-height:1.5;margin-bottom:16px;font-size:15px}
+.mrow{display:flex;gap:10px;margin-top:8px;flex-wrap:wrap}
+.mrow .btn{flex:1;min-width:120px}
+.deed{border-radius:12px;overflow:hidden;background:var(--parch);color:#20180a;box-shadow:0 10px 30px rgba(0,0,0,.5);margin:0 auto 8px;max-width:280px}
+.deed .dhead{padding:10px;text-align:center;color:#fff;font-family:'Cinzel';font-weight:600;text-transform:uppercase;letter-spacing:.05em;font-size:15px;text-shadow:0 1px 2px rgba(0,0,0,.3)}
+.deed .drows{padding:12px 16px;font-size:13px}
+.deed .dr{display:flex;justify-content:space-between;padding:3px 0;border-bottom:1px dotted rgba(0,0,0,.2)}
+.deed .dr:last-child{border:none}
+.deed .dr .k{opacity:.8}.deed .dr .v{font-weight:600}
+.mlist{display:flex;flex-direction:column;gap:6px;margin-bottom:12px}
+.mitem{display:flex;align-items:center;gap:10px;padding:8px 10px;border-radius:8px;background:rgba(0,0,0,.25);border:1px solid var(--line)}
+.mitem .cbar{width:10px;height:26px;border-radius:3px;flex:none}
+.mitem .minfo{flex:1;min-width:0}
+.mitem .mn{font-weight:600;font-size:14px}
+.mitem .md{font-size:11px;color:var(--parch2);opacity:.8}
+.mitem .mbtn{padding:6px 12px;border-radius:7px;background:rgba(203,166,80,.2);border:1px solid var(--brass);font-size:12px;font-weight:600}
+.mitem .mbtn:disabled{opacity:.3;cursor:not-allowed}
+.mitem .mbtn.sell{background:rgba(195,59,52,.2);border-color:rgba(195,59,52,.6)}
+.trade-cols{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-bottom:14px}
+.trade-cols h4{font-size:12px;letter-spacing:.1em;text-transform:uppercase;color:var(--brass2);margin-bottom:8px}
+.tprop{display:flex;align-items:center;gap:7px;padding:5px 8px;border-radius:7px;font-size:12.5px;background:rgba(0,0,0,.25);border:1px solid var(--line);margin-bottom:5px;cursor:pointer;user-select:none}
+.tprop.sel{background:rgba(203,166,80,.25);border-color:var(--brass)}
+.tprop .cbar{width:8px;height:18px;border-radius:2px;flex:none}
+.tcash{display:flex;align-items:center;gap:8px;margin-bottom:10px;font-size:13px}
+.tcash input{width:90px;background:rgba(0,0,0,.3);border:1px solid var(--line);color:var(--parch);padding:6px 8px;border-radius:7px;font-family:inherit;font-size:13px}
+select{background:rgba(0,0,0,.3);border:1px solid var(--line);color:var(--parch);padding:8px 10px;border-radius:8px;font-family:inherit;font-size:14px;width:100%;margin-bottom:12px}
+.win-crown{font-size:52px;text-align:center;margin-bottom:6px}
+.md{font-size:12px;color:var(--parch2)}
+/* ==== Warbound-Atlas-style scene menu (brass palette) + shared chrome spacing ==== */
+.wrap{padding-top:52px}
+.scene{position:fixed;inset:0;display:none;overflow-y:auto;z-index:10}
+.scene.active{display:flex;flex-direction:column;align-items:center;justify-content:center;padding:64px 20px 40px;
+  background:radial-gradient(1200px 700px at 50% -10%, #164534 0%, var(--bg) 60%),var(--bg)}
+#howtoScene.active{justify-content:flex-start}
+.scene .brand{display:block;text-align:center;margin-bottom:26px}
+.brand .brand-logo{width:76px;height:76px;border-radius:20px;display:block;margin:0 auto 14px;box-shadow:0 14px 30px rgba(0,0,0,.5)}
+.brand .eyebrow{font-size:11px;letter-spacing:.36em;text-transform:uppercase;color:var(--brass);margin-bottom:8px;font-weight:600}
+.brand h1{font-family:'Cinzel',Georgia,serif;font-size:clamp(46px,7vw,84px);font-weight:700;letter-spacing:.05em;text-transform:uppercase;line-height:.95;
+  background:linear-gradient(180deg,#fff7e2 0%,#e6cf88 50%,#a07d2b 100%);-webkit-background-clip:text;background-clip:text;color:transparent}
+.brand .tagline{color:var(--parch2);opacity:.85;font-style:italic;font-size:13px;margin-top:8px}
+.brand .divider{margin:16px auto 0;width:120px;height:1px;background:linear-gradient(90deg,transparent,var(--brass),transparent);position:relative}
+.brand .divider::before{content:"◆";position:absolute;left:50%;top:-10px;transform:translateX(-50%);background:var(--bg);padding:0 8px;color:var(--brass);font-size:12px}
+.menu-card{width:100%;max-width:480px;background:linear-gradient(180deg,rgba(20,60,44,.9),rgba(9,32,23,.94));border:1px solid var(--line);border-radius:16px;padding:26px 24px;box-shadow:0 22px 60px var(--shadow);backdrop-filter:blur(8px)}
+.menu-card h2{font-size:12px;letter-spacing:.24em;text-transform:uppercase;color:var(--brass);margin-bottom:20px;font-weight:700;text-align:center;display:flex;align-items:center;gap:14px}
+.menu-card h2::before,.menu-card h2::after{content:"";flex:1;height:1px;background:linear-gradient(90deg,transparent,var(--line),transparent)}
+.menu-btn{display:flex;align-items:center;gap:14px;width:100%;padding:16px 20px;margin-bottom:9px;background:linear-gradient(180deg,rgba(203,166,80,.06),rgba(70,45,12,.10));border:1px solid var(--line);border-radius:11px;color:var(--brass2);font-family:'Jost',sans-serif;font-size:15px;font-weight:600;letter-spacing:.04em;cursor:pointer;text-align:left;position:relative;overflow:hidden;transition:all .25s cubic-bezier(.16,1,.28,1)}
+.menu-btn::before{content:"";position:absolute;left:0;top:0;bottom:0;width:3px;background:var(--brass);transform:scaleY(0);transform-origin:bottom;transition:transform .3s}
+.menu-btn:hover{background:linear-gradient(180deg,rgba(203,166,80,.18),rgba(70,45,12,.22));border-color:var(--brass);transform:translateX(4px);box-shadow:0 6px 20px rgba(203,166,80,.18)}
+.menu-btn:hover::before{transform:scaleY(1)}
+.menu-btn.primary{background:linear-gradient(180deg,var(--brass2),var(--brass));color:#2a2008;border-color:var(--brass2);font-weight:700;box-shadow:0 8px 22px rgba(203,166,80,.25)}
+.menu-btn.primary:hover{background:linear-gradient(180deg,#fff0b8,#d6b266);transform:translateX(0) translateY(-2px);box-shadow:0 12px 30px rgba(203,166,80,.35)}
+.menu-btn.back{margin-top:16px;padding:11px 16px;font-size:12px;color:var(--parch2);font-weight:600;letter-spacing:.08em;text-transform:uppercase;background:transparent;border-color:transparent}
+.menu-btn.back:hover{color:var(--brass2);transform:translateX(-4px)}
+.menu-btn .btn-icon{width:32px;height:32px;display:grid;place-items:center;background:rgba(203,166,80,.12);border:1px solid var(--line);border-radius:8px;font-size:17px;flex-shrink:0}
+.menu-btn.primary .btn-icon{background:rgba(0,0,0,.18);border-color:rgba(0,0,0,.2)}
+.menu-btn .btn-info{flex:1}
+.menu-btn .btn-sub{font-size:11px;color:var(--parch2);opacity:.8;font-weight:400;font-style:italic;margin-top:2px}
+.menu-btn.primary .btn-sub{color:rgba(42,32,8,.7)}
+.menu-credit{margin-top:18px;max-width:480px;font-size:11px;color:var(--parch2);opacity:.7;text-align:center;line-height:1.5}
+.scene .setup{margin:0 auto}
+.howto-card{width:100%;max-width:620px;background:linear-gradient(180deg,rgba(20,60,44,.9),rgba(9,32,23,.94));border:1px solid var(--line);border-radius:16px;padding:22px 24px 26px;box-shadow:0 22px 60px var(--shadow)}
+.howto-card .howto-intro{color:var(--parch2);font-size:13.5px;font-style:italic;text-align:center;line-height:1.6;margin:4px 0 20px}
+.howto-sec{margin-bottom:18px}
+.howto-sec h3{font-size:15px;color:var(--brass2);font-weight:700;margin-bottom:9px;padding-bottom:6px;border-bottom:1px solid var(--line)}
+.howto-sec p,.howto-sec li{font-size:14px;line-height:1.6;color:var(--parch)}
+.howto-sec ul{margin:0;padding-left:20px}
+.howto-sec b{color:#f6d98b}
+.load-empty{color:var(--parch2);opacity:.85;text-align:center;padding:20px 8px;font-style:italic;line-height:1.6}
+.load-item{padding:14px 16px;border:1px solid var(--line);border-radius:12px;background:rgba(0,0,0,.22)}
+.load-item .load-title{font-family:'Cinzel',Georgia,serif;color:var(--brass2);font-size:16px;margin-bottom:4px}
+.load-item .load-sub{font-size:13px;color:var(--parch)}
+.load-item .load-when{font-size:11px;color:var(--parch2);opacity:.7;margin-top:2px}
+.load-item .load-actions{display:flex;gap:8px;margin-top:12px}
+.load-item .load-actions .btn{flex:1}
+/* online / lobby */
+.gm-label{display:block;font-size:12px;letter-spacing:.12em;text-transform:uppercase;color:var(--brass);margin-bottom:6px}
+.gm-input{width:100%;background:rgba(0,0,0,.3);border:1px solid var(--line);color:var(--parch);border-radius:10px;padding:12px 13px;font-family:inherit;font-size:15px;margin-bottom:12px;outline:none}
+.gm-input:focus{border-color:var(--brass)}
+.gm-or{text-align:center;color:var(--parch2);opacity:.7;font-size:12px;text-transform:uppercase;letter-spacing:.12em;margin:6px 0 10px}
+.gm-join-row{display:flex;gap:8px;align-items:stretch}
+.gm-join-row .gm-input{flex:1;margin-bottom:0}
+.gm-hint{font-size:13px;color:var(--parch2);min-height:6px;margin:10px 0 4px}
+.gm-hint.err{color:#f0b5b1}
+.gm-code{font-family:'Jost',sans-serif;color:var(--parch2);font-size:15px}
+.gm-code b{color:var(--brass2);letter-spacing:.2em;font-size:22px;font-family:'Cinzel',Georgia,serif}
+.gm-lobby-players{display:flex;flex-direction:column;gap:8px}
+.gm-lp{display:flex;align-items:center;gap:10px;padding:9px 12px;border-radius:10px;background:rgba(0,0,0,.22);border:1px solid var(--line)}
+.gm-lp-dot{width:22px;height:22px;border-radius:50%;flex:none;display:grid;place-items:center}
+.gm-lp-name{flex:1;font-weight:600;color:var(--parch)}
+.gm-lp-tag{font-size:11px;color:var(--parch2)}
+.hidden{display:none!important}
+#actions.net-locked,#overlay.net-locked{pointer-events:none;opacity:.55}
+.net-turn-note{text-align:center;font-size:13px;color:var(--brass2);background:rgba(203,166,80,.1);border:1px solid var(--line);border-radius:9px;padding:8px;margin-bottom:8px}
+/* keep the game's generic select styling from leaking into the shared chrome pill */
+.game-top-actions .game-language-select{width:auto;margin:0}
+</style>
+<!-- ==== brettspiele.fun shared site chrome ==== -->
+<script>try{let m=localStorage.getItem('brettspiele.themeMode')||'auto';let d=matchMedia('(prefers-color-scheme: dark)').matches;document.documentElement.dataset.theme=m==='auto'?(d?'dark':'light'):m;document.documentElement.dataset.themeMode=m;}catch(e){document.documentElement.dataset.theme='dark'}</script>
+<script src="../../assets/runtime-config.js?v=20260905-donation-on"></script>
+<script src="../../assets/i18n/de.js?v=20260824-i18n-gaps"></script><script src="../../assets/i18n/en.js?v=20260824-i18n-gaps"></script><script src="../../assets/i18n/fr.js?v=20260824-i18n-gaps"></script><script src="../../assets/i18n/es.js?v=20260824-i18n-gaps"></script><script src="../../assets/i18n/it.js?v=20260824-i18n-gaps"></script><script src="../../assets/i18n/ru.js?v=20260824-i18n-gaps"></script><script src="../../assets/i18n/zh.js?v=20260824-i18n-gaps"></script><script src="../../assets/i18n/ja.js?v=20260824-i18n-gaps"></script>
+<script src="i18n/de.js?v=20260713-i18n"></script><script src="i18n/en.js?v=20260713-i18n"></script><script src="i18n/fr.js?v=20260713-i18n"></script><script src="i18n/es.js?v=20260713-i18n"></script><script src="i18n/it.js?v=20260713-i18n"></script><script src="i18n/ru.js?v=20260713-i18n"></script><script src="i18n/zh.js?v=20260713-i18n"></script><script src="i18n/ja.js?v=20260713-i18n"></script>
+<script src="../../assets/i18n.js?v=20260824-i18n-gaps"></script>
+<script src="../../assets/auth.js?v=20260904-oauth-link"></script>
+<script src="../../assets/consent.js?v=20260603-chrome"></script>
+<script src="../../assets/sounds/sound.js?v=20260615-diceroll"></script>
+<link rel="stylesheet" href="../../assets/game-chrome.css?v=20260708-nohscroll">
+  <link rel="stylesheet" href="../../assets/gamepad.css?v=20260824-pad" />
+</head>
+<body>
+<!-- Fixed site chrome -->
+<div class="game-top-actions">
+  <select class="game-language-select" data-language-select data-i18n-aria="gm.ui.langAria" aria-label="Sprache"></select>
+  <button class="game-theme-toggle" id="themeToggle" type="button">Theme</button>
+</div>
+
+<!-- ===== HAUPTMENÜ (Warbound-Atlas-style scenes) ===== -->
+<div id="mainMenu" class="scene active">
+  <div class="brand">
+    <img class="brand-logo" src="./button.svg" alt="" aria-hidden="true">
+    <div class="eyebrow" data-i18n="gm.menu.eyebrow">Straßen-Handelsspiel · 2–4 Spieler</div>
+    <h1 data-i18n="gm.menu.title">Goldmeile</h1>
+    <div class="tagline" data-i18n="gm.menu.tagline">„Wer zuletzt zahlungsfähig bleibt, gewinnt die Goldmeile."</div>
+    <div class="divider"></div>
+  </div>
+  <div class="menu-card">
+    <h2 data-i18n="gm.menu.heading">Hauptmenü</h2>
+    <button class="menu-btn primary hidden" id="gmResumeBtn"><span class="btn-icon">↩</span><span class="btn-info"><span style="display:block" data-i18n="gm.menu.resume">Ins laufende Spiel zurück</span><span class="btn-sub" style="display:block" data-i18n="gm.menu.resumeSub">Laufende oder gespeicherte Partie fortsetzen</span></span></button>
+    <button class="menu-btn primary" onclick="goScreen('setupScene')"><span class="btn-icon">🎲</span><span class="btn-info"><span data-i18n="gm.menu.new">Neues Spiel</span><div class="btn-sub" data-i18n="gm.menu.newSub">Spielerzahl wählen · Mensch &amp; Computer festlegen</div></span></button>
+    <button class="menu-btn" onclick="goScreen('loadScene')"><span class="btn-icon">📜</span><span class="btn-info"><span data-i18n="gm.menu.load">Spiel laden</span><div class="btn-sub" id="loadHint" data-i18n="gm.menu.loadSub">Gespeicherte Partie fortsetzen</div></span></button>
+    <button class="menu-btn" onclick="goScreen('onlineScene')"><span class="btn-icon">🌐</span><span class="btn-info"><span data-i18n="gm.menu.online">Online spielen</span><div class="btn-sub" data-i18n="gm.menu.onlineSub">Raum erstellen oder mit Code beitreten</div></span></button>
+    <button class="menu-btn" onclick="goScreen('howtoScene')"><span class="btn-icon">📖</span><span class="btn-info"><span data-i18n="gm.menu.howto">Anleitung</span><div class="btn-sub" data-i18n="gm.menu.howtoSub">Spielregeln &amp; Ziel kurz erklärt</div></span></button>
+  </div>
+  <div class="menu-credit" data-i18n="gm.menu.credit">Ein Straßen-Handelsspiel für 2–4 Spieler · lokaler Hotseat, ohne App und ohne Konto</div>
+</div>
+
+<!-- ===== NEUES SPIEL (Setup) ===== -->
+<div id="setupScene" class="scene">
+  <div class="brand">
+    <div class="eyebrow" data-i18n="gm.setup.eyebrow">Neues Spiel</div>
+    <h1 style="font-size:clamp(34px,5vw,56px)" data-i18n="gm.setup.title">Spieler</h1>
+    <div class="divider"></div>
+  </div>
+  <div id="setup" class="setup card">
+    <label style="font-size:12px;letter-spacing:.12em;text-transform:uppercase;color:var(--brass)" data-i18n="gm.setup.count">Anzahl Spieler</label>
+    <div class="count-row" id="countRow"></div>
+    <label style="font-size:12px;letter-spacing:.12em;text-transform:uppercase;color:var(--brass);display:block;margin-top:14px" data-i18n="gm.setup.namesLabel">Figur, Name &amp; Typ</label>
+    <div class="slots" id="slots"></div>
+    <button class="btn-primary" onclick="startGame()" data-i18n="gm.setup.start">Spiel starten</button>
+    <button class="menu-btn back" onclick="goScreen('mainMenu')" data-i18n="gm.common.back">◀ Zurück zum Hauptmenü</button>
+  </div>
+</div>
+
+<!-- ===== SPIEL LADEN ===== -->
+<div id="loadScene" class="scene">
+  <div class="brand">
+    <div class="eyebrow" data-i18n="gm.load.eyebrow">Fortsetzen</div>
+    <h1 style="font-size:clamp(34px,5vw,56px)" data-i18n="gm.load.title">Spiel laden</h1>
+    <div class="divider"></div>
+  </div>
+  <div class="menu-card">
+    <div id="loadList"></div>
+    <button class="menu-btn back" onclick="goScreen('mainMenu')" data-i18n="gm.common.back">◀ Zurück zum Hauptmenü</button>
+  </div>
+</div>
+
+<!-- ===== ONLINE: RAUM ERSTELLEN / BEITRETEN ===== -->
+<div id="onlineScene" class="scene">
+  <div class="brand">
+    <div class="eyebrow" data-i18n="gm.online.eyebrow">Mehrspieler</div>
+    <h1 style="font-size:clamp(34px,5vw,56px)" data-i18n="gm.online.title">Online spielen</h1>
+    <div class="divider"></div>
+  </div>
+  <div class="menu-card">
+    <label class="gm-label" data-i18n="gm.online.nameLabel">Dein Name</label>
+    <input id="gmOnlineName" class="gm-input" maxlength="14" placeholder="Dein Name" data-i18n-placeholder="gm.online.namePlaceholder">
+    <button class="menu-btn primary" id="gmCreateBtn"><span class="btn-icon">🌐</span><span class="btn-info"><span data-i18n="gm.online.create">Raum erstellen</span><div class="btn-sub" data-i18n="gm.online.createSub">Du bist Host · Freunde treten per Code bei</div></span></button>
+    <div class="gm-or" data-i18n="gm.online.or">oder beitreten</div>
+    <div class="gm-join-row">
+      <input id="gmJoinCode" class="gm-input" maxlength="8" placeholder="Raumcode" data-i18n-placeholder="gm.online.codePlaceholder" autocomplete="off" autocapitalize="characters">
+      <button class="btn gold" id="gmJoinBtn" style="width:auto;padding:0 18px" data-i18n="gm.online.join">Beitreten</button>
+    </div>
+    <div class="gm-hint" id="gmOnlineHint"></div>
+    <button class="menu-btn back" onclick="goScreen('mainMenu')" data-i18n="gm.common.back">◀ Zurück zum Hauptmenü</button>
+  </div>
+</div>
+
+<!-- ===== ONLINE-LOBBY ===== -->
+<div id="lobbyScene" class="scene">
+  <div class="brand">
+    <div class="eyebrow" data-i18n="gm.lobby.eyebrow">Online-Raum</div>
+    <h1 style="font-size:clamp(34px,5vw,56px)" data-i18n="gm.lobby.title">Lobby</h1>
+    <div class="divider"></div>
+  </div>
+  <div class="menu-card">
+    <div class="gm-code"><span data-i18n="gm.lobby.code">Raumcode:</span> <b id="gmLobbyCode">—</b>
+      <button class="voice-btn" id="gmLobbyCopy" type="button" style="margin-left:10px" data-i18n="gm.lobby.copy">Link kopieren</button></div>
+    <div class="gm-label" style="margin-top:14px" data-i18n="gm.lobby.players">Mitspieler (max. 4)</div>
+    <div id="gmLobbyPlayers" class="gm-lobby-players"></div>
+    <div id="gmLobbyHostBox"><div class="divider"></div>
+      <button class="menu-btn primary" id="gmLobbyStart"><span class="btn-icon">▶</span><span class="btn-info"><span data-i18n="gm.lobby.start">Spiel starten</span><div class="btn-sub" data-i18n="gm.lobby.startSub">Sobald alle im Raum sind</div></span></button>
+    </div>
+    <div id="gmLobbyGuestWait" class="gm-hint hidden" data-i18n="gm.lobby.guestWait">Warte auf den Host … das Spiel startet gleich.</div>
+    <button class="menu-btn back" id="gmLobbyLeave" data-i18n="gm.lobby.leave">◀ Raum verlassen</button>
+  </div>
+</div>
+
+<!-- ===== ANLEITUNG ===== -->
+<div id="howtoScene" class="scene">
+  <div class="brand">
+    <div class="eyebrow" data-i18n="gm.howto.eyebrow">Spielregeln</div>
+    <h1 style="font-size:clamp(34px,5vw,56px)" data-i18n="gm.howto.title">Anleitung</h1>
+    <div class="divider"></div>
+  </div>
+  <div class="howto-card">
+    <button class="menu-btn back" onclick="goScreen('mainMenu')" data-i18n="gm.common.back">◀ Zurück zum Hauptmenü</button>
+    <p class="howto-intro" data-i18n="gm.howto.intro">Goldmeile ist ein Straßen-Handelsspiel für 2–4 Spieler. Kaufe Grundstücke, kassiere Miete und treibe deine Gegner in den Bankrott.</p>
+    <div class="howto-sec"><h3 data-i18n="gm.howto.goalH">🎯 Ziel</h3><p data-i18n="gm.howto.goalP">Wer als Letztes noch zahlungsfähig ist, gewinnt die Goldmeile. Alle anderen scheiden durch Bankrott aus.</p></div>
+    <div class="howto-sec"><h3 data-i18n="gm.howto.roundH">🎲 Ablauf einer Runde</h3><ul data-i18n-html="gm.howto.roundList"><li>Würfle und ziehe deine Figur über das Brett.</li><li>Auf einem freien Grundstück kannst du es <b>kaufen</b>.</li><li>Landest du auf fremdem Besitz, zahlst du <b>Miete</b>.</li><li>Ereignis- und Gemeinschaftsfelder ziehen eine Karte.</li></ul></div>
+    <div class="howto-sec"><h3 data-i18n="gm.howto.buildH">🏠 Bauen</h3><p data-i18n-html="gm.howto.buildP">Besitzt du alle Straßen einer Farbgruppe, kannst du <b>Häuser</b> und schließlich ein <b>Hotel</b> bauen – das erhöht die Miete deutlich.</p></div>
+    <div class="howto-sec"><h3 data-i18n="gm.howto.tradeH">💰 Hypothek &amp; Handel</h3><p data-i18n-html="gm.howto.tradeP">Fehlt dir Geld, kannst du Grundstücke mit <b>Hypothek</b> belasten oder mit Mitspielern <b>handeln</b>. Wer zahlungsunfähig wird, scheidet aus.</p></div>
+  </div>
+</div>
+
+<div class="wrap">
+
+  <div id="game" class="game" style="display:none">
+    <div class="board-shell"><div class="board" id="board"></div>
+      <div class="ann" id="ann" role="status" aria-live="polite"></div>
+    </div>
+    <div class="side">
+      <div class="panel card panel-players"><h3 data-i18n="gm.panel.players">Spieler</h3><div id="players"></div></div>
+      <div class="panel card panel-turn">
+        <h3 class="h3row"><span data-i18n="gm.panel.turn">Am Zug</span>
+          <button class="voice-btn" id="voiceBtn" type="button" aria-pressed="true">🔊</button></h3>
+        <div class="status" id="status">—</div>
+        <div class="dice" id="diceBox" style="display:none"><div class="die" id="d1"></div><div class="die" id="d2"></div></div>
+        <div class="actions" id="actions"></div>
+      </div>
+      <div class="panel card panel-log"><h3 data-i18n="gm.panel.log">Verlauf</h3><div class="log" id="log"></div></div>
+    </div>
+  </div>
+</div>
+
+<div class="overlay" id="overlay"><div class="modal card" id="modal"></div></div>
+
+<script src="three.min.js?v=20260712-gm3d"></script>
+<script>
+"use strict";
+/* ================= I18N-HELFER ================= */
+/* tr(): dünner Wrapper um die geteilte Laufzeit (assets/i18n.js). tileName()/
+   tokenName() lösen den lokalisierten Namen eines Feldes/Tokens auf; der
+   deutsche Originalname bleibt als Fallback am Datenobjekt (t.name/tok.name). */
+const tr=(k,v,f)=>(window.BFI18N?window.BFI18N.t(k,v,f):(f||k));
+const tileName=t=>t?(t.k?tr(t.k,{},t.name):t.name):'';
+const tokenName=tok=>tok?(tok.k?tr(tok.k,{},tok.name):tok.name):'';
+/* ================= DATEN ================= */
+const GROUPS={
+  braun:{c:'var(--g-braun)',house:50}, hellblau:{c:'var(--g-hellblau)',house:50},
+  magenta:{c:'var(--g-magenta)',house:100}, orange:{c:'var(--g-orange)',house:100},
+  rot:{c:'var(--g-rot)',house:150}, gelb:{c:'var(--g-gelb)',house:150},
+  gruen:{c:'var(--g-gruen)',house:200}, blau:{c:'var(--g-blau)',house:200},
+};
+function st(name,group,price,rent,mort,k){return{type:'street',name,group,price,rent,house:GROUPS[group].house,mort,k};}
+const BOARD=[
+ {type:'go',name:'START',ico:'⭐',k:'gm.field.start'},
+ st('Kupfergasse','braun',60,[2,10,30,90,160,250],30,'gm.field.kupfergasse'),
+ {type:'gemeinschaft',name:'Gemeinschaft',ico:'🎁',k:'gm.field.gemeinschaft'},
+ st('Rußweg','braun',60,[4,20,60,180,320,450],30,'gm.field.russweg'),
+ {type:'tax',name:'Einkommensteuer',amount:200,ico:'💰',k:'gm.field.est'},
+ {type:'station',name:'Nordbahnhof',price:200,mort:100,ico:'🚉',k:'gm.field.bhfNord'},
+ st('Nebelallee','hellblau',100,[6,30,90,270,400,550],50,'gm.field.nebelallee'),
+ {type:'ereignis',name:'Ereignis',ico:'❓',k:'gm.field.ereignis'},
+ st('Möwenplatz','hellblau',100,[6,30,90,270,400,550],50,'gm.field.moewenplatz'),
+ st('Tauweg','hellblau',120,[8,40,100,300,450,600],60,'gm.field.tauweg'),
+ {type:'jail',name:'Gefängnis',ico:'🚔',k:'gm.field.gefaengnis'},
+ st('Rosenhof','magenta',140,[10,50,150,450,625,750],70,'gm.field.rosenhof'),
+ {type:'utility',name:'Elektrizitätswerk',price:150,mort:75,ico:'💡',k:'gm.field.ework'},
+ st('Malvenstraße','magenta',140,[10,50,150,450,625,750],70,'gm.field.malvenstrasse'),
+ st('Fliederring','magenta',160,[12,60,180,500,700,900],80,'gm.field.fliederring'),
+ {type:'station',name:'Ostbahnhof',price:200,mort:100,ico:'🚉',k:'gm.field.bhfOst'},
+ st('Ambergasse','orange',180,[14,70,200,550,750,950],90,'gm.field.ambergasse'),
+ {type:'gemeinschaft',name:'Gemeinschaft',ico:'🎁',k:'gm.field.gemeinschaft'},
+ st('Kupferberg','orange',180,[14,70,200,550,750,950],90,'gm.field.kupferberg'),
+ st('Bernsteinweg','orange',200,[16,80,220,600,800,1000],100,'gm.field.bernsteinweg'),
+ {type:'parking',name:'Freies Parken',ico:'🅿️',k:'gm.field.parken'},
+ st('Rubinstraße','rot',220,[18,90,250,700,875,1050],110,'gm.field.rubinstrasse'),
+ {type:'ereignis',name:'Ereignis',ico:'❓',k:'gm.field.ereignis'},
+ st('Karminplatz','rot',220,[18,90,250,700,875,1050],110,'gm.field.karminplatz'),
+ st('Zinnoberweg','rot',240,[20,100,300,750,925,1100],120,'gm.field.zinnoberweg'),
+ {type:'station',name:'Südbahnhof',price:200,mort:100,ico:'🚉',k:'gm.field.bhfSued'},
+ st('Safranweg','gelb',260,[22,110,330,800,975,1150],130,'gm.field.safranweg'),
+ st('Honigplatz','gelb',260,[22,110,330,800,975,1150],130,'gm.field.honigplatz'),
+ {type:'utility',name:'Wasserwerk',price:150,mort:75,ico:'🚰',k:'gm.field.wwork'},
+ st('Ockerstraße','gelb',280,[24,120,360,850,1025,1200],140,'gm.field.ockerstrasse'),
+ {type:'gotojail',name:'Ab ins Gefängnis',ico:'👮',k:'gm.field.gotojail'},
+ st('Smaragdstraße','gruen',300,[26,130,390,900,1100,1275],150,'gm.field.smaragdstrasse'),
+ st('Jadeallee','gruen',300,[26,130,390,900,1100,1275],150,'gm.field.jadeallee'),
+ {type:'gemeinschaft',name:'Gemeinschaft',ico:'🎁',k:'gm.field.gemeinschaft'},
+ st('Malachitweg','gruen',320,[28,150,450,1000,1200,1400],160,'gm.field.malachitweg'),
+ {type:'station',name:'Westbahnhof',price:200,mort:100,ico:'🚉',k:'gm.field.bhfWest'},
+ {type:'ereignis',name:'Ereignis',ico:'❓',k:'gm.field.ereignis'},
+ st('Diamantboulevard','blau',350,[35,175,500,1100,1300,1500],175,'gm.field.diamantboulevard'),
+ {type:'tax',name:'Zusatzsteuer',amount:100,ico:'💎',k:'gm.field.zusatzsteuer'},
+ st('Platinplatz','blau',400,[50,200,600,1400,1700,2000],200,'gm.field.platinplatz'),
+];
+const EREIGNIS=[
+ {k:'gm.card.e.0',t:'Rücke vor bis START und ziehe 200 G ein.',f:p=>moveTo(p,0)},
+ {k:'gm.card.e.1',t:'Der Vorstand beruft dich ins Direktorium: Rücke zum Diamantboulevard vor.',f:p=>moveTo(p,37)},
+ {k:'gm.card.e.2',t:'Eine Investition trägt Früchte. Die Bank zahlt dir eine Dividende von 50 G.',f:p=>credit(p,50)},
+ {k:'gm.card.e.3',t:'Baupfusch entdeckt! Rücke 3 Felder zurück.',f:p=>moveBy(p,-3)},
+ {k:'gm.card.e.4',t:'Wegen Bilanzbetrugs musst du ins Gefängnis. Gehe direkt dorthin.',f:p=>goToJail(p)},
+ {k:'gm.card.e.5',t:'Freispruch! Diese Karte befreit dich einmalig aus dem Gefängnis.',f:p=>{p.jailCards++;}},
+ {k:'gm.card.e.6',t:'Stadtentwicklung: Zahle 25 G je Haus und 100 G je Hotel für den Ausbau.',f:p=>repair(p,25,100)},
+ {k:'gm.card.e.7',t:'Der Nordbahnhof lockt Investoren. Rücke dorthin vor.',f:p=>moveTo(p,5)},
+ {k:'gm.card.e.8',t:'Prestige-Grundstück verfügbar: Rücke zur Ambergasse vor.',f:p=>moveTo(p,16)},
+ {k:'gm.card.e.9',t:'Verkehrsstrafe wegen Falschparkens: Zahle 15 G.',f:p=>debit(p,15)},
+ {k:'gm.card.e.10',t:'Ein Auftrag ruft am Stadtrand: Rücke zur Ockerstraße vor.',f:p=>moveTo(p,29)},
+ {k:'gm.card.e.11',t:'Kursgewinn an der Börse! Die Bank zahlt dir 150 G.',f:p=>credit(p,150)},
+];
+const GEMEINSCHAFT=[
+ {k:'gm.card.g.0',t:'Eine Erbschaft erreicht dich: Ziehe 200 G ein.',f:p=>credit(p,200)},
+ {k:'gm.card.g.1',t:'Arztrechnung fällig: Zahle 50 G.',f:p=>debit(p,50)},
+ {k:'gm.card.g.2',t:'Du verkaufst altes Mobiliar und erhältst 100 G.',f:p=>credit(p,100)},
+ {k:'gm.card.g.3',t:'Steuerprüfung ordnet Haft an: Gehe ins Gefängnis.',f:p=>goToJail(p)},
+ {k:'gm.card.g.4',t:'Kulanz der Justiz: Diese Karte befreit dich einmalig aus dem Gefängnis.',f:p=>{p.jailCards++;}},
+ {k:'gm.card.g.5',t:'Beratungshonorar erhalten: Ziehe 25 G ein.',f:p=>credit(p,25)},
+ {k:'gm.card.g.6',t:'Fassadensanierung: Zahle 40 G je Haus und 115 G je Hotel.',f:p=>repair(p,40,115)},
+ {k:'gm.card.g.7',t:'Steuerrückerstattung: Ziehe 20 G ein.',f:p=>credit(p,20)},
+ {k:'gm.card.g.8',t:'Es ist Zahltag im Konsortium: Ziehe von jedem Gegner 10 G ein.',f:p=>collectEach(p,10)},
+ {k:'gm.card.g.9',t:'Ein Fonds schüttet aus: Ziehe 100 G ein.',f:p=>credit(p,100)},
+ {k:'gm.card.g.10',t:'Krankenhausaufenthalt: Zahle 100 G.',f:p=>debit(p,100)},
+ {k:'gm.card.g.11',t:'Wohltätigkeit: Zahle jedem Gegner 30 G.',f:p=>payEach(p,30)},
+];
+/* Classic street-trading tokens, fitting the genre — rendered as upright 2.5D metal standees */
+const TOKENS=[
+ {name:'Zylinder',  k:'gm.token.hat',     hex:'#d24b3e', lite:'#f2b3a9', dark:'#7c1f18', shape:'hat'},
+ {name:'Roadster',  k:'gm.token.car',     hex:'#2f74c0', lite:'#a9cdf0', dark:'#173e73', shape:'car'},
+ {name:'Dampfer',   k:'gm.token.ship',    hex:'#31a862', lite:'#98e2b6', dark:'#12572f', shape:'ship'},
+ {name:'Geldsack',  k:'gm.token.bag',     hex:'#e0b02f', lite:'#f7df97', dark:'#87610f', shape:'bag'},
+ {name:'Stiefel',   k:'gm.token.boot',    hex:'#8a5a2b', lite:'#d3a875', dark:'#4a2f13', shape:'boot'},
+ {name:'Fingerhut', k:'gm.token.thimble', hex:'#7a8a95', lite:'#c7d3da', dark:'#3d474e', shape:'thimble'},
+ {name:'Laterne',   k:'gm.token.lantern', hex:'#c8532e', lite:'#f0aa8c', dark:'#6f2712', shape:'lantern'},
+ {name:'Glocke',    k:'gm.token.bell',    hex:'#9b6bc0', lite:'#d6bce9', dark:'#54306f', shape:'bell'},
+];
+function shapeMarkup(shape){
+  return ({
+    hat:{ b:'<ellipse cx="12" cy="18.8" rx="11" ry="3"/><path d="M7 5 Q7 3.4 8.8 3.4 L15.2 3.4 Q17 3.4 17 5 L17 16.5 Q17 18 15.2 18 L8.8 18 Q7 18 7 16.5 Z"/>',
+          d:'<rect x="7" y="12.8" width="10" height="2.9"/>' },
+    car:{ b:'<path d="M1.5 16.8 L1.5 14.6 Q1.5 12.5 4 12.3 L7.6 12.3 L10 9 Q10.6 8.2 11.7 8.2 L15 8.2 Q16.7 8.2 17.5 10.4 L18.6 12.3 Q22.2 12.6 22.2 15 L22.2 16.8 Z"/>',
+          d:'<circle cx="7" cy="17" r="2.9"/><circle cx="17" cy="17" r="2.9"/>',
+          l:'<circle cx="7" cy="17" r="1.1"/><circle cx="17" cy="17" r="1.1"/>' },
+    ship:{ b:'<path d="M2 15.2 L22 15.2 L19.5 20.8 L4.5 20.8 Z"/><rect x="7" y="9.6" width="10" height="5.6" rx="1"/><rect x="8.7" y="5.4" width="2.7" height="4.6" rx=".6"/><rect x="12.6" y="5.4" width="2.7" height="4.6" rx=".6"/>',
+          d:'<circle cx="9" cy="12.4" r=".95"/><circle cx="12" cy="12.4" r=".95"/><circle cx="15" cy="12.4" r=".95"/>' },
+    bag:{ b:'<path d="M6 22 Q2.4 14.4 7.6 11.4 L16.4 11.4 Q21.6 14.4 18 22 Z"/><path d="M8 11.9 Q6.7 7.9 9.2 6.7 L14.8 6.7 Q17.3 7.9 16 11.9 Z"/>',
+          d:'<rect x="7.4" y="10.4" width="9.2" height="2.1" rx="1"/>', g:'G' },
+    boot:{ b:'<path d="M8.4 3.4 Q8.4 3 8.9 3 L12.8 3 Q13.2 3 13.2 3.4 L13.2 13 L19.4 13 Q21.6 13 21.6 15.6 L21.6 18 Q21.6 18.7 20.9 18.7 L8.7 18.7 Q7.9 18.7 7.9 17.9 Z"/>',
+           d:'<path d="M7.4 17.9 L22.1 17.9 L22.1 19.5 Q22.1 20.1 21.5 20.1 L8.2 20.1 Q7.4 20.1 7.4 19.3 Z"/><rect x="8.2" y="3.2" width="5.4" height="1.9" rx=".6"/>' },
+    thimble:{ b:'<path d="M7.2 20 L7.2 11 Q7.2 4 12 4 Q16.8 4 16.8 11 L16.8 20 Z"/>',
+              d:'<circle cx="10" cy="7.8" r=".6"/><circle cx="12" cy="7" r=".6"/><circle cx="14" cy="7.8" r=".6"/><circle cx="9.6" cy="10.6" r=".6"/><circle cx="12" cy="9.9" r=".6"/><circle cx="14.4" cy="10.6" r=".6"/><rect x="7.2" y="18.2" width="9.6" height="1.9" rx=".7"/>' },
+    lantern:{ b:'<path d="M9.6 5.6 Q9.6 3 12 3 Q14.4 3 14.4 5.6 L13.4 5.6 Q13.4 4 12 4 Q10.6 4 10.6 5.6 Z"/><path d="M7.3 8 L9 5.6 L15 5.6 L16.7 8 Z"/><rect x="8" y="8" width="8" height="10.6" rx=".8"/><rect x="10.3" y="18.4" width="3.4" height="1.5" rx=".4"/>',
+              d:'<rect x="11.3" y="8.6" width="1.4" height="9.4"/><rect x="8.4" y="12.4" width="7.2" height="1.4"/>' },
+    bell:{ b:'<path d="M10.8 5 Q10.8 2.8 12 2.8 Q13.2 2.8 13.2 5 L12.2 5 Q12.2 3.9 12 3.9 Q11.8 3.9 11.8 5 Z"/><path d="M6.4 18.4 Q6.4 8 12 4.9 Q17.6 8 17.6 18.4 Z"/>',
+           d:'<path d="M6 17.6 L18 17.6 L18 19 Q18 19.6 17.4 19.6 L6.6 19.6 Q6 19.6 6 19 Z"/><circle cx="12" cy="19.4" r="1.1"/>' },
+  })[shape];
+}
+/* Upright metal figurine for the board */
+function pawnSVG(p){
+  const t=p.tok, uid='pw'+p.id, s=shapeMarkup(t.shape);
+  const light=s.l?`<g fill="${t.lite}">${s.l}</g>`:'';
+  const gtext=s.g?`<text x="12" y="18.4" text-anchor="middle" font-family="'Cinzel',serif" font-size="8" font-weight="700" fill="${t.dark}">${s.g}</text>`:'';
+  return `<svg viewBox="0 0 48 62">
+    <defs>
+      <linearGradient id="${uid}" x1="0" y1="0" x2="0" y2="1">
+        <stop offset="0" stop-color="#fff7e2"/><stop offset=".28" stop-color="${t.lite}"/><stop offset="1" stop-color="${t.hex}"/>
+      </linearGradient>
+      <radialGradient id="${uid}b" cx="50%" cy="38%" r="72%">
+        <stop offset="0" stop-color="${t.lite}"/><stop offset="1" stop-color="${t.dark}"/>
+      </radialGradient>
+    </defs>
+    <ellipse cx="24" cy="57" rx="15" ry="4.2" fill="rgba(0,0,0,.32)"/>
+    <ellipse cx="24" cy="54.6" rx="14" ry="3.8" fill="url(#${uid}b)" stroke="${t.dark}" stroke-width="1"/>
+    <g transform="translate(6 6) scale(1.5)" paint-order="stroke" stroke="${t.dark}" stroke-width="1" stroke-linejoin="round">
+      <g fill="url(#${uid})">${s.b}</g>
+      <g fill="${t.dark}" stroke="none" opacity=".85">${s.d||''}</g>
+      ${light}${gtext}
+    </g>
+  </svg>`;
+}
+/* Compact silhouette for the player list / modals */
+function glyphSVG(shape,fill,px){
+  const s=shapeMarkup(shape), c=fill||'#fff';
+  return `<svg viewBox="0 0 24 24" width="${px||14}" height="${px||14}"><g fill="${c}">${s.b}</g></svg>`;
+}
+
+/* ================= STATE ================= */
+let S=null, setupCount=2, setupSlots=[];
+
+/* Name des angemeldeten Nutzers (Anzeigename, sonst Benutzername) — zum
+   Vorbelegen des ersten (menschlichen) Slots. null, wenn niemand eingeloggt ist
+   oder die Auth-Info noch nicht geladen wurde. */
+function loggedInName(){
+  try{ const st=window.BrettAuth&&BrettAuth.getState&&BrettAuth.getState();
+    if(st&&st.authenticated&&st.user){ const n=(st.user.displayName||st.user.username||'').trim();
+      return n?n.slice(0,14):null; } }catch(e){}
+  return null;
+}
+
+/* ---------- SETUP UI ---------- */
+function initSetup(){
+  const cr=document.getElementById('countRow'); cr.innerHTML='';
+  [2,3,4].forEach(n=>{
+    const b=document.createElement('button'); b.textContent=tr('gm.setup.players',{n});
+    b.className=n===setupCount?'active':''; b.onclick=()=>{setupCount=n;initSetup();};
+    cr.appendChild(b);
+  });
+  buildSlots();
+}
+/* true, wenn Token idx von keinem anderen Slot belegt ist (der eigene zählt nicht). */
+function tokenFree(idx,exceptSlot){
+  return !setupSlots.some((o,k)=>k!==exceptSlot && o && o.tokIdx===idx);
+}
+/* Karussell: blättert Slot i um eine Figur weiter (dir=+1) bzw. zurück (dir=-1)
+   und überspringt dabei die schon von anderen Spielern belegten Figuren, damit
+   die Auswahl eindeutig bleibt. */
+function cycleToken(i,dir){
+  const s=setupSlots[i]; if(!s) return;
+  const N=TOKENS.length; let t=s.tokIdx;
+  for(let step=0;step<N;step++){ t=(t+dir+N)%N; if(tokenFree(t,i)) break; }
+  if(t===s.tokIdx) return;
+  s.tokIdx=t; if(s.autoName) s.name=tokenName(TOKENS[t]);
+  buildSlots({i,dir});
+}
+function buildSlots(anim){
+  const wrap=document.getElementById('slots'); wrap.innerHTML='';
+  for(let i=0;i<setupCount;i++){
+    if(!setupSlots[i]){ const used=new Set(setupSlots.map(o=>o&&o.tokIdx)); let t=0; while(used.has(t))t++;
+      setupSlots[i]={tokIdx:t,name:tokenName(TOKENS[t]),autoName:true,ai:i!==0};
+      // Ersten menschlichen Slot mit dem Namen des angemeldeten Nutzers vorbelegen.
+      if(i===0){ const ln=loggedInName(); if(ln){ setupSlots[0].name=ln; setupSlots[0].autoName=false; } } }
+    const s=setupSlots[i];
+    if(s.tokIdx==null){ s.tokIdx=i; if(s.autoName==null) s.autoName=true; }
+    const row=document.createElement('div'); row.className='slot';
+    // Spielfigur wählen: Karussell (eindeutig pro Spieler)
+    const tok=TOKENS[s.tokIdx];
+    const car=document.createElement('div'); car.className='tokcar';
+    const prev=document.createElement('button'); prev.type='button'; prev.className='nav'; prev.textContent='‹';
+    prev.title=tr('gm.setup.prevFig'); prev.setAttribute('aria-label',tr('gm.setup.prevFig'));
+    prev.onclick=()=>cycleToken(i,-1);
+    const next=document.createElement('button'); next.type='button'; next.className='nav'; next.textContent='›';
+    next.title=tr('gm.setup.nextFig'); next.setAttribute('aria-label',tr('gm.setup.nextFig'));
+    next.onclick=()=>cycleToken(i,1);
+    const disp=document.createElement('div'); disp.className='disp';
+    const fig=document.createElement('div'); fig.className='fig'; fig.style.background=tok.hex;
+    fig.innerHTML=glyphSVG(tok.shape,'#fff',26);
+    if(anim&&anim.i===i){ fig.classList.add(anim.dir>0?'slR':'slL'); }
+    const lbl=document.createElement('div'); lbl.className='lbl'; lbl.textContent=tokenName(tok);
+    disp.appendChild(fig); disp.appendChild(lbl);
+    // Wischgeste auf der Vorschau: nach links = nächste, nach rechts = vorherige Figur.
+    let sx=null;
+    disp.addEventListener('touchstart',e=>{ sx=e.touches[0].clientX; },{passive:true});
+    disp.addEventListener('touchend',e=>{ if(sx==null) return; const dx=e.changedTouches[0].clientX-sx;
+      if(Math.abs(dx)>30) cycleToken(i,dx<0?1:-1); sx=null; },{passive:true});
+    car.appendChild(prev); car.appendChild(disp); car.appendChild(next);
+    row.appendChild(car);
+    // Name frei vergeben: Feld ist leer mit dem Figurennamen als Platzhalter,
+    // damit klar ist, dass man einen eigenen Namen eintippen kann. Bleibt es
+    // leer, gilt weiter der Figurenname (autoName).
+    const inp=document.createElement('input'); inp.type='text'; inp.maxLength=14;
+    inp.value=s.autoName?'':s.name; inp.placeholder=tokenName(TOKENS[s.tokIdx]);
+    inp.setAttribute('aria-label',tr('gm.setup.nameAria')); inp.title=tr('gm.setup.nameAria');
+    inp.oninput=()=>{ const v=inp.value.trim(); s.autoName=!v; s.name=v||tokenName(TOKENS[s.tokIdx]); };
+    row.appendChild(inp);
+    const tg=document.createElement('div'); tg.className='toggle';
+    const bh=document.createElement('button'); bh.textContent=tr('gm.setup.human');
+    const bc=document.createElement('button'); bc.textContent=tr('gm.setup.computer');
+    const upd=()=>{bh.className=s.ai?'':'on';bc.className=s.ai?'on':'';};
+    bh.onclick=()=>{s.ai=false;upd();}; bc.onclick=()=>{s.ai=true;upd();};
+    upd(); tg.appendChild(bh); tg.appendChild(bc); row.appendChild(tg);
+    wrap.appendChild(row);
+  }
+}
+
+/* ---------- START ---------- */
+function startGame(){
+  const players=setupSlots.slice(0,setupCount).map((s,i)=>{
+    const tk=TOKENS[s.tokIdx!=null?s.tokIdx:i];
+    return {
+      id:i,name:(s.name||'').trim()||tokenName(tk),ai:s.ai,color:tk.hex,tok:tk,
+      cash:1500,pos:0,inJail:false,jailTurns:0,jailCards:0,props:[],alive:true,
+    };
+  });
+  launchGame(players,false);
+}
+function launchGame(players, online){
+  S={
+    players, cur:0, dice:[1,1], online:!!online, _netModal:false,
+    board:BOARD.map(t=>Object.assign({owner:null,houses:0,mortgaged:false},t)),
+    eDeck:shuffle([...Array(EREIGNIS.length).keys()]), gDeck:shuffle([...Array(GEMEINSCHAFT.length).keys()]),
+    ePtr:0,gPtr:0, houseSupply:32, hotelSupply:12,
+    busy:false, awaitingChoice:false, pendingDebt:null, phase:'preroll',
+  };
+  net.boardBuilt=true;
+  document.querySelectorAll('.scene').forEach(s=>s.classList.remove('active'));
+  document.getElementById('game').style.display='grid';
+  buildBoard(); renderAll();
+  log(tr('gm.log.gameStart'));
+  try{ if(!online) sessionStorage.setItem("goldmile.active","local"); }catch(e){}
+  beginTurn();
+}
+/* Warbound-Atlas-style scene navigation */
+function goScreen(id){
+  document.getElementById('game').style.display='none';
+  document.querySelectorAll('.scene').forEach(s=>s.classList.remove('active'));
+  const el=document.getElementById(id); if(el) el.classList.add('active');
+  if(id==='mainMenu'){ updateSaveHint(); updateResumeBtn(); }
+  if(id==='loadScene') renderLoadScene();
+}
+function backToMenu(){ try{netLeave();}catch(e){} try{sessionStorage.removeItem("goldmile.active");}catch(e){} S=null; goScreen('mainMenu'); }
+
+/* ---- Save / load (localStorage, like Warbound Atlas) ---- */
+const SAVE_KEY='goldmeile.save';
+function saveGame(){
+  if(!S) return;
+  try{
+    const meta={ savedAt:Date.now(), turnNo:S.turnNo||0, cur:S.cur,
+      players:S.players.map(p=>({name:p.name,shape:p.tok&&p.tok.shape,color:p.color,alive:p.alive,cash:p.cash})) };
+    localStorage.setItem(SAVE_KEY, JSON.stringify({meta, S}));
+  }catch(e){}
+}
+function readSave(){ try{ return JSON.parse(localStorage.getItem(SAVE_KEY)||'null'); }catch(e){ return null; } }
+function deleteSave(){ try{ localStorage.removeItem(SAVE_KEY); }catch(e){} updateSaveHint(); renderLoadScene(); }
+function updateSaveHint(){
+  const el=document.getElementById('loadHint'); if(!el) return;
+  el.textContent = readSave() ? tr('gm.menu.loadSub') : tr('gm.load.hintNone');
+}
+function renderLoadScene(){
+  const wrap=document.getElementById('loadList'); if(!wrap) return;
+  const s=readSave();
+  if(!s || !s.S){ wrap.innerHTML='<div class="load-empty">'+tr('gm.load.empty')+'</div>'; return; }
+  const m=s.meta||{};
+  const names=(m.players||[]).map(p=>p.name).join(', ');
+  const alive=(m.players||[]).filter(p=>p.alive).length;
+  const when=new Date(m.savedAt||Date.now()).toLocaleString((window.BFI18N&&BFI18N.getLanguage&&BFI18N.getLanguage())||'de');
+  wrap.innerHTML=`<div class="load-item">
+      <div class="load-title">${tr('gm.load.savedTitle')}</div>
+      <div class="load-sub">${tr('gm.load.sub',{names,alive,turn:m.turnNo||0})}</div>
+      <div class="load-when">${tr('gm.load.savedAt',{when})}</div>
+      <div class="load-actions">
+        <button class="btn gold" onclick="loadGame()">${tr('gm.load.continue')}</button>
+        <button class="btn danger" onclick="deleteSave()">${tr('gm.load.delete')}</button>
+      </div>
+    </div>`;
+}
+function loadGame(){
+  const s=readSave(); if(!s || !s.S){ return; }
+  S=s.S;
+  S.busy=false; S.pendingDebt=null; S.awaitingChoice=false;
+  document.querySelectorAll('.scene').forEach(sc=>sc.classList.remove('active'));
+  document.getElementById('game').style.display='grid';
+  buildBoard(); renderAll();
+  log(tr('gm.log.gameLoaded'));
+  try{ sessionStorage.setItem("goldmile.active","local"); }catch(e){}
+  beginTurn();
+}
+window.__brettGoToGameMenu=backToMenu;
+window.__brettBack={
+  atTop:()=>document.getElementById('game').style.display==='none' && document.getElementById('mainMenu').classList.contains('active'),
+  up:()=>{ if(document.getElementById('game').style.display!=='none') backToMenu(); else goScreen('mainMenu'); },
+};
+function shuffle(a){for(let i=a.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]];}return a;}
+const sleep=ms=>new Promise(r=>setTimeout(r,ms));
+const die=()=>1+Math.floor(Math.random()*6);
+function cur(){return S.players[S.cur];}
+function wasDouble(){return S.dice[0]===S.dice[1];}
+
+/* ================= BOARD RENDER ================= */
+function gridPos(i){
+  if(i<=10) return[11,11-i];
+  if(i<=20) return[21-i,1];
+  if(i<=30) return[1,i-19];
+  return[i-29,11];
+}
+function buildBoard(){
+  // Echtes 3D-Brett (three.js). Der CSS-2,5D-Renderer ist ersetzt.
+  if(!window.GM3D) return;
+  try{ GM3D.init(); GM3D.buildTiles(); GM3D.overview(); }
+  catch(e){
+    console.error('[gold-mile] 3D-Board konnte nicht initialisiert werden:', e);
+    const b=document.getElementById('board');
+    if(b) b.innerHTML='<div style="padding:26px;text-align:center;color:#e7d8b4;font:14px sans-serif;line-height:1.5">'+tr('gm.misc.webglUnsupported')+'</div>';
+  }
+}
+function renderTokens(){ if(window.GM3D) GM3D.updatePawns(); }
+function renderHouses(){ if(window.GM3D) GM3D.updateTiles(); }
+function highlight(pos){ if(window.GM3D) GM3D.highlight(pos); }
+function renderPlayers(){
+  const w=document.getElementById('players'); w.innerHTML='';
+  S.players.forEach(p=>{
+    const row=document.createElement('div');
+    row.className='pl'+(p.id===S.cur&&p.alive?' active':'')+(!p.alive?' dead':'');
+    row.innerHTML=`<div class="pdot" style="background:${p.color}">${glyphSVG(p.tok.shape,'#fff',14)}</div>
+      <div class="pname">${p.name}${p.jailCards>0?'<span class="pill">🔑'+p.jailCards+'</span>':''}${p.inJail?'<span class="pill">🚔</span>':''}</div>
+      <div class="pcash">${p.alive?p.cash+' G':tr('gm.misc.out')}</div>`;
+    row.onclick=()=>showPortfolio(p.id);
+    w.appendChild(row);
+  });
+}
+function renderAll(){renderTokens();renderHouses();renderPlayers();}
+
+/* ================= LOG ================= */
+function log(html){const l=document.getElementById('log');const d=document.createElement('div');d.className='l';d.innerHTML=html;l.insertBefore(d,l.firstChild);}
+function plog(p,txt){log(`<span class="pc" style="color:${p.color}">${p.name}</span> ${txt}`);}
+
+/* ================= DICE ================= */
+function drawDie(el,n){
+  const map={1:[4],2:[0,8],3:[0,4,8],4:[0,2,6,8],5:[0,2,4,6,8],6:[0,2,3,5,6,8]};
+  el.innerHTML=''; const on=map[n];
+  for(let i=0;i<9;i++){const p=document.createElement('div');p.className='pip'+(on.includes(i)?' on':'');el.appendChild(p);}
+}
+function showDice(a,b){
+  if(window.GM3D) GM3D.impulse();                  // Würfeln → kleiner Kamera-Impuls
+  document.getElementById('diceBox').style.display='flex';
+  const d1=document.getElementById('d1'),d2=document.getElementById('d2');
+  d1.classList.add('roll');d2.classList.add('roll'); drawDie(d1,a);drawDie(d2,b);
+  setTimeout(()=>{d1.classList.remove('roll');d2.classList.remove('roll');},500);
+}
+
+/* ================= ANSAGEN (Banner + Stimme) =================
+   Wichtige Ereignisse werden groß über dem Brett eingeblendet und — wenn
+   eingeschaltet — vorgelesen (wie in Nitpicker und Blank & Frech). Die Texte
+   sind dieselben wie im Verlauf, es kommen also keine neuen Übersetzungen
+   dazu; fürs Vorlesen werden nur HTML-Reste und das Währungskürzel „G“
+   aufgelöst. Stumm-Schalter und Lautstärke der Seite gelten mit. */
+const GMVoice=(function(){
+  const synth=window.speechSynthesis||null;
+  let on=(()=>{try{return (localStorage.getItem('gm.voice')||'1')==='1';}catch(e){return true;}})();
+  let byLang={};
+  const BCP={de:'de-DE',en:'en-US',fr:'fr-FR',es:'es-ES',it:'it-IT',ru:'ru-RU',zh:'zh-CN',ja:'ja-JP'};
+  function lang(){ try{ return (window.BFI18N&&BFI18N.getLanguage&&BFI18N.getLanguage())||'de'; }catch(e){ return 'de'; } }
+  function score(v,L){ const n=(v.name||'').toLowerCase(); let s=0;
+    if(new RegExp('^'+L,'i').test(v.lang||'')) s+=5;
+    if(/natural|neural|online|premium|enhanced/.test(n)) s+=6;
+    if(/google/.test(n)) s+=3;
+    if(v.localService===false) s+=2;
+    return s; }
+  function pick(L){
+    if(!synth) return null;
+    const all=synth.getVoices()||[];
+    if(!all.length) return null;                 // noch nicht geladen → nicht merken
+    if(L in byLang) return byLang[L];
+    const m=all.filter(v=>new RegExp('^'+L,'i').test(v.lang||''));
+    return (byLang[L]=(m.length?m:all).slice().sort((a,b)=>score(b,L)-score(a,L))[0]||null); }
+  if(synth){ try{ synth.addEventListener('voiceschanged',()=>{byLang={};}); }catch(e){} }
+  function muted(){ try{ return !!(window.BrettSounds&&BrettSounds.isMuted&&BrettSounds.isMuted()); }catch(e){ return false; } }
+  function vol(){ try{ return (window.BrettSounds&&BrettSounds.getSfxVolume)?BrettSounds.getSfxVolume()/100:1; }catch(e){ return 1; } }
+  function cancel(){ if(synth){ try{ synth.cancel(); }catch(e){} } }
+  function speak(text,opt){
+    if(!synth||!on||!text||muted()) return;
+    const L=lang(), v=pick(L);
+    try{
+      // Nur abbrechen, wenn wirklich etwas läuft: cancel() direkt vor speak()
+      // verschluckt in Chrome sonst gelegentlich die neue Ansage.
+      if(synth.speaking||synth.pending) cancel();
+      const u=new SpeechSynthesisUtterance(text);
+      u.lang=(v&&v.lang)||BCP[L]||'de-DE'; if(v) u.voice=v;
+      u.rate=(opt&&opt.rate)||1.03; u.pitch=(opt&&opt.pitch)||1; u.volume=vol();
+      synth.resume(); synth.speak(u);
+    }catch(e){}
+  }
+  return { speak, cancel, supported:()=>!!synth, enabled:()=>on,
+    toggle(){ on=!on; try{localStorage.setItem('gm.voice',on?'1':'0');}catch(e){} if(!on) cancel(); return on; } };
+})();
+/* HTML-Ansagetext → sauberer Vorlesetext: Tags raus, Emoji raus (manche Stimmen
+   lesen „❓“ als „Fragezeichen“ vor) und „200 G“ → „200 Gold“. */
+function spokenText(html){
+  const d=document.createElement('div');
+  d.innerHTML=String(html==null?'':html).replace(/<br\s*\/?>/gi,' ');
+  return (d.textContent||'')
+    .replace(/[\u{1F000}-\u{1FAFF}\u{2600}-\u{27BF}\u{2190}-\u{21FF}\u{2B00}-\u{2BFF}\u{FE0F}]/gu,' ')
+    .replace(/\s+/g,' ').trim()
+    .replace(/(\d)\s*G\b/g,'$1 '+tr('gm.speech.currency',{},'Gold'));
+}
+let _annTimer=null;
+/* announce(html, {ico, ms, speak:false}) — Banner über dem Brett + Stimme. */
+function announce(html,opts){
+  const el=document.getElementById('ann'); if(!el) return;
+  const o=opts||{};
+  el.innerHTML=(o.ico?`<span class="ann-ico">${o.ico}</span>`:'')+html;
+  el.classList.add('show');
+  clearTimeout(_annTimer);
+  _annTimer=setTimeout(()=>el.classList.remove('show'), o.ms||3600);
+  if(o.speak!==false) GMVoice.speak(spokenText(html),o);
+}
+/* Wie plog(), zusätzlich als Ansage — der Verlaufstext ergibt mit dem Namen
+   davor schon einen ganzen Satz („Anna muss 200 G Einkommensteuer zahlen.“). */
+function pann(p,txt,opts){ plog(p,txt); announce(`<b>${p.name}</b> ${txt}`,opts); }
+/* 🔊-Schalter im „Am Zug“-Panel: schaltet nur die Stimme, das Banner bleibt. */
+function syncVoiceBtn(){
+  const b=document.getElementById('voiceBtn'); if(!b) return;
+  if(!GMVoice.supported()){
+    b.disabled=true; b.textContent='🔇'; b.classList.remove('on');
+    b.title=tr('gm.ui.voiceNA',{},'Sprachausgabe wird von diesem Browser nicht unterstützt');
+    return;
+  }
+  const on=GMVoice.enabled();
+  b.classList.toggle('on',on); b.textContent=on?'🔊':'🔇';
+  b.setAttribute('aria-pressed',on?'true':'false');
+  b.title=tr(on?'gm.ui.voiceOn':'gm.ui.voiceOff',{},on?'Ansagen vorlesen: an':'Ansagen vorlesen: aus');
+}
+document.getElementById('voiceBtn')?.addEventListener('click',()=>{
+  const on=GMVoice.toggle(); syncVoiceBtn();
+  if(on) GMVoice.speak(tr('gm.speech.voiceTest',{},'Ansagen sind eingeschaltet.'));
+});
+
+/* ================= UI HELPERS ================= */
+function status(html){document.getElementById('status').innerHTML=html;}
+function setActions(list){
+  const w=document.getElementById('actions'); w.innerHTML='';
+  appendActions(w,list);
+}
+function appendActions(w,list){
+  list.forEach(a=>{
+    if(a.row){const r=document.createElement('div');r.className='btn-row';a.row.forEach(x=>r.appendChild(mkBtn(x)));w.appendChild(r);}
+    else w.appendChild(mkBtn(a));
+  });
+}
+function mkBtn(a){
+  const b=document.createElement('button');
+  b.className='btn'+(a.cls?' '+a.cls:''); b.textContent=a.label; b.disabled=!!a.disabled;
+  if(!a.disabled&&a.fn) b.onclick=a.fn;
+  return b;
+}
+function manageRow(){
+  const p=cur();
+  return [
+    {row:[
+      {label:tr('gm.btn.build'),fn:openBuild,disabled:!canManageBuild(p)},
+      {label:tr('gm.btn.mortgage'),fn:openMortgage,disabled:p.props.length===0},
+    ]},
+    {label:tr('gm.btn.trade'),fn:openTrade,disabled:S.online||S.players.filter(x=>x.alive).length<2},
+  ];
+}
+function addManage(){ appendActions(document.getElementById('actions'),manageRow()); }
+
+/* Rebuild the correct human buttons for the current phase */
+function showHumanPhase(){
+  const p=cur();
+  if(!p.alive){return;}
+  if(p.inJail){jailOptionsHuman();return;}
+  if(S.phase==='preroll') setActions([{label:tr('gm.btn.roll'),cls:'gold',fn:humanRoll}]);
+  else setActions([{label:tr('gm.btn.endTurn'),cls:'gold',fn:nextPlayer}]);
+  addManage();
+}
+
+/* ================= TURN ENGINE ================= */
+function beginTurn(){
+  const p=cur();
+  if(!p.alive){nextPlayer();return;}
+  S.turnNo=(S.turnNo||0)+1;
+  if(!S.online) saveGame();
+  renderPlayers();
+  if(window.GM3D) GM3D.overview();                // Zugbeginn → Brettübersicht (erst beim Bewegen an die Figur zoomen)
+  announce(tr('gm.net.turnNote',{name:'<b>'+p.name+'</b>'}),{ico:'🎲',ms:2400});
+  document.getElementById('diceBox').style.display='none';
+  if(p.ai){ runAiTurn(); return; }
+  S.phase='preroll'; S.awaitingChoice=false;
+  if(p.inJail){ jailOptionsHuman(); }
+  else{ status(tr('gm.status.yourTurn',{name:p.name})); showHumanPhase(); }
+}
+
+async function humanRoll(){
+  if(S.busy||S.pendingDebt)return; S.busy=true; S.awaitingChoice=false;
+  const p=cur();
+  const a=die(),b=die(); S.dice=[a,b]; showDice(a,b);
+  plog(p,tr('gm.log.rolls',{a,b})); status(tr('gm.status.rolled',{a,b,sum:a+b}));
+  p._doubles=(p._doubles||0); if(a===b)p._doubles++; else p._doubles=0;
+  await sleep(600);
+  if(a===b&&p._doubles===3){pann(p,tr('gm.log.pash3jail'),{ico:'🚨'});goToJail(p);renderAll();S.busy=false;S.phase='postroll';endHuman();return;}
+  await advance(p,a+b);
+  await resolveTile(p);
+  S.busy=false;
+  if(S.pendingDebt||S.awaitingChoice) return; // waiting on player input
+  finishHumanStep(a===b);
+}
+function finishHumanStep(double){
+  const p=cur();
+  if(!p.alive){checkWin();return;}
+  if(p.inJail){S.phase='postroll';endHuman();return;}
+  if(double){S.phase='preroll';status(tr('gm.status.pashAgain'));showHumanPhase();}
+  else{S.phase='postroll';endHuman();}
+}
+function endHuman(){ setActions([{label:tr('gm.btn.endTurn'),cls:'gold',fn:nextPlayer}]); addManage(); }
+
+/* ----- movement ----- */
+async function advance(p,steps){
+  const use3d=!!(window.GM3D&&GM3D.ready);
+  if(use3d) GM3D.startFollow(p.id);               // Kamera folgt der Figur kontinuierlich
+  if(use3d && GM3D.tokenSound) GM3D.tokenSound(p.tok.shape);   // Figuren-Ton (z.B. Auto-Hupe)
+  const path=[p.pos];                              // Weg inkl. Startfeld für die durchgehende Animation
+  for(let s=0;s<steps;s++){
+    p.pos=(p.pos+1)%40;
+    if(p.pos===0){credit(p,200);pann(p,tr('gm.log.passStart'),{ico:'⭐'});}
+    path.push(p.pos);
+  }
+  highlight(p.pos);
+  // Ziel-Basispositionen (inkl. Nebeneinander-Versatz) schon VOR dem Lauf setzen:
+  // so rücken Mitspieler auf dem Zielfeld sofort zur Seite und die Figur rastet
+  // am Ende ohne Rück-Zucken auf ihren Platz ein.
+  if(use3d) renderTokens();
+  if(use3d) await GM3D.moveAlong(p.id,path,320);   // EIN flüssiger Lauf über alle Felder (gemächliches Tempo)
+  else await sleep(230*steps);
+  if(use3d) GM3D.stopFollow();
+  renderAll();
+  if(window.GM3D) GM3D.focusTile(p.pos);           // beim Landen aufs Zielfeld zoomen
+}
+function moveTo(p,pos){ if(pos<p.pos){credit(p,200);pann(p,tr('gm.log.passStart2'),{ico:'⭐'});} p.pos=pos; renderAll(); highlight(pos); if(window.GM3D&&GM3D.ready){ if(GM3D.tokenSound)GM3D.tokenSound(p.tok.shape); GM3D.moveOne(p.id,pos,700); GM3D.focusTile(pos); } }
+function moveBy(p,delta){ p.pos=(p.pos+delta+40)%40; renderAll(); highlight(p.pos); if(window.GM3D&&GM3D.ready){ if(GM3D.tokenSound)GM3D.tokenSound(p.tok.shape); GM3D.moveOne(p.id,p.pos,600); GM3D.focusTile(p.pos); } }
+
+/* ----- resolve landing ----- */
+async function resolveTile(p){
+  const t=S.board[p.pos]; highlight(p.pos);
+  switch(t.type){
+    case 'go': pann(p,tr('gm.log.restStart'),{ico:'⭐'}); break;
+    case 'parking': pann(p,tr('gm.log.parkFree'),{ico:'🅿️'}); break;
+    case 'jail': pann(p,tr('gm.log.jailVisit'),{ico:'🚔'}); break;
+    case 'tax': pann(p,tr('gm.log.payTax',{amount:t.amount,name:tileName(t)}),{ico:'💰'}); pay(p,null,t.amount,tileName(t)); break;
+    case 'gotojail': pann(p,tr('gm.log.sentJail'),{ico:'🚨'}); goToJail(p); renderAll(); break;
+    case 'ereignis': await drawCard(p,'e'); break;
+    case 'gemeinschaft': await drawCard(p,'g'); break;
+    case 'street': case 'station': case 'utility': resolveProperty(p,t); break;
+  }
+}
+function resolveProperty(p,t){
+  const idx=p.pos;
+  if(t.owner==null){
+    if(p.ai){ aiBuyDecision(p,t,idx); return; }
+    if(p.cash>=t.price){
+      status(tr('gm.status.propFree',{name:tileName(t),price:t.price}));
+      announce(tr('gm.status.propFree',{name:tileName(t),price:t.price}),{ico:'🏷️'});
+      S.awaitingChoice=true;
+      const dbl=wasDouble();
+      setActions([
+        {label:tr('gm.btn.buyFor',{price:t.price}),cls:'gold',fn:()=>{S.awaitingChoice=false;buyProperty(p,idx);finishHumanStep(dbl);}},
+        {label:tr('gm.btn.dontBuy'),fn:()=>{S.awaitingChoice=false;plog(p,tr('gm.log.declineBuy',{name:tileName(t)}));finishHumanStep(dbl);}},
+      ]);
+      addManage();
+    }else{ pann(p,tr('gm.log.cantAfford',{name:tileName(t),price:t.price}),{ico:'🚫'}); }
+  }else if(t.owner!==p.id && !t.mortgaged){
+    const rent=calcRent(t,S.dice[0]+S.dice[1]); const owner=S.players[t.owner];
+    pann(p,tr('gm.log.payRent',{rent,name:tileName(t),owner:owner.name}),{ico:'💸'});
+    pay(p,owner,rent,tr('gm.reason.rent'));
+  }else if(t.owner===p.id){ pann(p,tr('gm.log.ownGround',{name:tileName(t)}),{ico:'🏠'}); }
+}
+
+/* ----- rent ----- */
+function ownsGroup(pid,group){return S.board.filter(t=>t.type==='street'&&t.group===group).every(t=>t.owner===pid);}
+function countType(pid,type){return S.board.filter(t=>t.type===type&&t.owner===pid).length;}
+function calcRent(t,roll){
+  if(t.type==='street'){
+    if(t.houses>0) return t.rent[t.houses];
+    let base=t.rent[0]; if(ownsGroup(t.owner,t.group)) base*=2; return base;
+  }
+  if(t.type==='station'){return[0,25,50,100,200][countType(t.owner,'station')];}
+  if(t.type==='utility'){const n=countType(t.owner,'utility');return (n===2?10:4)*roll;}
+  return 0;
+}
+
+/* ================= MONEY ================= */
+function credit(p,amt){p.cash+=amt;renderPlayers();}
+function debit(p,amt){p.cash-=amt;renderPlayers();}
+function repair(p,perHouse,perHotel){
+  let h=0,hot=0;
+  S.board.forEach(t=>{if(t.type==='street'&&t.owner===p.id){if(t.houses===5)hot++;else h+=t.houses;}});
+  const cost=h*perHouse+hot*perHotel;
+  if(cost>0)plog(p,tr('gm.log.repairCost',{cost,houses:h,hotels:hot}));
+  p.cash-=cost; renderPlayers();
+}
+function collectEach(p,amt){
+  let tot=0;
+  S.players.forEach(o=>{ if(o.alive&&o.id!==p.id){ o.cash-=amt; tot+=amt; if(o.cash<0) beginDebt(o,p,-o.cash,tr('gm.reason.payday')); } });
+  p.cash+=tot; plog(p,tr('gm.log.collectEach',{amt,tot})); renderPlayers();
+}
+function payEach(p,amt){
+  const others=S.players.filter(o=>o.alive&&o.id!==p.id); const tot=amt*others.length;
+  p.cash-=tot; others.forEach(o=>o.cash+=amt);
+  plog(p,tr('gm.log.payEach',{amt,tot})); renderPlayers();
+}
+
+/* pay: non-blocking. If insufficient -> beginDebt. */
+function pay(p,creditor,amt,reason){
+  if(p.cash>=amt){ p.cash-=amt; if(creditor)creditor.cash+=amt; renderPlayers(); return; }
+  p.cash-=amt; renderPlayers(); beginDebt(p,creditor,amt,reason);
+}
+
+function liquidatableValue(p){
+  let v=p.cash;
+  S.board.forEach(t=>{ if(t.owner===p.id){
+    if(t.type==='street'&&t.houses>0){const hc=GROUPS[t.group].house;v+=(t.houses===5?5:t.houses)*Math.floor(hc/2);}
+    if(!t.mortgaged)v+=(t.mort||Math.floor((t.price||0)/2));
+  }});
+  return v;
+}
+function netWorth(p){
+  let w=p.cash;
+  S.board.forEach(t=>{ if(t.owner===p.id){
+    if(!t.mortgaged)w+=(t.mort||Math.floor((t.price||0)/2));
+    if(t.type==='street'&&t.houses>0){const hc=GROUPS[t.group].house;w+=(t.houses===5?5:t.houses)*Math.floor(hc/2);}
+  }});
+  return w;
+}
+
+/* owed already deducted from p (p.cash negative). */
+function beginDebt(p,creditor,owed,reason){
+  if(p.ai || p.id!==S.cur){
+    autoRaise(p);
+    if(p.cash>=0){ if(creditor&&creditor.alive)creditor.cash+=owed; renderPlayers(); plog(p,tr('gm.log.settle',{owed,reason})); }
+    else bankrupt(p,creditor,reason);
+    checkWin(); return;
+  }
+  // interactive human (current player)
+  if(liquidatableValue(p)<0){ bankrupt(p,creditor,reason); checkWin(); return; }
+  S.pendingDebt={player:p,creditor,owed,reason};
+  status(tr('gm.status.debt',{name:p.name,owed,reason,cash:p.cash}));
+  setActions([
+    {row:[
+      {label:tr('gm.btn.sellHouses'),fn:openBuild,disabled:!ownsAnyHouse(p)},
+      {label:tr('gm.btn.mortgage'),fn:openMortgage,disabled:p.props.length===0},
+    ]},
+    {label:tr('gm.btn.trade'),fn:openTrade,disabled:S.online||S.players.filter(x=>x.alive).length<2},
+    {label:tr('gm.btn.declareBankrupt'),cls:'danger',fn:declareBankrupt},
+  ]);
+}
+function ownsAnyHouse(p){return S.board.some(t=>t.type==='street'&&t.owner===p.id&&t.houses>0);}
+function checkDebtResolved(){
+  if(!S.pendingDebt)return false;
+  const{player,creditor,owed,reason}=S.pendingDebt;
+  if(player.cash>=0){
+    if(creditor&&creditor.alive)creditor.cash+=owed;
+    renderPlayers(); plog(player,tr('gm.log.settleDebt',{reason}));
+    S.pendingDebt=null; closeModal();
+    if(checkWin())return true;
+    finishHumanStep(false);
+    return true;
+  }
+  return false;
+}
+function declareBankrupt(){
+  const d=S.pendingDebt; if(!d)return; S.pendingDebt=null; closeModal();
+  bankrupt(d.player,d.creditor,d.reason);
+  if(checkWin())return;
+  // current human just went bankrupt -> move on
+  nextPlayer();
+}
+function autoRaise(p){
+  let guard=0;
+  while(p.cash<0&&guard++<300){
+    let acted=false;
+    const sellable=[]; S.board.forEach((t,i)=>{if(canSellHouse(p,i))sellable.push(i);});
+    if(sellable.length){ sellable.sort((a,b)=>S.board[b].houses-S.board[a].houses); doSellRaw(p,sellable[0]); acted=true; }
+    if(p.cash<0&&!acted){
+      const m=S.board.map((t,i)=>({t,i})).filter(o=>o.t.owner===p.id&&!o.t.mortgaged
+        &&!(o.t.type==='street'&&S.board.some(x=>x.type==='street'&&x.group===o.t.group&&x.houses>0)));
+      if(m.length){ mortgageRaw(p,m[0].i); acted=true; }
+    }
+    if(!acted)break;
+  }
+}
+
+function bankrupt(p,creditor,reason){
+  pann(p,tr('gm.log.bankrupt',{reason}),{ico:'💀',ms:5000,pitch:0.92}); p.alive=false;
+  S.board.forEach(t=>{
+    if(t.owner===p.id){
+      if(creditor&&creditor.alive){
+        if(t.type==='street'&&t.houses>0){
+          const hc=GROUPS[t.group].house; const num=(t.houses===5?5:t.houses);
+          creditor.cash+=num*Math.floor(hc/2);
+          if(t.houses===5)S.hotelSupply++; else S.houseSupply+=t.houses; t.houses=0;
+        }
+        t.owner=creditor.id;
+      }else{
+        if(t.type==='street'&&t.houses>0){if(t.houses===5)S.hotelSupply++;else S.houseSupply+=t.houses;t.houses=0;}
+        t.owner=null; t.mortgaged=false;
+      }
+    }
+  });
+  if(creditor&&creditor.alive&&p.cash>0)creditor.cash+=p.cash;
+  p.cash=0;
+  S.players.forEach(pl=>pl.props=[]); S.board.forEach((t,i)=>{if(t.owner!=null)S.players[t.owner].props.push(i);});
+  renderAll();
+}
+
+/* ================= BUY / BUILD ================= */
+function buyProperty(p,idx){
+  const t=S.board[idx]; p.cash-=t.price; t.owner=p.id; p.props.push(idx);
+  pann(p,tr('gm.log.buys',{name:tileName(t),price:t.price}),{ico:'🤝'}); renderAll();
+}
+function canManageBuild(p){return S.board.some((t,i)=>canBuildOn(p,i));}
+function groupHasHouses(group){return S.board.some(t=>t.type==='street'&&t.group===group&&t.houses>0);}
+function groupMortgaged(group){return S.board.some(t=>t.type==='street'&&t.group===group&&t.mortgaged);}
+function canBuildOn(p,idx){
+  const t=S.board[idx];
+  if(t.type!=='street'||t.owner!==p.id)return false;
+  if(!ownsGroup(p.id,t.group)||groupMortgaged(t.group)||t.houses>=5)return false;
+  const grp=S.board.filter(x=>x.type==='street'&&x.group===t.group);
+  if(t.houses>Math.min(...grp.map(x=>x.houses)))return false;
+  if(t.houses<4 && S.houseSupply<1)return false;
+  if(t.houses===4 && S.hotelSupply<1)return false;
+  if(p.cash<GROUPS[t.group].house)return false;
+  return true;
+}
+function buildHouse(p,idx){
+  const t=S.board[idx]; const hc=GROUPS[t.group].house; p.cash-=hc; t.houses++;
+  if(t.houses===5){S.houseSupply+=4;S.hotelSupply--;}else{S.houseSupply--;}
+  plog(p, t.houses===5 ? tr('gm.log.buildsHotel',{name:tileName(t),hc}) : tr('gm.log.buildsHouse',{name:tileName(t),n:t.houses,hc})); renderAll();
+}
+function canSellHouse(p,idx){
+  const t=S.board[idx];
+  if(t.type!=='street'||t.owner!==p.id||t.houses<=0)return false;
+  const grp=S.board.filter(x=>x.type==='street'&&x.group===t.group);
+  return t.houses>=Math.max(...grp.map(x=>x.houses));
+}
+function doSellRaw(p,idx){
+  const t=S.board[idx]; const back=Math.floor(GROUPS[t.group].house/2);
+  if(t.houses===5){t.houses=4;S.hotelSupply++;S.houseSupply-=4;}else{t.houses--;S.houseSupply++;}
+  p.cash+=back; plog(p,tr('gm.log.sellsBuilding',{name:tileName(t),back})); renderAll();
+}
+function mortgageRaw(p,idx){
+  const t=S.board[idx]; const val=t.mort||Math.floor(t.price/2);
+  t.mortgaged=true; p.cash+=val; plog(p,tr('gm.log.takesMortgage',{name:tileName(t),val})); renderAll();
+}
+function unmortgageRaw(p,idx){
+  const t=S.board[idx]; const val=t.mort||Math.floor(t.price/2); const cost=Math.ceil(val*1.1);
+  t.mortgaged=false; p.cash-=cost; plog(p,tr('gm.log.redeemsMortgage',{name:tileName(t),cost})); renderAll();
+}
+
+/* ================= JAIL ================= */
+function goToJail(p){p.pos=10;p.inJail=true;p.jailTurns=0;p._doubles=0;renderTokens();if(window.GM3D&&GM3D.ready){if(GM3D.tokenSound)GM3D.tokenSound(p.tok.shape);GM3D.moveOne(p.id,10,680);GM3D.focusTile(10);}}
+function jailOptionsHuman(){
+  const p=cur();
+  status(tr('gm.status.jail',{name:p.name,n:p.jailTurns+1}));
+  const acts=[{label:tr('gm.btn.jailRoll'),cls:'gold',fn:jailRollHuman}];
+  if(p.cash>=50) acts.push({label:tr('gm.btn.jailPay'),fn:jailPayHuman});
+  if(p.jailCards>0) acts.push({label:tr('gm.btn.jailCard'),fn:jailCardHuman});
+  setActions(acts); addManage();
+}
+async function jailRollHuman(){
+  if(S.busy||S.pendingDebt)return; S.busy=true; S.awaitingChoice=false;
+  const p=cur(); const a=die(),b=die(); S.dice=[a,b]; showDice(a,b);
+  plog(p,tr('gm.log.jailRolls',{a,b})); await sleep(600);
+  if(a===b){
+    p.inJail=false; plog(p,tr('gm.log.pashFree',{sum:a+b}));
+    await advance(p,a+b); await resolveTile(p); S.busy=false;
+    if(S.pendingDebt||S.awaitingChoice)return; finishHumanStep(false);
+  }else{
+    p.jailTurns++;
+    if(p.jailTurns>=3){
+      plog(p,tr('gm.log.noPashPay'));
+      pay(p,null,50,tr('gm.reason.bail')); p.inJail=false;
+      if(S.pendingDebt){S.busy=false;return;}
+      await advance(p,a+b); await resolveTile(p); S.busy=false;
+      if(S.pendingDebt||S.awaitingChoice)return; finishHumanStep(false);
+    }else{ plog(p,tr('gm.log.noPashStay')); S.busy=false; S.phase='postroll'; endHuman(); }
+  }
+}
+function jailPayHuman(){
+  const p=cur(); if(p.cash<50)return; pay(p,null,50,tr('gm.reason.bail')); p.inJail=false;
+  plog(p,tr('gm.log.paysBailFree')); S.phase='preroll';
+  status(tr('gm.status.free')); showHumanPhase();
+}
+function jailCardHuman(){
+  const p=cur(); if(p.jailCards<1)return; p.jailCards--; p.inJail=false;
+  plog(p,tr('gm.log.usesCardFree')); S.phase='preroll';
+  status(tr('gm.status.free')); showHumanPhase(); renderPlayers();
+}
+
+/* ================= CARDS ================= */
+async function drawCard(p,kind){
+  let card,isE;
+  if(kind==='e'){card=EREIGNIS[S.eDeck[S.ePtr%S.eDeck.length]];S.ePtr++;isE=true;}
+  else{card=GEMEINSCHAFT[S.gDeck[S.gPtr%S.gDeck.length]];S.gPtr++;isE=false;}
+  const text=tr(card.k,{},card.t);
+  const head=isE?tr('gm.card.titleE'):tr('gm.card.titleG');
+  plog(p, isE?tr('gm.log.drawsE'):tr('gm.log.drawsG'));
+  // Menschen sehen die Karte im Dialog — der wird nur vorgelesen. Beim Computer
+  // gibt es keinen Dialog, da tritt das Banner an seine Stelle.
+  if(!p.ai){ GMVoice.speak(spokenText(head+'. '+text)); await showCardModal(isE,text); }
+  else{ log(tr('gm.log.cardEcho',{text})); announce(`<b>${head}</b><br>${text}`,{ms:5200}); }
+  const posBefore=p.pos;
+  card.f(p); renderAll();
+  if(p.pos!==posBefore && !p.inJail){ await resolveTile(p); }
+  if(p.alive && p.cash<0 && !S.pendingDebt){ beginDebt(p,null,-p.cash, isE?tr('gm.reason.cardE'):tr('gm.reason.cardG')); }
+}
+function showCardModal(isE,text){
+  return new Promise(res=>{
+    openModal(`<h2>${isE?tr('gm.card.titleE'):tr('gm.card.titleG')}</h2>
+      <div class="deed" style="max-width:340px"><div class="dhead" style="background:${isE?'#b8862b':'#2f7f9c'}">${isE?tr('gm.card.deckE'):tr('gm.card.deckG')}</div>
+      <div class="drows"><div style="padding:8px 2px;font-size:15px;line-height:1.5;text-align:center">${text}</div></div></div>
+      <div class="mrow"><button class="btn gold" id="cardOk">${tr('gm.btn.next')}</button></div>`, true);
+    document.getElementById('cardOk').onclick=()=>{closeModal();res();};
+  });
+}
+
+/* ================= AI ================= */
+async function runAiTurn(){
+  const p=cur(); S.busy=true; p._doubles=0;
+  status(tr('gm.status.aiTurn',{name:p.name})); setActions([]);
+  await sleep(500);
+  if(p.inJail){
+    if(p.jailCards>0){p.jailCards--;p.inJail=false;plog(p,tr('gm.log.usesFreeCard'));}
+    else{
+      const a=die(),b=die(); S.dice=[a,b]; showDice(a,b); await sleep(500);
+      if(a===b){p.inJail=false;plog(p,tr('gm.log.aiPashFree'));await aiStep(p,a+b);return aiEnd(p);}
+      p.jailTurns++;
+      if(p.jailTurns>=3){pay(p,null,50,tr('gm.reason.bail'));plog(p,tr('gm.log.aiPaysBail'));if(!p.alive)return aiEnd(p);await aiStep(p,a+b);return aiEnd(p);}
+      plog(p,tr('gm.log.aiStayJail')); return aiEnd(p);
+    }
+  }
+  await aiRollLoop(p);
+}
+async function aiRollLoop(p){
+  let doubles=0;
+  while(true){
+    const a=die(),b=die(); S.dice=[a,b]; showDice(a,b); plog(p,tr('gm.log.rolls',{a,b})); await sleep(550);
+    if(a===b)doubles++;
+    if(a===b&&doubles===3){plog(p,tr('gm.log.aiPash3jail'));goToJail(p);renderAll();break;}
+    await aiStep(p,a+b);
+    if(!p.alive)return aiEnd(p);
+    if(p.inJail)break;
+    if(a!==b)break;
+    await sleep(350);
+  }
+  aiEnd(p);
+}
+async function aiStep(p,steps){ await advance(p,steps); await resolveTile(p); }
+function aiEnd(p){
+  if(p.alive){ let n=0; while(n++<3 && aiTryTrade(p)){} aiBuildPhase(p); }
+  renderAll();
+  if(checkWin())return;
+  setTimeout(()=>{ S.busy=false; nextPlayer(); },600);
+}
+function rebuildProps(){ S.players.forEach(pl=>pl.props=[]); S.board.forEach((t,i)=>{if(t.owner!=null)S.players[t.owner].props.push(i);}); }
+/* AI trades ONLY with other AI players (no popups for the human). Pursues monopolies. */
+function aiTryTrade(p){
+  if(p.cash<0)return false;
+  for(const g of Object.keys(GROUPS)){
+    const grp=S.board.filter(t=>t.type==='street'&&t.group===g);
+    const mine=grp.filter(t=>t.owner===p.id).length;
+    if(mine!==grp.length-1) continue;
+    const target=grp.find(t=>t.owner!==p.id && t.owner!=null);
+    if(!target) continue;
+    const owner=S.players[target.owner];
+    if(!owner||!owner.ai||!owner.alive||target.houses>0) continue;
+    // Prefer a swap that also completes a monopoly for the owner
+    let giveProp=null;
+    for(const g2 of Object.keys(GROUPS)){
+      if(g2===g) continue;
+      const grp2=S.board.filter(t=>t.type==='street'&&t.group===g2);
+      if(grp2.filter(t=>t.owner===owner.id).length===grp2.length-1){
+        const cand=grp2.find(t=>t.owner===p.id && t.houses===0);
+        if(cand){giveProp=cand;break;}
+      }
+    }
+    if(giveProp){
+      target.owner=p.id; giveProp.owner=owner.id;
+      plog(p,tr('gm.log.tradeSwap',{owner:owner.name,give:tileName(giveProp),get:tileName(target)}));
+      rebuildProps(); return true;
+    }
+    const offer=Math.round(target.price*1.4);
+    if(p.cash-offer>=150){
+      p.cash-=offer; owner.cash+=offer; target.owner=p.id;
+      plog(p,tr('gm.log.tradeBuy',{name:tileName(target),owner:owner.name,offer}));
+      rebuildProps(); return true;
+    }
+  }
+  return false;
+}
+function aiBuyDecision(p,t,idx){
+  const price=t.price; let reserve=150;
+  if(t.type==='street'){
+    const owned=S.board.filter(x=>x.type==='street'&&x.group===t.group&&x.owner===p.id).length;
+    if(owned>0)reserve=80;
+  }
+  if(p.cash>=price && p.cash-price>=reserve) buyProperty(p,idx);
+  else if(p.cash>=price) plog(p,tr('gm.log.aiSkipReserve',{name:tileName(t)}));
+  else plog(p,tr('gm.log.aiCantBuy',{name:tileName(t)}));
+}
+function aiBuildPhase(p){
+  let guard=0;
+  while(guard++<40){
+    const opts=[]; S.board.forEach((t,i)=>{if(canBuildOn(p,i))opts.push(i);});
+    if(!opts.length)break;
+    opts.sort((a,b)=>GROUPS[S.board[a].group].house-GROUPS[S.board[b].group].house);
+    const idx=opts[0]; if(p.cash-GROUPS[S.board[idx].group].house<100)break;
+    buildHouse(p,idx);
+  }
+}
+
+/* ================= NEXT / WIN ================= */
+function checkWin(){
+  const alive=S.players.filter(x=>x.alive);
+  if(alive.length<=1){ endGame(alive[0]); return true; }
+  return false;
+}
+function nextPlayer(){
+  if(S.busy||S.pendingDebt)return;
+  highlight(null);
+  if(window.GM3D) GM3D.overview();                // Zug-Ende → zurück zur Übersicht
+  if(checkWin())return;
+  do{ S.cur=(S.cur+1)%S.players.length; }while(!S.players[S.cur].alive);
+  document.getElementById('diceBox').style.display='none';
+  beginTurn();
+}
+
+/* ================= TILE INFO / PORTFOLIO ================= */
+function deedHtml(idx){
+  const t=S.board[idx];
+  if(t.type==='street'){
+    const g=GROUPS[t.group];
+    return `<div class="deed"><div class="dhead" style="background:${g.c}">${tileName(t)}</div><div class="drows">
+      <div class="dr"><span class="k">${tr('gm.deed.baseRent')}</span><span class="v">${t.rent[0]} G</span></div>
+      <div class="dr"><span class="k">${tr('gm.deed.house1')}</span><span class="v">${t.rent[1]} G</span></div>
+      <div class="dr"><span class="k">${tr('gm.deed.house2')}</span><span class="v">${t.rent[2]} G</span></div>
+      <div class="dr"><span class="k">${tr('gm.deed.house3')}</span><span class="v">${t.rent[3]} G</span></div>
+      <div class="dr"><span class="k">${tr('gm.deed.house4')}</span><span class="v">${t.rent[4]} G</span></div>
+      <div class="dr"><span class="k">${tr('gm.deed.hotel')}</span><span class="v">${t.rent[5]} G</span></div>
+      <div class="dr"><span class="k">${tr('gm.deed.housePrice')}</span><span class="v">${g.house} G</span></div>
+      <div class="dr"><span class="k">${tr('gm.deed.mortgage')}</span><span class="v">${t.mort} G</span></div></div></div>`;
+  }
+  if(t.type==='station'){
+    return `<div class="deed"><div class="dhead" style="background:#3a3a3a">${tileName(t)}</div><div class="drows">
+      <div class="dr"><span class="k">${tr('gm.deed.station1')}</span><span class="v">25 G</span></div>
+      <div class="dr"><span class="k">${tr('gm.deed.station2')}</span><span class="v">50 G</span></div>
+      <div class="dr"><span class="k">${tr('gm.deed.station3')}</span><span class="v">100 G</span></div>
+      <div class="dr"><span class="k">${tr('gm.deed.station4')}</span><span class="v">200 G</span></div>
+      <div class="dr"><span class="k">${tr('gm.deed.mortgage')}</span><span class="v">${t.mort} G</span></div></div></div>`;
+  }
+  if(t.type==='utility'){
+    return `<div class="deed"><div class="dhead" style="background:#6a6a6a">${tileName(t)}</div><div class="drows">
+      <div class="dr"><span class="k">${tr('gm.deed.utility1')}</span><span class="v">${tr('gm.deed.utilityMult1')}</span></div>
+      <div class="dr"><span class="k">${tr('gm.deed.utility2')}</span><span class="v">${tr('gm.deed.utilityMult2')}</span></div>
+      <div class="dr"><span class="k">${tr('gm.deed.mortgage')}</span><span class="v">${t.mort} G</span></div></div></div>`;
+  }
+  return '';
+}
+function showTileInfo(idx){
+  const t=S.board[idx];
+  if(!['street','station','utility'].includes(t.type))return;
+  const owner=t.owner!=null?S.players[t.owner]:null;
+  openModal(`<h2>${tileName(t)}</h2>${deedHtml(idx)}
+    <div class="mtext" style="text-align:center">${tr('gm.info.price')} <b>${t.price} G</b><br>
+      ${tr('gm.info.owner')} ${owner?`<b style="color:${owner.color}">${owner.name}</b>`:`<i>${tr('gm.info.free')}</i>`}${t.mortgaged?` · <b>${tr('gm.info.mortgaged')}</b>`:''}
+      ${t.type==='street'&&t.houses>0?`<br>${tr('gm.info.building')} ${t.houses===5?tr('gm.info.hotel'):tr('gm.info.houseCount',{n:t.houses})}`:''}</div>
+    <div class="mrow"><button class="btn" onclick="closeModal()">${tr('gm.btn.close')}</button></div>`);
+}
+function showPortfolio(pid){
+  const p=S.players[pid];
+  const props=S.board.map((t,i)=>({t,i})).filter(o=>o.t.owner===pid);
+  const list=props.length?props.map(o=>{
+    const t=o.t; const bar=t.type==='street'?GROUPS[t.group].c:'#888';
+    const b=t.type==='street'&&t.houses>0?(t.houses===5?tr('gm.pf.hotelSuffix'):tr('gm.pf.housesSuffix',{n:t.houses})):'';
+    return `<div class="mitem"><div class="cbar" style="background:${bar}"></div>
+      <div class="minfo"><div class="mn">${tileName(t)}${t.mortgaged?' <span class="pill">HYP</span>':''}</div>
+      <div class="md">${t.type==='street'?tr('gm.pf.street'):t.type==='station'?tr('gm.pf.station'):tr('gm.pf.utility')}${b}</div></div></div>`;
+  }).join(''):`<div class="mtext">${tr('gm.pf.noProps')}</div>`;
+  openModal(`<h2><span class="pdot" style="width:26px;height:26px;background:${p.color};display:inline-grid;place-items:center;border-radius:50%;color:#fff">${glyphSVG(p.tok.shape,'#fff',16)}</span> ${p.name}</h2>
+    <div class="mtext">${tr('gm.pf.cash')} <b>${p.cash} G</b> · ${tr('gm.pf.worth')} <b>${netWorth(p)} G</b>${p.inJail?` · <b>${tr('gm.pf.inJail')}</b>`:''}${p.jailCards?` · ${tr('gm.pf.freeCards')} `+p.jailCards:''}</div>
+    <div class="mlist">${list}</div><div class="mrow"><button class="btn" onclick="closeModal()">${tr('gm.btn.close')}</button></div>`);
+}
+
+/* ================= BUILD MODAL ================= */
+function openBuild(){
+  const p=cur();
+  const rows=S.board.map((t,i)=>({t,i})).filter(o=>o.t.type==='street'&&o.t.owner===p.id&&ownsGroup(p.id,o.t.group)).sort((a,b)=>a.i-b.i);
+  const html=rows.length?rows.map(o=>{
+    const t=o.t;const hc=GROUPS[t.group].house;
+    return `<div class="mitem"><div class="cbar" style="background:${GROUPS[t.group].c}"></div>
+      <div class="minfo"><div class="mn">${tileName(t)}</div>
+        <div class="md">${t.houses===5?tr('gm.build.rowHotel',{hc,half:Math.floor(hc/2)}):tr('gm.build.rowHouses',{n:t.houses,hc,half:Math.floor(hc/2)})}</div></div>
+      <button class="mbtn sell" ${canSellHouse(p,o.i)?'':'disabled'} onclick="doSell(${o.i})">−</button>
+      <button class="mbtn" ${canBuildOn(p,o.i)?'':'disabled'} onclick="doBuild(${o.i})">+</button></div>`;
+  }).join(''):`<div class="mtext">${tr('gm.build.noGroup')}</div>`;
+  openModal(`<h2>${tr('gm.build.title')}</h2>
+    <div class="mtext">${tr('gm.build.supply',{houses:S.houseSupply,hotels:S.hotelSupply})}</div>
+    <div class="mlist">${html}</div><div class="mrow"><button class="btn gold" onclick="closeManage()">${tr('gm.btn.done')}</button></div>`, true);
+}
+function doBuild(i){buildHouse(cur(),i);openBuild();}
+function doSell(i){doSellRaw(cur(),i); if(!checkDebtResolved())openBuild();}
+
+/* ================= MORTGAGE MODAL ================= */
+function openMortgage(){
+  const p=cur();
+  const rows=S.board.map((t,i)=>({t,i})).filter(o=>o.t.owner===p.id).sort((a,b)=>a.i-b.i);
+  const html=rows.length?rows.map(o=>{
+    const t=o.t;const val=t.mort||Math.floor(t.price/2);const cost=Math.ceil(val*1.1);
+    const hasHouses=t.type==='street'&&groupHasHouses(t.group);
+    if(!t.mortgaged){
+      return `<div class="mitem"><div class="cbar" style="background:${t.type==='street'?GROUPS[t.group].c:'#888'}"></div>
+        <div class="minfo"><div class="mn">${tileName(t)}</div><div class="md">${tr('gm.mort.brings',{val})}${hasHouses?tr('gm.mort.sellFirst'):''}</div></div>
+        <button class="mbtn" ${hasHouses?'disabled':''} onclick="doMort(${o.i})">${tr('gm.btn.mortgageAct')}</button></div>`;
+    }
+    return `<div class="mitem"><div class="cbar" style="background:${t.type==='street'?GROUPS[t.group].c:'#888'};opacity:.5"></div>
+      <div class="minfo"><div class="mn">${tileName(t)} <span class="pill">HYP</span></div><div class="md">${tr('gm.mort.redeemCost',{cost})}</div></div>
+      <button class="mbtn" ${p.cash<cost?'disabled':''} onclick="doUnmort(${o.i})">${tr('gm.btn.redeem')}</button></div>`;
+  }).join(''):`<div class="mtext">${tr('gm.mort.noProps')}</div>`;
+  openModal(`<h2>${tr('gm.mort.title')}</h2>
+    <div class="mtext">${tr('gm.mort.intro',{cash:p.cash})}</div>
+    <div class="mlist">${html}</div><div class="mrow"><button class="btn gold" onclick="closeManage()">${tr('gm.btn.done')}</button></div>`, true);
+}
+function doMort(i){
+  const p=cur(),t=S.board[i];
+  if(t.type==='street'&&groupHasHouses(t.group)){alert(tr('gm.mort.alertSellFirst'));return;}
+  mortgageRaw(p,i); if(!checkDebtResolved())openMortgage();
+}
+function doUnmort(i){
+  const p=cur(),t=S.board[i]; const val=t.mort||Math.floor(t.price/2); const cost=Math.ceil(val*1.1);
+  if(p.cash<cost){alert(tr('gm.mort.alertNoCash'));return;}
+  unmortgageRaw(p,i); openMortgage();
+}
+function closeManage(){ closeModal(); if(!checkDebtResolved() && !cur().ai && !S.pendingDebt) showHumanPhase(); }
+
+/* ================= TRADE ================= */
+let tradeState=null;
+function openTrade(){
+  const p=cur(); const others=S.players.filter(o=>o.alive&&o.id!==p.id); if(!others.length)return;
+  tradeState={partner:others[0].id,give:new Set(),want:new Set(),giveCash:0,wantCash:0};
+  renderTrade();
+}
+function renderTrade(){
+  const p=cur(), ts=tradeState, partner=S.players[ts.partner];
+  const mine=S.board.map((t,i)=>({t,i})).filter(o=>o.t.owner===p.id && !(o.t.type==='street'&&groupHasHouses(o.t.group)));
+  const theirs=S.board.map((t,i)=>({t,i})).filter(o=>o.t.owner===partner.id && !(o.t.type==='street'&&groupHasHouses(o.t.group)));
+  const propRow=(o,side)=>{
+    const t=o.t;const bar=t.type==='street'?GROUPS[t.group].c:'#888';
+    const sel=(side==='give'?ts.give:ts.want).has(o.i)?' sel':'';
+    return `<div class="tprop${sel}" onclick="toggleTrade('${side}',${o.i})"><div class="cbar" style="background:${bar}"></div>${tileName(t)}${t.mortgaged?' (HYP)':''}</div>`;
+  };
+  const opts=S.players.filter(o=>o.alive&&o.id!==p.id).map(o=>`<option value="${o.id}" ${o.id===ts.partner?'selected':''}>${o.name}</option>`).join('');
+  openModal(`<h2>${tr('gm.trade.title')}</h2>
+    <div class="mtext">${tr('gm.trade.intro')}</div>
+    <label style="font-size:12px;color:var(--brass2)">${tr('gm.trade.partner')}</label>
+    <select onchange="changePartner(this.value)">${opts}</select>
+    <div class="trade-cols">
+      <div><h4>${tr('gm.trade.youGive')}</h4>${mine.map(o=>propRow(o,'give')).join('')||'<div class="md">—</div>'}
+        <div class="tcash">${tr('gm.trade.cash')} <input type="number" min="0" value="${ts.giveCash}" oninput="ts_cash('give',this.value)"> G</div></div>
+      <div><h4>${tr('gm.trade.youGet')}</h4>${theirs.map(o=>propRow(o,'want')).join('')||'<div class="md">—</div>'}
+        <div class="tcash">${tr('gm.trade.cash')} <input type="number" min="0" value="${ts.wantCash}" oninput="ts_cash('want',this.value)"> G</div></div>
+    </div>
+    <div class="mrow"><button class="btn" onclick="closeManage()">${tr('gm.btn.cancel')}</button>
+      <button class="btn gold" onclick="proposeTrade()">${tr('gm.btn.makeOffer')}</button></div>`);
+}
+function toggleTrade(side,i){const set=side==='give'?tradeState.give:tradeState.want;set.has(i)?set.delete(i):set.add(i);renderTrade();}
+function changePartner(v){tradeState.partner=+v;tradeState.want=new Set();renderTrade();}
+function ts_cash(side,v){v=Math.max(0,parseInt(v)||0);if(side==='give')tradeState.giveCash=v;else tradeState.wantCash=v;}
+function tradeValue(items,cash){let v=cash;items.forEach(i=>{const t=S.board[i];v+=t.mortgaged?Math.floor((t.mort||t.price/2)*0.5):(t.price||0);});return v;}
+function proposeTrade(){
+  const p=cur(),ts=tradeState,partner=S.players[ts.partner];
+  const give=[...ts.give],want=[...ts.want];
+  if(!give.length&&!want.length&&!ts.giveCash&&!ts.wantCash){alert(tr('gm.trade.alertEmpty'));return;}
+  if(p.cash<ts.giveCash){alert(tr('gm.trade.alertNoCash'));return;}
+  if(partner.cash<ts.wantCash){alert(tr('gm.trade.alertPartnerNoCash',{name:partner.name}));return;}
+  const valToPartner=tradeValue(give,ts.giveCash), valFromPartner=tradeValue(want,ts.wantCash);
+  let accept;
+  if(partner.ai){
+    let bonus=0;
+    give.forEach(i=>{const t=S.board[i];if(t.type==='street'){
+      const grp=S.board.filter(x=>x.type==='street'&&x.group===t.group);
+      if(grp.filter(x=>x.owner===partner.id).length===grp.length-1)bonus+=t.price*0.8;}});
+    want.forEach(i=>{const t=S.board[i];if(t.type==='street'){
+      const grp=S.board.filter(x=>x.type==='street'&&x.group===t.group);
+      if(grp.filter(x=>x.owner===partner.id).length>1)bonus-=t.price*0.6;}});
+    accept=(valToPartner+bonus)>=valFromPartner && (partner.cash-ts.wantCash+ts.giveCash)>=0;
+  }else{
+    const giveStr=(want.map(i=>tileName(S.board[i])).join(', ')||'—')+(ts.wantCash?' + '+ts.wantCash+' G':'');
+    const getStr=(give.map(i=>tileName(S.board[i])).join(', ')||'—')+(ts.giveCash?' + '+ts.giveCash+' G':'');
+    accept=confirm(tr('gm.trade.confirm',{name:partner.name,give:giveStr,get:getStr}));
+  }
+  if(!accept){plog(p,tr('gm.log.tradeRejected',{partner:partner.name}));closeManage();return;}
+  const gNames=give.map(i=>tileName(S.board[i])), wNames=want.map(i=>tileName(S.board[i]));
+  give.forEach(i=>{S.board[i].owner=partner.id;});
+  want.forEach(i=>{S.board[i].owner=p.id;});
+  p.cash-=ts.giveCash;partner.cash+=ts.giveCash; partner.cash-=ts.wantCash;p.cash+=ts.wantCash;
+  S.players.forEach(pl=>pl.props=[]); S.board.forEach((t,i)=>{if(t.owner!=null)S.players[t.owner].props.push(i);});
+  plog(p,tr('gm.log.trades',{partner:partner.name,give:gNames.join(', ')||ts.giveCash+' G',get:wNames.join(', ')||ts.wantCash+' G'}));
+  renderAll(); closeManage();
+}
+
+/* ================= MODAL ================= */
+function openModal(html,netm){document.getElementById('modal').innerHTML=html;document.getElementById('overlay').classList.add('show'); if(S) S._netModal=!!netm; hostTick();}
+function closeModal(){document.getElementById('overlay').classList.remove('show'); if(S) S._netModal=false; net.guestNetModal=false; hostTick();}
+document.getElementById('overlay').addEventListener('click',e=>{if(e.target.id==='overlay'){ if(S&&S.pendingDebt)return; if(net.guestNetModal)return; closeModal(); }});
+
+/* ================= END GAME ================= */
+function endGame(winner){
+  deleteSave();
+  try{ clearNetSession(); sessionStorage.removeItem("goldmile.active"); }catch(e){}
+  S.busy=true; document.getElementById('diceBox').style.display='none'; status(tr('gm.status.gameOver'));
+  setActions([{label:tr('gm.btn.newGame'),cls:'gold',fn:()=>location.reload()}]);
+  if(winner){
+    plog(winner,tr('gm.log.wins'));
+    GMVoice.speak(spokenText(tr('gm.win.title',{name:winner.name})),{rate:0.98,pitch:1.06});
+    openModal(`<div class="win-crown">👑</div><h2 style="justify-content:center">${tr('gm.win.title',{name:winner.name})}</h2>
+      <div class="mtext" style="text-align:center">${tr('gm.win.text',{worth:netWorth(winner)})}</div>
+      <div class="mrow"><button class="btn gold" onclick="location.reload()">${tr('gm.btn.playAgain')}</button></div>`);
+  }
+}
+
+/* ============================================================
+   ONLINE-MEHRSPIELER (Host-Autorität; Gäste spiegeln Buttons & leiten Klicks weiter)
+   ============================================================ */
+const GAME="gold-mile";
+const clientId = sessionStorage.getItem("goldmile.clientId")
+  || (crypto.randomUUID ? crypto.randomUUID() : String(Date.now())+Math.random());
+sessionStorage.setItem("goldmile.clientId", clientId);
+const net = { online:false, role:"local", room:"", ws:null, myName:"",
+  lobby:[], joinTimer:null, reconnect:null, boardBuilt:false, guestNetModal:false, tick:null,
+  // Reload/Rejoin + Host-Migration:
+  hb:null, watch:null, lastHostMsg:0, electing:false, bestPrio:null, resuming:false, gotSnap:false };
+const HOST_TIMEOUT=5000, ELECTION_WINDOW=1000, RESUME_TIMEOUT=3800;   // ms
+
+function makeRoom(){ return Math.random().toString(36).slice(2,7).toUpperCase(); }
+function wsUrl(){ if(location.protocol==="file:") return "ws://localhost:8787/ws";
+  return (location.protocol==="https:"?"wss":"ws")+"://"+location.host+"/ws"; }
+function netSend(msg){ if(net.ws&&net.ws.readyState===1)
+  net.ws.send(JSON.stringify({game:GAME, room:net.room, clientId, name:net.myName, ...msg})); }
+function gmHint(t,err){ const e=document.getElementById("gmOnlineHint"); if(e){ e.textContent=t||""; e.classList.toggle("err",!!err); } }
+
+/* ============================================================
+   RESILIENZ: Reload/Rejoin + automatische Host-Migration
+   - Jeder Client merkt Raum/Name in sessionStorage (überlebt Reload im Tab)
+     und den zuletzt gesehenen Snapshot (falls er selbst Host werden muss).
+   - Der Host sendet regelmäßig einen Heartbeat-Snapshot. Bleibt er aus, wählen
+     die verbliebenen Gäste deterministisch einen neuen Host (kleinster Sitz,
+     Tie-Break Client-ID). Der frühere Host kann anschließend als Gast rejoinen.
+   ============================================================ */
+function saveNetSession(){ try{ sessionStorage.setItem("goldmile.net",
+  JSON.stringify({room:net.room, name:net.myName, wasHost:net.role==="host"})); }catch(e){} }
+function readNetSession(){ try{ return JSON.parse(sessionStorage.getItem("goldmile.net")||"null"); }catch(e){ return null; } }
+function clearNetSession(){ try{ sessionStorage.removeItem("goldmile.net"); sessionStorage.removeItem("goldmile.snap"); }catch(e){} }
+function persistSnap(snap){ try{ sessionStorage.setItem("goldmile.snap", JSON.stringify(snap)); }catch(e){} }
+function readSnap(){ try{ return JSON.parse(sessionStorage.getItem("goldmile.snap")||"null"); }catch(e){ return null; } }
+
+/* Wahl-Priorität: kleiner = besser. Sitzindex zuerst, dann Client-ID. */
+function myPrio(){ const seat = S ? mySeat() : net.lobby.findIndex(p=>p.clientId===clientId);
+  return [ seat<0?999:seat, clientId ]; }
+function prioBetter(a,b){ if(!b) return true; if(!a) return false; if(a[0]!==b[0]) return a[0]<b[0]; return a[1]<b[1]; }
+function prioEqual(a,b){ return a&&b&&a[0]===b[0]&&a[1]===b[1]; }
+
+function startHostHeartbeat(){ clearInterval(net.hb);
+  net.hb=setInterval(()=>{ if(net.online&&net.role==="host"&&(S||net.lobby.length))
+    netSend({type:"snapshot", snapshot: S?buildGameSnap():lobbySnap()}); }, 2000); }
+function stopTimers(){ clearInterval(net.hb); clearInterval(net.watch); clearInterval(net.joinTimer);
+  clearTimeout(net.reconnect); clearTimeout(net.tick); net.hb=net.watch=null; }
+
+/* Gäste-Watchdog: hört der Host zu lange nicht mehr, Wahl anstoßen. */
+function startGuestWatch(){ clearInterval(net.watch); net.lastHostMsg=Date.now();
+  net.watch=setInterval(()=>{
+    if(!net.online||net.role==="host"||net.electing) return;
+    if(Date.now()-net.lastHostMsg>HOST_TIMEOUT) startElection();
+  },1000); }
+
+function startElection(){
+  if(net.electing||!net.online||net.role==="host") return;
+  net.electing=true; net.bestPrio=myPrio();
+  try{ announce(tr('gm.net.hostLeft'),{ico:'⚠️',ms:2200}); }catch(e){}
+  netSend({type:"claim", prio:net.bestPrio});
+  setTimeout(()=>{
+    if(!net.electing) return; net.electing=false;
+    if(net.role==="host") return;
+    if(prioEqual(myPrio(), net.bestPrio)) promoteToHost();
+    // sonst übernimmt ein Besserer; erscheint keiner, greift der Watchdog erneut
+  }, ELECTION_WINDOW);
+}
+function onClaim(prio){
+  if(!net.electing) startElection();               // Hostverlust auch aus fremdem Claim erkennen
+  if(prioBetter(prio, net.bestPrio)) net.bestPrio=prio;
+}
+/* Nach Übernahme der Autorität die Aktions-Buttons neu aufbauen: aus dem
+   Snapshot kamen sie nur als HTML ohne Klick-Handler. In stabilen Zuständen
+   die Standard-Zug-UI des aktuellen Spielers wiederherstellen. */
+function refreshTurnUI(){
+  if(!S || S.busy || S.pendingDebt || S.awaitingChoice) return;
+  const p=cur(); if(!p||!p.alive||p.ai) return;
+  showHumanPhase();
+}
+function promoteToHost(){
+  net.role="host"; net.electing=false; net.lastHostMsg=Date.now();
+  clearInterval(net.watch); net.watch=null;              // als Host keine Gast-Überwachung
+  if(S) S.online=true;
+  saveNetSession();
+  refreshTurnUI();
+  netSend({type:"create", snapshot: S?buildGameSnap():lobbySnap()});
+  netSend({type:"snapshot", snapshot: S?buildGameSnap():lobbySnap()});
+  startHostHeartbeat();
+  applyGating();
+  try{ announce(tr('gm.net.nowHost'),{ico:'👑',ms:2600}); }catch(e){}
+}
+
+/* ---- Wiederaufnahme über Raum-Link (URL) + Menü-Eintrag statt Auto-Popup ---- */
+function getUrlRoom(){ try{ return ((new URL(location.href)).searchParams.get("room")||"").toUpperCase(); }catch(e){ return ""; } }
+function roomUrl(code){ try{ const u=new URL(location.href); u.searchParams.set("room",code); return u.href; }catch(e){ return location.href; } }
+function setUrlRoom(code){ try{ const u=new URL(location.href); if(code) u.searchParams.set("room",code); else u.searchParams.delete("room"); history.replaceState(null,"",u.href); }catch(e){} }
+
+/* Gibt es eine fortsetzbare Partie (unterbrochene Online-Sitzung oder lokaler Spielstand)? */
+function hasResumable(){
+  const sess=readNetSession(); if(sess&&sess.room) return true;
+  try{ if(sessionStorage.getItem("goldmile.active")==="local"){ const sv=readSave(); if(sv&&sv.S) return true; } }catch(e){}
+  return false;
+}
+/* Menü-Eintrag „Ins laufende Spiel zurück“ ein-/ausblenden. */
+function updateResumeBtn(){ const b=document.getElementById("gmResumeBtn"); if(b) b.classList.toggle("hidden", !hasResumable()); }
+/* Wiederaufnahme starten (vom Menü-Eintrag oder Raum-Link ausgelöst). */
+function doResume(){
+  const sess=readNetSession();
+  if(sess && sess.room){ resumeOnline(sess); return true; }
+  try{ if(sessionStorage.getItem("goldmile.active")==="local"){ const sv=readSave(); if(sv&&sv.S){ loadGame(); return true; } } }catch(e){}
+  return false;
+}
+/* Beim Laden: Einladung per Raum-Link → Online-Beitritt vorbereiten; sonst Menü
+   mit optionalem Rückkehr-Eintrag. Es wird NICHT automatisch verbunden. */
+function bootEntry(){
+  const urlRoom=getUrlRoom(), sess=readNetSession();
+  let localActive=false; try{ localActive=sessionStorage.getItem("goldmile.active")==="local"; }catch(e){}
+  if(urlRoom && (!sess || sess.room!==urlRoom) && !localActive){
+    goScreen("onlineScene");                          // Einladung: Code vorbelegen
+    const f=document.getElementById("gmJoinCode"); if(f) f.value=urlRoom;
+    return;
+  }
+  updateResumeBtn();
+}
+function resumeOnline(sess){
+  setUrlRoom(sess.room);
+  net.online=true; net.role="guest"; net.room=sess.room; net.myName=sess.name||"";
+  net.resuming=true; net.gotSnap=false;
+  goScreen("lobbyScene");                                  // Zwischenzustand „Verbinde …“
+  document.getElementById("gmLobbyCode").textContent=sess.room;
+  document.getElementById("gmLobbyHostBox").classList.add("hidden");
+  document.getElementById("gmLobbyGuestWait").classList.remove("hidden");
+  try{ document.getElementById("gmLobbyGuestWait").textContent=tr('gm.net.reconnecting'); }catch(e){}
+  netConnect(()=>{ netSend({type:"join"}); startJoinRepeat(); });
+  // Antwortet niemand (auch der Host war weg) → selbst aus gespeichertem Snapshot Host werden
+  setTimeout(()=>{ if(net.online && net.role==="guest" && !net.gotSnap) seedHostFromSnap(); }, RESUME_TIMEOUT);
+}
+function seedHostFromSnap(){
+  const snap=readSnap();
+  if(!snap){ clearNetSession(); net.online=false; net.role="local"; goScreen("mainMenu"); return; }
+  net.role="host"; net.resuming=false; net.gotSnap=true; net.lastHostMsg=Date.now();
+  clearInterval(net.watch); net.watch=null;
+  if(snap.screen==="game"){ applyGameSnap(snap); if(S) S.online=true; refreshTurnUI(); }
+  else { net.lobby=(snap.players||[]).map(p=>({clientId:p.clientId,name:p.name}));
+    if(!net.lobby.some(p=>p.clientId===clientId)) net.lobby.unshift({clientId,name:net.myName});
+    applyLobbySnap(lobbySnap()); }
+  saveNetSession();
+  netSend({type:"create", snapshot: S?buildGameSnap():lobbySnap()});
+  netSend({type:"snapshot", snapshot: S?buildGameSnap():lobbySnap()});
+  startHostHeartbeat();
+  applyGating();
+  try{ announce(tr('gm.net.nowHost'),{ico:'👑',ms:2600}); }catch(e){}
+}
+
+function netConnect(onOpen){
+  if(net.ws) try{ net.ws.close(); }catch(e){}
+  const ws=new WebSocket(wsUrl()); net.ws=ws;
+  ws.onopen=()=>{ clearTimeout(net.reconnect); onOpen&&onOpen(); };
+  ws.onmessage=e=>{ let m; try{ m=JSON.parse(e.data); }catch(_){ return; } netHandle(m); };
+  ws.onclose=()=>{ if(net.online){ clearTimeout(net.reconnect); net.reconnect=setTimeout(()=>netConnect(()=>{
+    if(net.role==="host"){ netSend({type:"create", snapshot: S?buildGameSnap():lobbySnap()}); netSend({type:"snapshot", snapshot: S?buildGameSnap():lobbySnap()}); }
+    else { netSend({type:"join"}); startJoinRepeat(); }
+  }),1400); } };
+}
+function startJoinRepeat(){
+  clearInterval(net.joinTimer); netSend({type:"joinRequest"});
+  net.joinTimer=setInterval(()=>{
+    const inRoom = net.lobby.some(p=>p.clientId===clientId) || !!S;
+    if(inRoom||!net.online) clearInterval(net.joinTimer); else netSend({type:"joinRequest"});
+  },1000);
+}
+function netHandle(m){
+  if(m.game && m.game!==GAME) return;
+  if(m.clientId===clientId) return;                       // eigene Nachrichten ignorieren
+  const snap=m.snapshot;
+  if(net.role==="host"){
+    // Zwei Hosts (Race nach Migration/Reload): der mit der höheren Client-ID tritt
+    // zurück, damit genau einer die Autorität behält.
+    if(m.type==="snapshot" && snap && snap.host && snap.host!==clientId && snap.host<clientId){
+      net.role="guest"; clearInterval(net.hb); net.hb=null; net.gotSnap=true; net.lastHostMsg=Date.now();
+      saveNetSession();
+      if(snap.screen==="lobby"){ net.lobby=snap.players||[]; applyLobbySnap(snap); }
+      else if(snap.screen==="game"){ applyGameSnap(snap); }
+      startGuestWatch(); return;
+    }
+    if(m.type==="claim"){ netSend({type:"snapshot", snapshot: S?buildGameSnap():lobbySnap()}); return; } // ich lebe noch → Wahl abbrechen
+    if(m.type==="joinRequest"){
+      if(S) netSend({type:"snapshot", snapshot:buildGameSnap()});   // laufendes Spiel: Rückkehrer/Gast neu versorgen
+      else hostAddPlayer(m.clientId, m.name);                        // Lobby: Sitz hinzufügen
+    }
+    else if(m.type==="click" && S && S.players[S.cur] && S.players[S.cur].clientId===m.clientId) netReplayClick(m.scope, m.idx);
+    return;
+  }
+  // ---- Gast ----
+  if(m.type==="claim"){ onClaim(m.prio); return; }
+  if(!snap) return;
+  net.lastHostMsg=Date.now(); net.electing=false; net.resuming=false;   // Host lebt → Wahl/Resume beenden
+  if(!net.gotSnap){ net.gotSnap=true; startGuestWatch(); }              // ab erstem Snapshot den Host überwachen
+  if(snap.screen==="lobby"){ net.lobby=snap.players||[]; applyLobbySnap(snap); }
+  else if(snap.screen==="game"){ applyGameSnap(snap); }
+}
+
+/* ---- host: lobby ---- */
+function lobbySnap(){
+  return { screen:"lobby", room:net.room, host:clientId,
+    players: net.lobby.map((p,i)=>({ clientId:p.clientId, name:p.name, shape:TOKENS[i%TOKENS.length].shape, color:TOKENS[i%TOKENS.length].hex })) };
+}
+function broadcastLobby(){ const s=lobbySnap(); applyLobbySnap(s); netSend({type:"snapshot", snapshot:s}); }
+function hostAddPlayer(id,name){
+  if(net.lobby.some(p=>p.clientId===id)){ broadcastLobby(); return; }
+  if(net.lobby.length>=4) return;
+  net.lobby.push({ clientId:id, name:(name||tr('gm.online.guestName')).slice(0,14) });
+  broadcastLobby();
+}
+function createRoom(){
+  net.online=true; net.role="host"; net.room=makeRoom();
+  net.myName=(document.getElementById("gmOnlineName").value.trim()||tr('gm.online.hostName')).slice(0,14);
+  net.lobby=[{ clientId, name:net.myName }];
+  gmHint("");
+  netConnect(()=>{ netSend({type:"create", snapshot:lobbySnap()}); netSend({type:"snapshot", snapshot:lobbySnap()}); });
+  startHostHeartbeat(); saveNetSession(); setUrlRoom(net.room);
+  applyLobbySnap(lobbySnap());
+}
+function joinRoom(){
+  const code=(document.getElementById("gmJoinCode").value.trim()||"").toUpperCase();
+  if(!code){ gmHint(tr('gm.online.enterCode'),true); return; }
+  net.online=true; net.role="guest"; net.room=code;
+  net.myName=(document.getElementById("gmOnlineName").value.trim()||tr('gm.online.guestName')).slice(0,14);
+  gmHint(tr('gm.online.connecting'));
+  goScreen("lobbyScene");
+  document.getElementById("gmLobbyCode").textContent=code;
+  document.getElementById("gmLobbyHostBox").classList.add("hidden");
+  document.getElementById("gmLobbyGuestWait").classList.remove("hidden");
+  net.gotSnap=false;
+  netConnect(()=>{ netSend({type:"join"}); startJoinRepeat(); });
+  saveNetSession(); setUrlRoom(code);   // Watchdog startet mit dem ersten Host-Snapshot (netHandle)
+}
+function netLeave(){
+  net.online=false; net.role="local"; net.boardBuilt=false; net.guestNetModal=false;
+  net.electing=false; net.resuming=false;
+  stopTimers();
+  if(net.ws) try{ net.ws.close(); }catch(e){} net.ws=null; net.lobby=[]; net.room="";
+  clearNetSession(); setUrlRoom(null);
+  if(S) S.online=false;
+}
+function applyLobbySnap(snap){
+  persistSnap(snap); saveNetSession();
+  goScreen("lobbyScene");
+  document.getElementById("gmLobbyCode").textContent=snap.room||net.room;
+  const host = net.role==="host";
+  document.getElementById("gmLobbyHostBox").classList.toggle("hidden", !host);
+  document.getElementById("gmLobbyGuestWait").classList.toggle("hidden", host);
+  const wrap=document.getElementById("gmLobbyPlayers"); wrap.innerHTML="";
+  (snap.players||[]).forEach(p=>{
+    const row=document.createElement("div"); row.className="gm-lp";
+    row.innerHTML=`<span class="gm-lp-dot" style="background:${p.color}">${glyphSVG(p.shape,'#fff',13)}</span>
+      <span class="gm-lp-name">${p.name}</span>
+      <span class="gm-lp-tag">${p.clientId===snap.host?tr('gm.lobby.host'):''}${p.clientId===clientId?' · '+tr('gm.lobby.you'):''}</span>`;
+    wrap.appendChild(row);
+  });
+}
+function startOnlineGame(){
+  if(!net.lobby.length) return;
+  const players=net.lobby.map((seat,i)=>({
+    id:i, clientId:seat.clientId, name:seat.name, ai:false, color:TOKENS[i].hex, tok:TOKENS[i],
+    cash:1500, pos:0, inJail:false, jailTurns:0, jailCards:0, props:[], alive:true
+  }));
+  launchGame(players, true);
+  hostTick();
+}
+
+/* ---- host: game snapshot ---- */
+function cleanS(){
+  return JSON.parse(JSON.stringify(S, (k,v)=>{
+    if(k==="pendingDebt") return v ? { playerId:v.player&&v.player.id, creditorId:v.creditor?v.creditor.id:null, owed:v.owed, reason:v.reason } : null;
+    if(k==="_timer"||k==="timerId") return undefined;
+    return v;
+  }));
+}
+function buildGameSnap(){
+  const $id=id=>document.getElementById(id);
+  return { screen:"game", room:net.room, host:clientId, S:cleanS(),
+    statusHTML:$id("status").innerHTML, actionsHTML:$id("actions").innerHTML, logHTML:$id("log").innerHTML,
+    overlayShown:$id("overlay").classList.contains("show"), netModal:!!(S&&S._netModal), modalHTML:$id("modal").innerHTML,
+    diceShown:$id("diceBox").style.display!=="none", dice:S?S.dice:[1,1] };
+}
+function hostTick(){
+  if(!(net.online&&net.role==="host")||!S) return;
+  clearTimeout(net.tick);
+  net.tick=setTimeout(()=>{ const s=buildGameSnap(); persistSnap(s); netSend({type:"snapshot", snapshot:s}); applyGating(); }, 50);
+}
+function applyGameSnap(snap){
+  S=snap.S;
+  persistSnap(snap); saveNetSession();
+  document.querySelectorAll(".scene").forEach(s=>s.classList.remove("active"));
+  document.getElementById("game").style.display="grid";
+  if(!net.boardBuilt){ buildBoard(); net.boardBuilt=true; }
+  renderAll();
+  document.getElementById("status").innerHTML=snap.statusHTML;
+  document.getElementById("log").innerHTML=snap.logHTML;
+  const db=document.getElementById("diceBox");
+  if(snap.diceShown){ db.style.display="flex"; drawDie(document.getElementById("d1"),snap.dice[0]); drawDie(document.getElementById("d2"),snap.dice[1]); }
+  else db.style.display="none";
+  document.getElementById("actions").innerHTML=snap.actionsHTML;
+  const overlay=document.getElementById("overlay"), controller=iControl();
+  if(snap.overlayShown && snap.netModal && controller){
+    const modal=document.getElementById("modal"); modal.innerHTML=snap.modalHTML;
+    modal.querySelectorAll("[onclick]").forEach(b=>b.removeAttribute("onclick"));
+    overlay.classList.add("show"); net.guestNetModal=true;
+  } else if(snap.netModal){ overlay.classList.remove("show"); net.guestNetModal=false; }
+  else net.guestNetModal=false;
+  applyGating();
+}
+
+/* ---- seat / gating ---- */
+function mySeat(){ return S ? S.players.findIndex(p=>p.clientId===clientId) : -1; }
+function iControl(){ return !!(S && net.online && mySeat()===S.cur && S.players[S.cur] && !S.players[S.cur].ai && S.players[S.cur].alive); }
+function applyGating(){
+  if(!S){ return; }
+  const actions=document.getElementById("actions"), overlay=document.getElementById("overlay");
+  let locked=false, note="";
+  const curP=S.players[S.cur];
+  if(net.online){
+    if(net.role==="host"){
+      if(curP && curP.clientId && curP.clientId!==clientId && !curP.ai){ locked=true; note=tr('gm.net.turnNote',{name:curP.name}); }
+    } else {
+      if(!(mySeat()===S.cur && curP && !curP.ai && curP.alive)){ locked=true; note=tr('gm.net.turnNote',{name:curP?curP.name:"—"}); }
+    }
+  }
+  actions.classList.toggle("net-locked", locked);
+  overlay.classList.toggle("net-locked", locked);
+  let n=document.getElementById("netTurnNote");
+  if(locked && net.online){
+    if(!n){ n=document.createElement("div"); n.id="netTurnNote"; n.className="net-turn-note"; actions.parentNode.insertBefore(n, actions); }
+    n.textContent="🔒 "+note;
+  } else if(n){ n.remove(); }
+}
+
+/* ---- click forwarding (guest) + replay (host) ---- */
+function netReplayClick(scope, idx){
+  const c=document.getElementById(scope==="modal"?"modal":"actions");
+  const b=[...c.querySelectorAll("button")][idx];
+  if(b && !b.disabled) b.click();
+}
+["actions","modal"].forEach(scope=>{
+  document.getElementById(scope).addEventListener("click", e=>{
+    if(net.role!=="guest"||!net.online) return;
+    if(scope==="modal" && !net.guestNetModal) return; // local info modals act locally
+    const btn=e.target.closest("button"); if(!btn||btn.disabled) return;
+    if(!iControl()) return;
+    const idx=[...document.getElementById(scope).querySelectorAll("button")].indexOf(btn);
+    if(idx>=0) netSend({type:"click", scope, idx});
+  }, true);
+});
+
+/* ---- online button wiring ---- */
+document.getElementById("gmCreateBtn").addEventListener("click", createRoom);
+document.getElementById("gmJoinBtn").addEventListener("click", joinRoom);
+document.getElementById("gmLobbyStart").addEventListener("click", startOnlineGame);
+document.getElementById("gmLobbyLeave").addEventListener("click", ()=>{ netLeave(); goScreen("mainMenu"); });
+(function(){ const rb=document.getElementById("gmResumeBtn"); if(rb) rb.addEventListener("click", ()=>{
+  try{ doResume(); }catch(e){ try{clearNetSession();sessionStorage.removeItem("goldmile.active");}catch(_){}
+    goScreen("mainMenu"); } }); })();
+(function(){ const cb=document.getElementById("gmLobbyCopy"); if(cb) cb.addEventListener("click", ()=>{
+  const url=roomUrl(net.room||getUrlRoom());
+  const done=()=>{ cb.textContent=tr('gm.lobby.copied'); setTimeout(()=>{ cb.textContent=tr('gm.lobby.copy'); },1500); };
+  if(navigator.clipboard&&navigator.clipboard.writeText) navigator.clipboard.writeText(url).then(done).catch(()=>{ try{prompt(tr('gm.lobby.copy'),url);}catch(e){} });
+  else { try{prompt(tr('gm.lobby.copy'),url);}catch(e){} }
+}); })();
+
+/* ---- broadcast hooks: wrap render/UI mutators so the host pushes state ---- */
+(function(){
+  const wrap = fn => function(){ const r=fn.apply(this,arguments); hostTick(); return r; };
+  renderPlayers=wrap(renderPlayers); renderTokens=wrap(renderTokens); renderHouses=wrap(renderHouses);
+  status=wrap(status); setActions=wrap(setActions); appendActions=wrap(appendActions);
+  log=wrap(log); showDice=wrap(showDice);
+})();
+
+/* ================= I18N: RE-RENDER BEI SPRACHWECHSEL ================= */
+/* Statische [data-i18n]-Knoten rendert die geteilte Laufzeit selbst (vor dem
+   Event). Hier nur die dynamisch per JS erzeugten Teile neu zeichnen. */
+function rerenderI18n(){
+  try{ document.title = tr('gm.doc.title'); }catch(e){}
+  GMVoice.cancel(); syncVoiceBtn();          // laufende Ansage in alter Sprache abbrechen
+  // Menü-Screens, die per JS gefüllt werden
+  if(document.getElementById('setupScene').classList.contains('active')) initSetup();
+  if(document.getElementById('loadScene').classList.contains('active')) renderLoadScene();
+  if(document.getElementById('mainMenu').classList.contains('active')) updateSaveHint();
+  // Laufendes Spiel: Brett-Beschriftungen + Panels neu aufbauen
+  if(S && document.getElementById('game').style.display!=='none'){
+    if(window.GM3D && GM3D.ready){ try{ GM3D.buildTiles(); GM3D.overview(); }catch(e){} }
+    renderAll();
+    // Statuszeile + Aktionsknöpfe nur in stabilen Zuständen neu aufbauen,
+    // um eine laufende Kauf-/Schulden-/KI-Entscheidung nicht zu zerstören.
+    if(!S.online && !S.busy && !S.pendingDebt && !S.awaitingChoice){
+      const p=cur();
+      if(p && p.alive && !p.ai){
+        if(p.inJail) jailOptionsHuman();
+        else { status(tr('gm.status.yourTurn',{name:p.name})); showHumanPhase(); }
+      }
+    }
+  }
+}
+window.addEventListener('brettspiele-language-change', rerenderI18n);
+
+/* ================= AUTH: NAME NACHTRÄGLICH VORBELEGEN =================
+   /api/me kommt asynchron. Meldet sich der Nutzer an (oder ist die Info erst
+   nach dem Aufbau des Setups da), den ersten Slot mit dem Namen vorbelegen —
+   aber nur, solange dort noch der automatische Figurenname steht (autoName),
+   also der Nutzer nicht selbst schon getippt hat. */
+window.addEventListener('brettspiele-auth-change', ()=>{
+  const s0=setupSlots[0];
+  if(s0 && s0.autoName){ const ln=loggedInName();
+    if(ln){ s0.name=ln; s0.autoName=false;
+      if(document.getElementById('setupScene').classList.contains('active')) buildSlots(); } }
+});
+
+/* ================= BOOT ================= */
+try{ document.title = tr('gm.doc.title'); }catch(e){}
+initSetup();
+syncVoiceBtn();
+// Beim Laden: Raum-Link auswerten bzw. Rückkehr-Eintrag im Menü zeigen.
+// Erst auf 'load' warten: dann sind three.js/GM3D und die i18n-Runtime bereit,
+// sodass ein späteres buildBoard() das 3D-Brett wirklich aufbauen kann.
+window.addEventListener('load', ()=>{ try{ bootEntry(); }
+  catch(e){ goScreen('mainMenu'); } });
+</script>
+
+<!-- ================= ECHTES 3D-BRETT (three.js) =================
+  Ersetzt das CSS-2,5D-Brett durch eine echte three.js-Szene. Die Kamera lässt
+  sich NICHT manuell zoomen/bewegen — sie fährt nur bei Spielaktionen
+  (Würfeln → Impuls, Ziehen → folgt der Figur, Landen → Zoom aufs Zielfeld,
+  Zug-Ende → Übersicht). Angesteuert über window.GM3D aus der Spiel-Logik. -->
+<script>
+"use strict";
+window.GM3D = (function(){
+  const CELL=4, HALF=6;                 // 11×11-Raster, Mitte bei Rasterindex 6
+  let renderer,scene,camera,host,shell,raycaster,pointer,inited=false,started=false;
+  let boardGroup=null, tileGroup=null, pawnGroup=null, houseGroup=null, hi=null;
+  const tiles=[];                        // je Feld: {group,box,boxMat,faceMat,center,side}
+  const pawns={};                        // id -> {mesh,target}
+  const _v=new THREE.Vector3(), _v2=new THREE.Vector3();
+  // Kamera-Tween: gewünschte Pose wird pro Frame angenähert
+  const camNow={pos:new THREE.Vector3(0,54,44), tgt:new THREE.Vector3(0,0,2)};
+  const camWant={pos:new THREE.Vector3(0,54,44), tgt:new THREE.Vector3(0,0,2)};
+  let camK=0.05, shake=0, tPrev=0, camMode='overview';   // camMode: aktive Kameraeinstellung (für resize-Neurahmung)
+  let maxAniso=8;                                       // vom Renderer unterstütztes Anisotropie-Maximum (nach init gesetzt)
+  let smokeGroup=null, puffTex=null; const puffs=[];   // Auspuff-Rauchwolken (Auto)
+  let waveTex=null, waveGeo=null; const waves=[];      // Kielwellen-Ringe (Schiff)
+  let cityGroup=null, beacon=null, airship=null, cityT=0; const cityLights=[];   // lebendige Stadt in der Mitte
+  let _sac=null, _sgain=null;                           // WebAudio-Kontext + Master-Gain für Figuren-Töne
+  const _leanAxis=new THREE.Vector3(), _idQuat=new THREE.Quaternion();  // wiederverwendet für die Lauf-Neigung
+
+  /* ---- Geschwungener Rundkurs statt Viereck ----
+     Geschlossene Kurve in Polarform r(a)=A0·(1+Σ amp·cos(k·a+φ)). Weil r(a)>0
+     ist die Kurve garantiert einfach (keine Selbstüberschneidung) und sternförmig
+     um den Ursprung → „innen“ = Richtung Mittelpunkt. Die 40 Felder werden nach
+     BOGENLÄNGE gleichmäßig verteilt, damit sie überall gleich dicht sitzen. Der
+     Radius (rmax≈20) entspricht dem alten Quadrat-Footprint → Tisch/Kamera bleiben. */
+  const LOOP=(function(){
+    const A0=16.7, MOD=[[0.10,2,0.0],[0.06,3,0.6],[0.05,5,1.2]];
+    const rAt=a=>{ let s=1; for(const m of MOD) s+=m[0]*Math.cos(m[1]*a+m[2]); return A0*s; };
+    const N=1440, px=new Array(N+1), pz=new Array(N+1), cum=new Array(N+1); cum[0]=0;
+    for(let k=0;k<=N;k++){ const a=k/N*Math.PI*2, r=rAt(a); px[k]=r*Math.cos(a); pz[k]=r*Math.sin(a);
+      if(k>0) cum[k]=cum[k-1]+Math.hypot(px[k]-px[k-1],pz[k]-pz[k-1]); }
+    const total=cum[N];
+    const at=s=>{ s=((s%total)+total)%total; let lo=0,hi=N;
+      while(lo<hi){ const mid=(lo+hi)>>1; if(cum[mid]<s) lo=mid+1; else hi=mid; }
+      const i=Math.max(1,lo), f=(s-cum[i-1])/Math.max(1e-6,cum[i]-cum[i-1]);
+      return [px[i-1]+(px[i]-px[i-1])*f, pz[i-1]+(pz[i]-pz[i-1])*f]; };
+    return { total, seg: total/40, point:idx=>at((((idx%40)+40)%40)/40*total) };
+  })();
+  const SEG=LOOP.seg;                    // gleichmäßiger Feldabstand entlang der Kurve
+
+  /* ---- Feldmaße ----
+     Breite (tangential) ist durch den Feldabstand SEG festgelegt — mehr geht
+     nicht, ohne dass Nachbarfelder ineinanderlaufen. Größer werden die Felder
+     deshalb in der TIEFE (radial), wie die Rechtecke auf einem echten Brett.
+     Die Tiefe wächst nach AUSSEN (Versatz TILE_OFF): dort läuft der Rundkurs
+     auseinander, nach innen würden die Feldecken stärker überlappen. */
+  // 1.5 ist bewusst gewählt: die Feldtextur ist dann 512×768 — beides Zweier-
+  // potenzen. Sonst skaliert three die Textur auf WebGL1-Geräten auf 512×512
+  // herunter (NPOT + Mipmaps) und die Beschriftung würde gestaucht.
+  const TILE_DEPTH=1.5;                  // Tiefe = TILE_DEPTH × Breite (Normalfeld)
+  // Texel-Breite der Feld-Textur. Regelt die Schärfe der Beschriftung, wenn die
+  // Kamera nah heranzoomt: höher = schärfer, aber mehr GPU-Speicher (∝ Wert²).
+  // 768 hält die Schrift beim Heranfahren scharf; auf schwachen Handys ggf. auf
+  // 640 oder 512 senken, falls der WebGL-Kontext knapp wird. Zweierpotenz-nah
+  // bleiben ist nicht nötig (Textur wird als NPOT ohne Mipmaps ausgegeben).
+  const TILE_TEX=768;
+  // Eckfelder (START, Gefängnis, Freies Parken, Ab ins Gefängnis) sind die
+  // „Sonderfelder“ und sollen deutlich größer wirken. Tangential (Breite) geht
+  // nur wenig mehr, sonst laufen sie in die Nachbarn; den Zugewinn holen sie
+  // vor allem in der TIEFE (ragen weiter nach außen).
+  const CORNER_W=1.16;                   // Breitenfaktor Eckfeld (× SEG)
+  const CORNER_DEPTH=2.15;               // Tiefe Eckfeld = CORNER_DEPTH × Breite
+  // Höhe der Eckfelder = normale Feldhöhe: ein dickerer Block hätte die Figuren
+  // darauf verdeckt/verschluckt. Die Eckfelder bleiben über ihre größere
+  // GRUNDFLÄCHE (Breite × Tiefe) als Sonderfelder erkennbar.
+  const TILE_H=0.78, TILE_H_CORNER=0.78; // Höhe des Feldkörpers (Eckfelder gleich hoch wie normale Felder)
+  const PAWN_Y=TILE_H-0.07;              // Standhöhe der Figuren auf der Feldoberkante
+  const PAWN_SCALE=1.06;                 // Grund-Skalierung der Figuren (Squash/Stretch multipliziert darauf)
+  /* ---- Animations-Regler ("Juice") — hier justieren, wie lebendig die Figuren wirken ---- */
+  const ANIM={
+    stretch:0.28,   // Streckung beim Aufsteigen / Stauchung beim Absinken im Sprung
+    lean:0.30,      // Neigung in Laufrichtung (rad) bei voller Fahrt
+    land:0.22,      // Stärke der Aufprall-Stauchung bei der Landung
+    landMs:260,     // Abklingzeit der Landungs-Stauchung
+    idleBob:0.045,  // Höhe des Atmens/Wippens im Stand
+    idleScale:0.03, // Größen-Atmen im Stand
+    idleSpeed:1.7   // Tempo des Atmens im Stand
+  };
+  // Standhöhe je Form: der flache, breite Hut würde sonst mit der Krempe im Feld
+  // versinken → etwas anheben. Andere Formen sitzen bündig auf der Feldkante.
+  const pawnLift=shape=> shape==='hat'?0.12:0;
+  // Standhöhe einer Figur AUF einem konkreten Feld — nutzt die reale Feldoberkante
+  // (tiles[pos].top), damit Figuren auf den dickeren Eckfeldern (Los/Gefängnis/…)
+  // nicht einsinken, sondern oben aufliegen.
+  function restY(pos,shape){
+    const t=tiles[(((pos|0)%40)+40)%40];
+    const top=t?t.top:(TILE_H-0.01);
+    return top-0.06+pawnLift(shape);
+  }
+  const TILE_OFF=(SEG*0.99*TILE_DEPTH-SEG*0.99)/2;   // Versatz nach außen (Normalfeld)
+
+  /* ---- Feld-Weltposition aus Brett-Index (Punkt auf dem Rundkurs) ---- */
+  function center(i){ const p=LOOP.point(i); return new THREE.Vector3(p[0],0,p[1]); }
+  /* Fahrtrichtung an einem Feld = Richtung vom Feld zum nächsten (im Kurs-Umlauf). */
+  function tileHeading(pos){ const a=center(((pos%40)+40)%40), b=center((((pos+1)%40)+40)%40);
+    const hx=b.x-a.x, hz=b.z-a.z; if(hx*hx+hz*hz<1e-6) return null; return Math.atan2(-hz,hx); }
+  /* Ausrichtung eines Feldes: Farbband/Text zeigen zum Mittelpunkt (gilt für jede Form). */
+  function sideAngle(i){ const c=center(i); return Math.atan2(c.x,c.z); }
+  function innerDir(c){ _v2.set(-c.x,0,-c.z); if(_v2.lengthSq()<0.001)_v2.set(0,0,-1); return _v2.clone().normalize(); }
+
+  /* ---- Canvas-Textur für ein Feld (Balken/Name/Preis/Icon wie im 2D-Look) ---- */
+  function cssColor(v){ // GROUPS liefert z.B. 'var(--g-braun)'; auf echte Farbe auflösen
+    if(typeof v==='string' && v.indexOf('var(')===0){
+      const name=v.slice(4,-1).trim();
+      const c=getComputedStyle(document.documentElement).getPropertyValue(name).trim();
+      return c||'#caa050';
+    }
+    return v||'#caa050';
+  }
+  function _rgb(str){ str=(str||'').trim();
+    if(str[0]==='#'){ const h=str.slice(1); const n=h.length===3?h.split('').map(c=>c+c).join(''):h; const v=parseInt(n,16); return {r:(v>>16)&255,g:(v>>8)&255,b:v&255}; }
+    const m=str.match(/(\d+)[,\s]+(\d+)[,\s]+(\d+)/); return m?{r:+m[1],g:+m[2],b:+m[3]}:{r:200,g:160,b:80}; }
+  function _lighten(str,f){ const c=_rgb(str), L=v=>Math.round(v+(255-v)*f); return `rgb(${L(c.r)},${L(c.g)},${L(c.b)})`; }
+  function _darken(str,f){ const c=_rgb(str), D=v=>Math.round(v*(1-f)); return `rgb(${D(c.r)},${D(c.g)},${D(c.b)})`; }
+  function _hexNum(str){ const c=_rgb(str); return (c.r<<16)|(c.g<<8)|c.b; }
+  function tileTexture(t,dratio){
+    // Hochformat wie das Feld selbst (P breit × PH tief, gleiche Texel-Dichte in
+    // beide Richtungen) + Text mit hellem Schein → die Beschriftung bleibt auch
+    // im flachen Kamerawinkel gut lesbar. dratio = Tiefe/Breite des Feldes
+    // (Eckfelder tiefer → hochformatigere Textur).
+    dratio=dratio||TILE_DEPTH;
+    // P/PH bleiben die Design-Koordinaten (512-Raster), auf die alle Schrift- und
+    // Liniengrößen unten abgestimmt sind. Für die Schärfe beim Heranzoomen wird
+    // die Canvas-Auflösung per Supersampling (SS) hochgezogen und der Kontext
+    // entsprechend skaliert — der Zeichencode darunter bleibt unverändert.
+    const P=512, PH=Math.round(P*dratio), SS=TILE_TEX/P, cv=document.createElement('canvas');
+    cv.width=Math.round(P*SS); cv.height=Math.round(PH*SS);
+    const x=cv.getContext('2d'); x.scale(SS,SS);
+    const grd=x.createLinearGradient(0,0,0,PH); grd.addColorStop(0,'#f4e0a2'); grd.addColorStop(0.5,'#e2c37f'); grd.addColorStop(1,'#c0964f');
+    x.fillStyle=grd; x.fillRect(0,0,P,PH);
+    // Tiefen-Vignette: nimmt dem Pergament die Blässe, gibt jedem Feld Volumen
+    const vg=x.createRadialGradient(P/2,PH*0.58,P*0.20,P/2,PH*0.58,PH*0.72);
+    vg.addColorStop(0,'rgba(0,0,0,0)'); vg.addColorStop(1,'rgba(56,36,6,.22)');
+    x.fillStyle=vg; x.fillRect(0,0,P,PH);
+    x.strokeStyle='rgba(48,30,4,.78)'; x.lineWidth=12; x.strokeRect(6,6,P-12,PH-12);
+    x.textAlign='center'; x.lineJoin='round';
+    const isStreet=t.type==='street';
+    // Farbband an der Innenkante: Anteil an der TIEFE, damit es beim tieferen
+    // Feld nicht mitwächst (der Bordstein deckt die innere Hälfte davon ab).
+    const bandH=Math.round(PH*0.22);
+    if(isStreet){
+      const gc=cssColor(GROUPS[t.group].c);
+      // Glanzkante nur im obersten Fünftel — darunter steht die volle Farbe,
+      // sonst wäscht der Verlauf über das ganze Band die Sättigung wieder aus.
+      const bg=x.createLinearGradient(0,0,0,bandH);
+      bg.addColorStop(0,_lighten(gc,0.22)); bg.addColorStop(0.20,gc);
+      bg.addColorStop(0.86,gc); bg.addColorStop(1,_darken(gc,0.18));
+      x.fillStyle=bg; x.fillRect(0,0,P,bandH);
+      x.strokeStyle='rgba(0,0,0,.5)'; x.lineWidth=8; x.strokeRect(4,4,P-8,bandH-4);
+    }
+    // Der gewonnene Platz geht an Symbol und Name — beide dürfen größer werden.
+    // Der Name sitzt bewusst hinter der Feldmitte: die Figuren stehen auf dem
+    // Kurspunkt, also bei knapp einem Drittel der Feldtiefe.
+    let y=isStreet?bandH+(PH-bandH)*0.46:PH*0.30;
+    if(!isStreet && t.ico){ x.font='150px "Segoe UI Emoji",serif'; x.fillText(t.ico, P/2, PH*0.40); y=PH*0.66; }
+    // Name: kräftiges Schwarz, mit hellem Schein umrandet → Kontrast auf jedem Grund
+    const nm=((typeof tileName==='function'?tileName(t):t.name)||'').toUpperCase(), maxw=P-44; let fs=68;
+    x.font='800 '+fs+'px Cinzel, Georgia, serif';
+    const longest=nm.split(' ').reduce((a,w)=>Math.max(a,x.measureText(w).width),0);
+    if(longest>maxw){ fs=Math.max(34,Math.floor(fs*maxw/longest)); x.font='800 '+fs+'px Cinzel, Georgia, serif'; }
+    x.strokeStyle='rgba(248,234,186,.9)'; x.lineWidth=8; x.fillStyle='#180f04';
+    wrap(x, nm, P/2, y, maxw, fs+8);
+    if(t.price!=null){ x.font='700 56px Georgia,serif'; x.strokeStyle='rgba(248,234,186,.85)'; x.lineWidth=7; x.fillStyle='#231907';
+      x.strokeText(t.price+' G', P/2, PH-56); x.fillText(t.price+' G', P/2, PH-56); }
+    // WICHTIG: Canvas-Daten sind sRGB. Ohne diese Kennzeichnung nimmt three sie
+    // als linear an und gamma-kodiert sie beim Ausgeben ein zweites Mal — genau
+    // das macht Pergament und Farbbänder blass und kontraktarm.
+    const tex=new THREE.CanvasTexture(cv); tex.anisotropy=maxAniso; tex.magFilter=THREE.LinearFilter; tex.encoding=THREE.sRGBEncoding;
+    // Eckfeld-Textur (dratio≠1.5) ist nicht mehr Zweierpotenz hoch → auf WebGL1
+    // ohne Mipmaps/Clamp ausgeben, sonst wird sie schwarz oder heruntergestaucht.
+    if(Math.abs(dratio-TILE_DEPTH)>1e-6){ tex.generateMipmaps=false; tex.minFilter=THREE.LinearFilter; tex.wrapS=tex.wrapT=THREE.ClampToEdgeWrapping; }
+    return tex;
+  }
+  function wrap(x,text,cx,cy,maxw,lh){
+    const words=text.split(' '); let line='', lines=[];
+    words.forEach(w=>{ const test=line?line+' '+w:w; if(x.measureText(test).width>maxw && line){lines.push(line);line=w;} else line=test; });
+    if(line)lines.push(line); const start=cy-(lines.length-1)*lh/2;
+    // erst heller Schein (Umriss), dann Füllung → Text hebt sich klar vom Grund ab
+    lines.forEach((l,i)=>{ const yy=start+i*lh; if(x.lineWidth>0)x.strokeText(l,cx,yy); x.fillText(l,cx,yy); });
+  }
+
+  /* ---- 3D-Spielfiguren je Token-Form (metallisch, in Spielerfarbe) ---- */
+  function tokenMesh(shape,hex){
+    const g=new THREE.Group();
+    // Klarlack-Metall in Spielerfarbe: envMap (scene.environment) sorgt für Glanz,
+    // clearcoat für die lackierte Oberfläche → die Form wird durch Reflexe lesbar.
+    const mat=new THREE.MeshPhysicalMaterial({color:new THREE.Color(hex),metalness:.82,roughness:.24,clearcoat:.7,clearcoatRoughness:.2,envMapIntensity:1.15});
+    const dark=new THREE.MeshPhysicalMaterial({color:new THREE.Color(hex).multiplyScalar(.5),metalness:.9,roughness:.34,clearcoat:.45,envMapIntensity:1.0});
+    const trim=new THREE.MeshStandardMaterial({color:0xf3e3ab,metalness:1,roughness:.22,envMapIntensity:1.25});   // Gold-Zierteile
+    const glass=new THREE.MeshPhysicalMaterial({color:0x0e141b,metalness:.2,roughness:.06,clearcoat:1,clearcoatRoughness:.05,envMapIntensity:1.4}); // getöntes Glas
+    const add=(geo,m,px,py,pz,rx,ry,rz)=>{const me=new THREE.Mesh(geo,m||mat);me.position.set(px||0,py||0,pz||0);if(rx)me.rotation.x=rx;if(ry)me.rotation.y=ry;if(rz)me.rotation.z=rz;me.castShadow=true;g.add(me);return me;};
+    if(shape==='hat'){
+      add(new THREE.CylinderGeometry(1.12,1.12,.14,40),dark,0,.07,0);          // Krempe
+      add(new THREE.CylinderGeometry(.62,.66,1.42,40),mat,0,.86,0);            // Zylinder
+      add(new THREE.TorusGeometry(.645,.075,14,40),trim,0,.44,0,Math.PI/2);    // Zierband (gold)
+      add(new THREE.CylinderGeometry(.63,.63,.05,40),dark,0,1.585,0);          // Deckel
+    }else if(shape==='car'){
+      add(new THREE.BoxGeometry(2.06,.2,1.02),dark,0,.24,0);                   // Fahrgestell
+      add(new THREE.BoxGeometry(1.94,.46,.96),mat,0,.55,0);                    // Karosserie
+      add(new THREE.BoxGeometry(1.02,.5,.82),mat,-.12,.98,0);                  // Kabine
+      add(new THREE.BoxGeometry(.94,.28,.86),glass,-.12,1.02,0);              // Fensterband
+      add(new THREE.BoxGeometry(.1,.24,.9),trim,1.0,.46,0);                    // Kühlergrill vorn
+      add(new THREE.SphereGeometry(.1,16,12),trim,.99,.62,.33);               // Scheinwerfer
+      add(new THREE.SphereGeometry(.1,16,12),trim,.99,.62,-.33);
+      [[-.62,.53],[.62,.53],[-.62,-.53],[.62,-.53]].forEach(w=>{
+        add(new THREE.CylinderGeometry(.32,.32,.2,24),dark,w[0],.3,w[1],Math.PI/2);   // Reifen
+        add(new THREE.CylinderGeometry(.14,.14,.22,18),trim,w[0],.3,w[1],Math.PI/2);  // Nabe (gold)
+      });
+    }else if(shape==='ship'){
+      add(new THREE.BoxGeometry(2.02,.46,.9),mat,0,.5,0);                      // Rumpf
+      add(new THREE.BoxGeometry(.64,.46,.64),mat,1.15,.5,0,0,Math.PI/4,0);     // Bug (spitzer Vordersteven, +x = vorn)
+      add(new THREE.BoxGeometry(2.04,.09,.92),trim,0,.31,0);                   // Wasserlinie (gold)
+      add(new THREE.BoxGeometry(.64,.09,.64),trim,1.15,.31,0,0,Math.PI/4,0);   // Wasserlinie am Bug (gold)
+      add(new THREE.BoxGeometry(.92,.4,.62),mat,-.2,.9,0);                     // Deckaufbau
+      add(new THREE.BoxGeometry(.7,.2,.5),glass,-.2,.96,0);                    // Fenster
+      [.18,-.18].forEach(z=>{
+        add(new THREE.CylinderGeometry(.16,.18,.78,20),dark,.24,1.33,z);       // Schornstein
+        add(new THREE.TorusGeometry(.17,.04,10,20),trim,.24,1.6,z,Math.PI/2);  // Band (gold)
+      });
+    }else if(shape==='boot'){
+      add(new THREE.BoxGeometry(.72,1.5,.9),mat,-.35,.95,0);                   // Schaft
+      add(new THREE.BoxGeometry(1.4,.6,.86),mat,.25,.4,0);                     // Fuß
+      add(new THREE.BoxGeometry(1.62,.2,.94),dark,.2,.1,0);                    // Sohle
+      add(new THREE.BoxGeometry(.5,.22,.94),dark,-.55,.1,0);                   // Absatz
+      add(new THREE.BoxGeometry(.82,.24,.96),trim,-.35,1.62,0);               // Schaftrand (gold)
+    }else if(shape==='thimble'){
+      add(new THREE.CylinderGeometry(.74,.94,1.5,32),mat,0,.82,0);            // Becher
+      const dome=add(new THREE.SphereGeometry(.74,28,20),mat,0,1.55,0); dome.scale.set(1,.7,1);  // Kuppe
+      add(new THREE.TorusGeometry(.9,.08,12,32),trim,0,.16,0,Math.PI/2);      // Randband (gold)
+      // ein paar Prägenäpfchen auf der Kuppe (dunkel)
+      [[.35,1.6,.2],[-.35,1.62,.15],[0,1.72,-.3],[.15,1.55,-.42]].forEach(d=>add(new THREE.SphereGeometry(.1,10,8),dark,d[0],d[1],d[2]));
+    }else if(shape==='lantern'){
+      add(new THREE.BoxGeometry(1.16,.28,1.16),dark,0,.36,0);                  // Sockel
+      add(new THREE.BoxGeometry(1.0,1.25,1.0),glass,0,1.05,0);                 // Glaskorpus
+      [[.5,.5],[-.5,.5],[.5,-.5],[-.5,-.5]].forEach(c=>add(new THREE.BoxGeometry(.12,1.32,.12),trim,c[0],1.05,c[1]));  // Kanten (gold)
+      add(new THREE.ConeGeometry(.9,.55,4),dark,0,1.98,0,0,Math.PI/4);        // Dach
+      add(new THREE.TorusGeometry(.2,.05,10,20),trim,0,2.42,0,Math.PI/2);     // Henkel (gold)
+    }else if(shape==='bell'){
+      add(new THREE.CylinderGeometry(.5,1.0,1.35,36),mat,0,.85,0);            // Glockenkörper
+      const cap=add(new THREE.SphereGeometry(.5,28,18),mat,0,1.5,0); cap.scale.set(1,.8,1);  // Haube
+      add(new THREE.TorusGeometry(.22,.07,12,24),trim,0,1.95,0,Math.PI/2);    // Öse (gold)
+      add(new THREE.TorusGeometry(1.0,.09,12,36),trim,0,.2,0,Math.PI/2);      // Randring (gold)
+      add(new THREE.SphereGeometry(.17,14,12),dark,0,.28,0);                  // Klöppel
+    }else{ // bag (Geldsack)
+      const s=add(new THREE.SphereGeometry(.86,28,22),mat,0,.8,0); s.scale.set(1,1.08,1);
+      add(new THREE.CylinderGeometry(.4,.62,.5,24),mat,0,1.5,0);               // Hals
+      add(new THREE.TorusGeometry(.4,.09,12,24),trim,0,1.55,0,Math.PI/2);      // goldene Schnur
+      add(new THREE.SphereGeometry(.12,14,12),trim,0,1.82,0);                  // Knoten
+    }
+    g.scale.setScalar(PAWN_SCALE);
+    g.traverse(o=>{o.castShadow=true;});
+    return g;
+  }
+
+  /* ---- Weiche runde Rauchtextur (einmal erzeugt, geteilt) ---- */
+  function _puffTexture(){
+    const P=64, cv=document.createElement('canvas'); cv.width=cv.height=P;
+    const x=cv.getContext('2d');
+    const g=x.createRadialGradient(P/2,P/2,0,P/2,P/2,P/2);
+    g.addColorStop(0,'rgba(255,255,255,0.9)');
+    g.addColorStop(0.5,'rgba(210,210,210,0.5)');
+    g.addColorStop(1,'rgba(200,200,200,0)');
+    x.fillStyle=g; x.fillRect(0,0,P,P);
+    return new THREE.CanvasTexture(cv);
+  }
+  /* ---- Eine Rauchwolke am Heck des Autos ausstoßen ---- */
+  function emitPuff(mesh,heading){
+    if(!smokeGroup||!puffTex||puffs.length>60) return;
+    const h=(heading==null?0:heading);
+    const fx=Math.cos(h), fz=-Math.sin(h);                 // Fahrtrichtung (Welt)
+    const rx=mesh.position.x-fx*1.1, rz=mesh.position.z-fz*1.1;   // Heck
+    const mat=new THREE.SpriteMaterial({map:puffTex,color:0x8f8f8a,transparent:true,opacity:0.5,depthWrite:false});
+    const s=new THREE.Sprite(mat); s.position.set(rx,PAWN_Y,rz);
+    const s0=0.5; s.scale.set(s0,s0,1); smokeGroup.add(s);
+    puffs.push({s,life:0,ttl:0.7+Math.random()*0.3,
+      vx:(Math.random()-0.5)*0.4-fx*0.3, vy:1.4+Math.random()*0.6, vz:(Math.random()-0.5)*0.4-fz*0.3,
+      s0:s0, s1:2.0+Math.random()});
+  }
+
+  /* ---- Ringförmige Wellen-Textur (einmal erzeugt, geteilt) ----
+     Durchsichtige Mitte, heller Ring, weich auslaufender Rand → sieht als flach
+     auf dem Wasser liegender Ring aus, der sich ausbreitet. */
+  function _waveTexture(){
+    const P=64, cv=document.createElement('canvas'); cv.width=cv.height=P;
+    const x=cv.getContext('2d');
+    const g=x.createRadialGradient(P/2,P/2,0,P/2,P/2,P/2);
+    g.addColorStop(0.00,'rgba(255,255,255,0)');
+    g.addColorStop(0.55,'rgba(210,235,255,0)');
+    g.addColorStop(0.74,'rgba(224,244,255,0.85)');   // heller Ringkamm
+    g.addColorStop(0.86,'rgba(150,200,240,0.35)');
+    g.addColorStop(1.00,'rgba(150,200,240,0)');
+    x.fillStyle=g; x.fillRect(0,0,P,P);
+    return new THREE.CanvasTexture(cv);
+  }
+  /* ---- Eine Kielwelle ums Schiff ausstoßen (flacher Ring auf der Feldoberfläche) ---- */
+  function emitWave(mesh){
+    if(!smokeGroup||!waveTex||waves.length>36) return;
+    const m=new THREE.Mesh(waveGeo,new THREE.MeshBasicMaterial({map:waveTex,transparent:true,opacity:0.6,depthWrite:false}));
+    m.rotation.x=-Math.PI/2; m.position.set(mesh.position.x,TILE_H+0.02,mesh.position.z);   // knapp über der Feldkante
+    const s0=1.1; m.scale.set(s0,s0,1); smokeGroup.add(m);
+    waves.push({m,life:0,ttl:1.1+Math.random()*0.4,s0,s1:3.4+Math.random()*0.9});
+  }
+
+  /* ---- Figuren-Töne (WebAudio) — respektiert den globalen Stummschalter ---- */
+  function _audio(){
+    if(window.BrettSounds && BrettSounds.isMuted && BrettSounds.isMuted()) return null;
+    try{ if(!_sac){ _sac=new (window.AudioContext||window.webkitAudioContext)();
+        _sgain=_sac.createGain(); _sgain.connect(_sac.destination); }
+      if(_sac.state==='suspended') _sac.resume(); return _sac; }catch(e){ return null; }
+  }
+  function _sfxVol(){ try{ return (window.BrettSounds&&BrettSounds.getSfxVolume)?BrettSounds.getSfxVolume()/100:1; }catch(e){ return 1; } }
+  function _tone(c,dest,type,f0,f1,t0,dur,peak){
+    const o=c.createOscillator(); o.type=type; o.frequency.setValueAtTime(f0,t0);
+    if(f1!=null) o.frequency.linearRampToValueAtTime(f1,t0+dur);
+    const g=c.createGain(); g.gain.setValueAtTime(0.0001,t0);
+    g.gain.exponentialRampToValueAtTime(peak,t0+0.02);
+    g.gain.exponentialRampToValueAtTime(0.0001,t0+dur);
+    o.connect(g); g.connect(dest); o.start(t0); o.stop(t0+dur+0.02);
+  }
+  function tokenSound(shape){
+    const c=_audio(); if(!c) return;
+    const dest=_sgain; dest.gain.value=_sfxVol()*0.5;   // geteilter Master-Gain (kein Node-Leak pro Zug)
+    const t=c.currentTime;
+    if(shape==='car'){            // Hupe: zwei kurze Töne
+      _tone(c,dest,'square',440,440,t,0.14,0.35);
+      _tone(c,dest,'square',400,400,t+0.18,0.18,0.35);
+    }else if(shape==='ship'){     // Schiffshorn: tief & lang
+      _tone(c,dest,'sine',150,140,t,0.55,0.5);
+      _tone(c,dest,'sine',75,72,t,0.55,0.3);
+    }else if(shape==='hat'){      // dezenter Aufstiegston
+      _tone(c,dest,'triangle',300,520,t,0.22,0.3);
+    }else if(shape==='bell'){     // Glocke: heller Doppelklang
+      _tone(c,dest,'sine',880,860,t,0.5,0.4);
+      _tone(c,dest,'sine',1320,1300,t,0.45,0.2);
+    }else if(shape==='boot'){     // Stiefel: zwei dumpfe Schritte
+      _tone(c,dest,'sine',120,90,t,0.14,0.4);
+      _tone(c,dest,'sine',120,90,t+0.2,0.14,0.4);
+    }else if(shape==='thimble'){  // Fingerhut: feines Metall-Ping
+      _tone(c,dest,'triangle',1500,1750,t,0.12,0.3);
+    }else if(shape==='lantern'){  // Laterne: warmes Glimmen
+      _tone(c,dest,'sine',520,660,t,0.3,0.3);
+    }else{                        // Geldsack: Münzgeklimper
+      [0,0.07,0.14].forEach((dt,i)=>_tone(c,dest,'triangle',900+i*260,1400+i*260,t+dt,0.10,0.25));
+    }
+  }
+
+  /* ================= AUFBAU ================= */
+  function init(){
+    host=document.getElementById('board'); if(!host) return;
+    shell=host.closest('.board-shell'); if(shell)shell.classList.add('gm3d');
+    host.classList.add('gm3d');
+    if(inited){ return; }
+    const w=host.clientWidth||600, h=host.clientHeight||w;
+    renderer=new THREE.WebGLRenderer({antialias:true,alpha:false});
+    try{ maxAniso=renderer.capabilities.getMaxAnisotropy()||8; }catch(e){}
+    renderer.setPixelRatio(Math.min(devicePixelRatio||1,2));
+    renderer.setSize(w,h,false);
+    renderer.shadowMap.enabled=true; renderer.shadowMap.type=THREE.PCFSoftShadowMap;
+    renderer.outputEncoding=THREE.sRGBEncoding;
+    // ACES-Filmic zog helle, gesättigte Töne (Farbbänder!) Richtung Weiß. Linear
+    // hält die Sättigung; die Belichtung bleibt knapp unter 1, damit das helle
+    // Pergament unter dem Key-Licht nicht ausbrennt.
+    renderer.toneMapping=THREE.LinearToneMapping; renderer.toneMappingExposure=0.88;
+    host.appendChild(renderer.domElement);
+
+    scene=new THREE.Scene();
+    scene.background=new THREE.Color(0x0d241b);
+    // Nebel nur für den fernen Tisch/Hintergrund — die Distanzen werden in
+    // overview() an die Kamera-Entfernung gekoppelt, damit das Spielfeld selbst
+    // (auch beim Herauszoomen) nie eingenebelt/abgedunkelt wird.
+    scene.fog=new THREE.Fog(0x0d241b,140,340);
+    camera=new THREE.PerspectiveCamera(42,w/h,0.1,400);
+    camNow.pos.copy(camWant.pos); camNow.tgt.copy(camWant.tgt);
+
+    // Licht (dramatisch) — Füll-Licht bewusst knapp gehalten: weißes Ambient
+    // wäscht Sättigung aus. Key-Licht so bemessen, dass das helle Pergament
+    // unter linearem Tonemapping nicht ausbrennt.
+    scene.add(new THREE.AmbientLight(0xffffff,.15));
+    scene.add(new THREE.HemisphereLight(0xcaf0dc,0x1e332a,.24));
+    const key=new THREE.DirectionalLight(0xfff2d6,1.45);
+    key.position.set(-34,52,30); key.castShadow=true;
+    key.shadow.mapSize.set(2048,2048); key.shadow.camera.near=10; key.shadow.camera.far=160;
+    const sc=key.shadow.camera; sc.left=-40; sc.right=40; sc.top=40; sc.bottom=-40;
+    scene.add(key);
+    const rim=new THREE.DirectionalLight(0x86d6ff,.5); rim.position.set(30,26,-34); scene.add(rim);
+    const warm=new THREE.PointLight(0xffcf8a,.45,120); warm.position.set(0,30,26); scene.add(warm);
+
+    // Weiche Studio-Umgebung (IBL): gibt Metall/Messing echte Reflexe und nimmt
+    // der Szene die Blässe. Aus einem kleinen Verlaufs-Canvas via PMREM erzeugt.
+    try{
+      const ec=document.createElement('canvas'); ec.width=128; ec.height=64; const ex=ec.getContext('2d');
+      const eg=ex.createLinearGradient(0,0,0,64);
+      eg.addColorStop(0.00,'#fff7e6'); eg.addColorStop(0.46,'#e9dab7');   // warmes Oberlicht
+      eg.addColorStop(0.54,'#5d806b'); eg.addColorStop(1.00,'#173a2b');   // Horizont → Tischgrün
+      ex.fillStyle=eg; ex.fillRect(0,0,128,64);
+      ex.globalAlpha=.5;
+      [['#fff3d0',30],['#c6e6d2',96]].forEach(s=>{ ex.fillStyle=s[0]; ex.beginPath(); ex.ellipse(s[1],17,22,10,0,0,Math.PI*2); ex.fill(); });
+      ex.globalAlpha=1;
+      const etex=new THREE.CanvasTexture(ec); etex.mapping=THREE.EquirectangularReflectionMapping; etex.encoding=THREE.sRGBEncoding;
+      const pm=new THREE.PMREMGenerator(renderer); pm.compileEquirectangularShader&&pm.compileEquirectangularShader();
+      scene.environment=pm.fromEquirectangular(etex).texture;
+      etex.dispose(); pm.dispose();
+    }catch(e){ /* ohne IBL fällt es sauber auf die reine Lichtberechnung zurück */ }
+
+    boardGroup=new THREE.Group(); scene.add(boardGroup);
+    // „Tisch“ (Holzsockel, grüner Filz, Messingrahmen, Mittelplakette) entfernt:
+    // das Brett schwebt jetzt über einer dunklen Auffangfläche, damit Pergament
+    // und Farbbänder kräftig statt blass wirken. Die Fläche fängt nur die Schatten.
+    const span=CELL*11;
+    const ground=new THREE.Mesh(new THREE.CircleGeometry(span*1.12,72),
+      new THREE.MeshStandardMaterial({color:0x0b1611,metalness:.05,roughness:1}));
+    ground.rotation.x=-Math.PI/2; ground.position.y=-0.9; ground.receiveShadow=true; boardGroup.add(ground);
+    try{ buildCity(); }catch(e){ console.warn('[gold-mile] Stadt-Mittelpunkt übersprungen:', e); }
+
+    tileGroup=new THREE.Group(); boardGroup.add(tileGroup);
+    pawnGroup=new THREE.Group(); boardGroup.add(pawnGroup);
+    houseGroup=new THREE.Group(); boardGroup.add(houseGroup);
+    smokeGroup=new THREE.Group(); boardGroup.add(smokeGroup); puffTex=_puffTexture();
+    waveTex=_waveTexture(); waveGeo=new THREE.PlaneGeometry(1,1);
+    // Highlight-Overlay (Grundriss des Feldes: breit × tief)
+    hi=new THREE.Mesh(new THREE.PlaneGeometry(SEG*1.10,SEG*1.10*TILE_DEPTH),
+      new THREE.MeshBasicMaterial({color:0xffdd77,transparent:true,opacity:0,depthWrite:false}));
+    hi.rotation.x=-Math.PI/2; hi.position.y=0.06; hi.renderOrder=5; boardGroup.add(hi);
+    hi.userData.pos=null;
+
+    raycaster=new THREE.Raycaster(); pointer=new THREE.Vector2();
+    renderer.domElement.addEventListener('pointerdown', onPick);
+    if(window.ResizeObserver){ new ResizeObserver(resize).observe(host); }
+    window.addEventListener('resize', resize);
+    tPrev=performance.now();
+    if(!started){ started=true; requestAnimationFrame(loop); }
+    inited=true;   // erst bei erfolgreichem Aufbau — bei WebGL-Fehler bleibt false
+  }
+
+  /* ---- Fenster-Textur (emissive): zufällig beleuchtete Fenster für die Skyline ---- */
+  function buildWindowTex(cols,rows){
+    const c=document.createElement('canvas'); c.width=48; c.height=96; const x=c.getContext('2d');
+    x.fillStyle='#0c111a'; x.fillRect(0,0,48,96);
+    const mw=48/cols, mh=96/rows;
+    for(let r=0;r<rows;r++) for(let k=0;k<cols;k++){
+      const on=Math.random()<0.66;
+      x.fillStyle = on ? (Math.random()<0.5?'#ffd98a':'#fff3cf') : '#141b28';
+      x.fillRect(k*mw+mw*0.24, r*mh+mh*0.22, mw*0.52, mh*0.5);
+    }
+    const t=new THREE.CanvasTexture(c); t.anisotropy=4; t.encoding=THREE.sRGBEncoding; return t;
+  }
+
+  /* ---- Lebendige Stadt in der Brettmitte (Monopoly-Plus-Anmutung) ----
+     Skyline mit glimmenden Fenstern, Wahrzeichen-Turm mit rotierendem
+     Leuchtfeuer, Park (Teich/Bäume/Laternen) und ein kreisendes Luftschiff.
+     Alles bleibt innerhalb des inneren Kurs-Rings (Radius < ~13). Einmalig in
+     init() gebaut (persistiert über buildTiles hinweg). Animation: siehe loop(). */
+  function buildCity(){
+    cityGroup=new THREE.Group(); boardGroup.add(cityGroup);
+    const palette=[0x6f8aa4,0xb98846,0x9c5647,0x5c7086,0xbca66f,0x53705f,0xa5915f,0x607f99];
+    function building(px,pz,w,d,h,rot){
+      const winTex=buildWindowTex(Math.max(2,Math.round(w*2)),Math.max(3,Math.round(h*1.5)));
+      const col=palette[(Math.random()*palette.length)|0];
+      const mat=new THREE.MeshStandardMaterial({color:col,metalness:.18,roughness:.55,
+        emissive:0xffe0a8, emissiveMap:winTex, emissiveIntensity:0.0, envMapIntensity:.8});
+      const m=new THREE.Mesh(new THREE.BoxGeometry(w,h,d),mat);
+      m.position.set(px,h/2,pz); m.rotation.y=rot||0; m.castShadow=true; m.receiveShadow=true; cityGroup.add(m);
+      const roof=new THREE.Mesh(new THREE.BoxGeometry(w*0.66,0.3,d*0.66),
+        new THREE.MeshStandardMaterial({color:0x2c313a,metalness:.35,roughness:.55}));
+      roof.position.set(px,h+0.15,pz); roof.rotation.y=rot||0; cityGroup.add(roof);
+      // Etwas gedämpfter als früher: ohne ACES-Roll-off würden die Fenster hart
+      // auf Weiß clippen und ihren warmen Ton verlieren.
+      cityLights.push({mat, phase:Math.random()*6.283, amp:0.28+Math.random()*0.34, base:0.68+Math.random()*0.40});
+    }
+    for(let k=0;k<11;k++){ const a=k/11*Math.PI*2+0.25, r=6.4+Math.random()*2.6;
+      building(Math.cos(a)*r,Math.sin(a)*r, 1.4+Math.random()*1.5, 1.4+Math.random()*1.5, 2.2+Math.random()*4.4, -a); }
+    for(let k=0;k<5;k++){ const a=k/5*Math.PI*2+0.6, r=3.3;
+      building(Math.cos(a)*r,Math.sin(a)*r, 1.1+Math.random()*0.8, 1.1+Math.random()*0.8, 1.6+Math.random()*2.2, -a); }
+    // Wahrzeichen-Turm + rotierendes Leuchtfeuer
+    const tMat=new THREE.MeshStandardMaterial({color:0xd9c48c,metalness:.5,roughness:.32,envMapIntensity:1.1});
+    const tower=new THREE.Mesh(new THREE.CylinderGeometry(0.75,1.15,8.4,6),tMat);
+    tower.position.y=4.2; tower.castShadow=true; cityGroup.add(tower);
+    const spire=new THREE.Mesh(new THREE.ConeGeometry(0.75,2.2,6),tMat);
+    spire.position.y=9.5; spire.castShadow=true; cityGroup.add(spire);
+    beacon=new THREE.Group(); beacon.position.y=10.7; cityGroup.add(beacon);
+    const blMat=new THREE.MeshStandardMaterial({color:0xffe08a,emissive:0xffcf5a,emissiveIntensity:1.15,metalness:.2,roughness:.4});
+    [0.95,-0.95].forEach(dx=>{ const bl=new THREE.Mesh(new THREE.SphereGeometry(0.26,14,10),blMat); bl.position.set(dx,0,0); beacon.add(bl); });
+    // Park: Teich, Bäume, Laternen
+    const pond=new THREE.Mesh(new THREE.CylinderGeometry(2.1,2.1,0.08,40),
+      new THREE.MeshStandardMaterial({color:0x2f6f92,metalness:.65,roughness:.12,envMapIntensity:1.3}));
+    pond.position.set(0,0.06,4.8); cityGroup.add(pond);
+    function tree(px,pz,s){
+      const trunk=new THREE.Mesh(new THREE.CylinderGeometry(0.11,0.15,0.7,8),
+        new THREE.MeshStandardMaterial({color:0x5b3a1e,roughness:.9}));
+      trunk.position.set(px,0.35,pz); trunk.castShadow=true; cityGroup.add(trunk);
+      const leaf=new THREE.Mesh(new THREE.ConeGeometry(0.62*s,1.5*s,10),
+        new THREE.MeshStandardMaterial({color:0x2f8a4c,roughness:.8}));
+      leaf.position.set(px,0.7+0.75*s,pz); leaf.castShadow=true; cityGroup.add(leaf);
+    }
+    for(let k=0;k<9;k++){ const a=k/9*Math.PI*2+0.15, r=10.4; tree(Math.cos(a)*r,Math.sin(a)*r,0.8+Math.random()*0.5); }
+    const lampMat=new THREE.MeshStandardMaterial({color:0xffe6a0,emissive:0xffcf6a,emissiveIntensity:1.0});
+    const postMat=new THREE.MeshStandardMaterial({color:0x26262a,metalness:.4,roughness:.6});
+    for(let k=0;k<12;k++){ const a=k/12*Math.PI*2, r=11.7, cx=Math.cos(a)*r, cz=Math.sin(a)*r;
+      const post=new THREE.Mesh(new THREE.CylinderGeometry(0.04,0.05,0.9,6),postMat); post.position.set(cx,0.45,cz); cityGroup.add(post);
+      const lamp=new THREE.Mesh(new THREE.SphereGeometry(0.12,10,8),lampMat); lamp.position.set(cx,0.95,cz); cityGroup.add(lamp); }
+    // Luftschiff, das über das Brett kreist
+    airship=new THREE.Group();
+    const body=new THREE.Mesh(new THREE.SphereGeometry(1.4,20,14),
+      new THREE.MeshStandardMaterial({color:0xb6382f,metalness:.25,roughness:.5,envMapIntensity:1.0}));
+    body.scale.set(2.3,1,1); body.castShadow=true; airship.add(body);
+    const fin=new THREE.Mesh(new THREE.BoxGeometry(0.8,1.0,0.08),
+      new THREE.MeshStandardMaterial({color:0xf0e2b0,metalness:.2,roughness:.6}));
+    fin.position.set(-3.0,0,0); airship.add(fin);
+    const gond=new THREE.Mesh(new THREE.BoxGeometry(1.3,0.5,0.5),
+      new THREE.MeshStandardMaterial({color:0x362c22,metalness:.3,roughness:.6}));
+    gond.position.set(0,-1.25,0); airship.add(gond);
+    airship.position.set(15,15.5,0); cityGroup.add(airship);
+  }
+
+  function buildTiles(){
+    if(!inited) init();
+    while(tileGroup.children.length) tileGroup.remove(tileGroup.children[0]);
+    while(pawnGroup.children.length) pawnGroup.remove(pawnGroup.children[0]);
+    while(houseGroup.children.length) houseGroup.remove(houseGroup.children[0]);
+    for(const k in pawns) delete pawns[k];
+    tiles.length=0;
+    (S?S.board:BOARD).forEach((t,i)=>{
+      const c=center(i), corner=(i%10===0);
+      // Ganzes Feld entlang der Einwärts-Ausrichtung drehen → sitzt wie ein
+      // Pflasterstein tangential auf dem Kurs, Farbband/Text zeigen zur Mitte.
+      const gp=new THREE.Group(); gp.position.copy(c); gp.rotation.y=sideAngle(i);
+      // Breite = Kurvenabstand, Tiefe = TILE_DEPTH × Breite. Der Versatz `off`
+      // schiebt den Körper so weit nach außen, dass die Innenkante (mit Farbband
+      // und Bordstein) genau dort bleibt, wo sie war.
+      const dratio=corner?CORNER_DEPTH:TILE_DEPTH;
+      const wid=corner?SEG*CORNER_W:SEG*0.99, dep=wid*dratio, off=(dep-wid)/2,
+            hgt=corner?TILE_H_CORNER:TILE_H;
+      const boxMat=new THREE.MeshStandardMaterial({color:0xd6c28c,metalness:.05,roughness:.85});
+      const box=new THREE.Mesh(new THREE.BoxGeometry(wid,hgt,dep),boxMat);
+      box.position.set(0,hgt/2-0.02,off); box.castShadow=true; box.receiveShadow=true; gp.add(box);
+      // Textur-Fläche als flache Ebene (Ausrichtung kommt jetzt von gp). Die
+      // Textur folgt der Feldtiefe (dratio), damit sie beim größeren Eckfeld
+      // nicht verzerrt.
+      const faceMat=new THREE.MeshStandardMaterial({map:tileTexture(t,dratio),metalness:.05,roughness:.8});
+      const fsub=new THREE.Group(); fsub.position.z=off;
+      const face=new THREE.Mesh(new THREE.PlaneGeometry(wid*0.98,dep*0.98),faceMat);
+      face.rotation.x=-Math.PI/2; face.position.y=hgt-0.01; face.receiveShadow=true;
+      fsub.add(face); gp.add(fsub);
+      // Erhabene Farb-Bordsteinleiste — sitzt (via fsub) exakt auf dem Farbband
+      // der Innenkante von Straßenfeldern (Tiefe + leichtes Leuchten).
+      if(t.type==='street'){
+        const col=_hexNum(cssColor(GROUPS[t.group].c));
+        const curbMat=new THREE.MeshStandardMaterial({color:col,metalness:.10,roughness:.42,
+          emissive:new THREE.Color(col).multiplyScalar(0.30)});
+        const len=wid*0.96, thick=dep*0.11, ch=0.26;
+        const curb=new THREE.Mesh(new THREE.BoxGeometry(len,ch,thick),curbMat);
+        curb.position.set(0, hgt+ch*0.5-0.02, -(dep*0.5-thick*0.5));   // Bandkante = lokal -Z in fsub
+        curb.castShadow=true; fsub.add(curb);
+      }
+      gp.userData.tile=i; box.userData.tile=i; face.userData.tile=i;
+      tileGroup.add(gp);
+      tiles[i]={group:gp,box:box,boxMat:boxMat,faceMat:faceMat,center:c,corner:corner,top:hgt-0.01,off:off,wid:wid,dep:dep};
+    });
+  }
+
+  /* ---- Figuren aktualisieren (Zielpositionen setzen; Meshes bleiben bestehen) ---- */
+  function updatePawns(){
+    if(!inited||!S) return;
+    const byPos={};
+    S.players.forEach(p=>{ if(p.alive) (byPos[p.pos]||(byPos[p.pos]=[])).push(p); });
+    // vorhandene Meshes sicherstellen
+    S.players.forEach(p=>{
+      if(!pawns[p.id]){
+        const mesh=tokenMesh(p.tok.shape,p.color);
+        const ry=restY(p.pos,p.tok.shape);
+        const c=center(p.pos); mesh.position.set(c.x,ry,c.z);
+        // Fahrzeuge (Auto/Schiff) von Anfang an in Fahrtrichtung ausrichten
+        if(p.tok.shape==='car'||p.tok.shape==='ship'){ const h0=tileHeading(p.pos); if(h0!=null) mesh.rotation.y=h0; }
+        pawnGroup.add(mesh);
+        pawns[p.id]={mesh, shape:p.tok.shape, heading:null, emit:0, base:new THREE.Vector3(c.x,ry,c.z),
+          from:new THREE.Vector3(), to:new THREE.Vector3(), t:0, dur:0, moving:false,
+          phase:Math.random()*Math.PI*2, land:0, wasMoving:false};   // phase: eigener Atem-Takt, land: Landungs-Stauchung
+      }
+      pawns[p.id].mesh.visible=p.alive;
+      pawns[p.id].pos=p.pos;
+    });
+    Object.keys(byPos).forEach(pos=>{
+      const arr=byPos[pos], c=center(+pos), n=arr.length;
+      arr.forEach((p,k)=>{
+        const ang=(k/Math.max(1,n))*Math.PI*2, r=n>1?1.0:0;
+        pawns[p.id].base.set(c.x+Math.cos(ang)*r,restY(+pos,p.tok.shape),c.z+Math.sin(ang)*r);
+      });
+    });
+  }
+
+  /* Eine Feld-Bewegung einer Figur weich animieren (zeitbasiert, mit Bogen-
+     Hüpfer). Gibt ein Promise zurück, das nach der Dauer auflöst — so kann
+     advance() Schritt für Schritt sauber darauf warten. */
+  const easeInOut = k => k<0.5 ? 4*k*k*k : 1-Math.pow(-2*k+2,3)/2;
+  function moveOne(id,toPos,dur){
+    const p=pawns[id]; if(!p||!inited) return Promise.resolve();
+    dur=dur||200; const c=center(toPos);
+    const ty=restY(toPos,p.shape);
+    p.from.copy(p.mesh.position); p.to.set(c.x,ty,c.z);
+    p.fromY=p.from.y; p.toY=ty;                                 // Feldhöhe weich überblenden (Eckfelder sind höher)
+    const hx=p.to.x-p.from.x, hz=p.to.z-p.from.z;               // Fahrtrichtung für Fahrzeug-Ausrichtung
+    if(hx*hx+hz*hz>1e-4) p.heading=Math.atan2(-hz,hx);
+    // p.base NICHT auf die Feldmitte zwingen — der Nebeneinander-Versatz kommt aus
+    // updatePawns() (von den Aufrufern vor moveOne gesetzt), damit geteilte Felder
+    // gleich sauber getrennt werden statt erst nachträglich.
+    p.t=0; p.dur=dur/1000; p.moving=true; p.movingPath=false;
+    return new Promise(res=>setTimeout(res,dur));
+  }
+  /* Mehrere Felder in EINER durchgehenden Bewegung — die Figur gleitet flüssig
+     über den ganzen Weg (sanftes Anfahren/Abbremsen nur am Anfang/Ende, konstante
+     Fahrt dazwischen) statt an jedem Feld zu stoppen. path = Feld-Indizes inkl.
+     Startfeld. */
+  function moveAlong(id,path,perMs){
+    const p=pawns[id]; if(!p||!inited||!path||path.length<2) return Promise.resolve();
+    p.path=path.map(idx=>center(idx)); p.pathN=path.length-1;
+    p.pathY=path.map(idx=>restY(idx,p.shape));   // Feldhöhe je Wegpunkt (Eckfelder höher) → weiche Höhenüberblendung
+    // Letztes Wegstück direkt auf den (ggf. seitlich versetzten) Standplatz führen,
+    // damit die Figur ohne Nachrutschen neben einer schon dort stehenden landet.
+    if(p.base){ p.path[p.path.length-1]=p.base.clone(); p.pathY[p.pathN]=p.base.y; }
+    p.pathT=0; p.pathDur=Math.max(0.001,(path.length-1)*(perMs||180)/1000);
+    p.movingPath=true; p.moving=false;
+    return new Promise(res=>setTimeout(res,p.pathDur*1000));
+  }
+  let followMesh=null;
+  function startFollow(id){ const p=pawns[id]; followMesh=p?p.mesh:null; camK=0.13; }
+  function stopFollow(){ followMesh=null; }
+
+  /* ---- Häuser/Hotels + Besitzer-Tönung + Hypothek ---- */
+  function updateTiles(){
+    if(!inited||!S) return;
+    while(houseGroup.children.length) houseGroup.remove(houseGroup.children[0]);
+    const houseMat=new THREE.MeshStandardMaterial({color:0x2f9257,metalness:.1,roughness:.6});
+    const hotelMat=new THREE.MeshStandardMaterial({color:0xc33b34,metalness:.1,roughness:.55});
+    S.board.forEach((t,i)=>{
+      const T=tiles[i]; if(!T) return;
+      // Besitzer-Tönung / Hypothek am Feld-Körper
+      if(t.mortgaged){ T.boxMat.color.set(0x6b6157); }
+      else if(t.owner!=null && S.players[t.owner]){ T.boxMat.color.copy(new THREE.Color(S.players[t.owner].color).lerp(new THREE.Color(0xd6c28c),0.4)); }
+      else { T.boxMat.color.set(0xd6c28c); }
+      if(t.type!=='street'||!t.houses) return;
+      const c=T.center, ind=innerDir(c), tang=new THREE.Vector3(-ind.z,0,ind.x);
+      const y=T.top+0.25;
+      if(t.houses===5){
+        const m=new THREE.Mesh(new THREE.BoxGeometry(1.4,0.5,0.7),hotelMat);
+        m.position.set(c.x+ind.x*1.15,y,c.z+ind.z*1.15); m.castShadow=true; houseGroup.add(m);
+      }else{
+        for(let k=0;k<t.houses;k++){
+          const off=(k-(t.houses-1)/2)*0.8;
+          const m=new THREE.Mesh(new THREE.BoxGeometry(0.5,0.45,0.5),houseMat);
+          m.position.set(c.x+ind.x*1.15+tang.x*off,y,c.z+ind.z*1.15+tang.z*off); m.castShadow=true; houseGroup.add(m);
+        }
+      }
+    });
+  }
+
+  function highlight(pos){ if(!hi) return; hi.userData.pos=(pos==null?null:pos);
+    if(pos!=null){ const c=center(pos), ind=innerDir(c), T=tiles[pos];
+      // wie das Feld selbst: nach außen versetzt und radial ausgerichtet
+      // (Drehung um Z vor dem Kippen = Drehung in der Bodenebene). Auf die
+      // Feldgröße skalieren, damit größere Eckfelder auch ganz umrandet werden.
+      const off=T?T.off:TILE_OFF, w=T?T.wid:SEG*0.99, d=T?T.dep:SEG*0.99*TILE_DEPTH;
+      hi.position.set(c.x-ind.x*off,0.06,c.z-ind.z*off);
+      hi.scale.set(w/(SEG*0.99), d/(SEG*0.99*TILE_DEPTH), 1);
+      hi.rotation.set(-Math.PI/2,0,sideAngle(pos)); } }
+
+  /* ================= KAMERA ================= */
+  function setWant(px,py,pz,tx,ty,tz){ camWant.pos.set(px,py,pz); camWant.tgt.set(tx,ty,tz); }
+  // Näher dran → Brett füllt das Bild, Felder besser lesbar. Weiter ran geht
+  // nicht: das kreisende Luftschiff (y≈16, r=15) läuft sonst oben aus dem Bild.
+  // Übersicht: bei schmalem Hochformat (Handy) weiter weg, damit das runde Brett
+  // in die Breite passt und nicht seitlich abgeschnitten wird.
+  function overview(){ stopFollow(); camMode='overview'; camK=0.05;
+    const a=(camera&&camera.aspect)||1, f=a<1?Math.min(1.9,1/a):1;
+    setWant(0,54*f,41*f,0,0,0);
+    // Nebel hinter das komplette Brett schieben (Brett-Radius ~20 → +70 Puffer),
+    // damit auch die abgewandte Hälfte im Herauszoom hell und vollständig bleibt.
+    if(scene&&scene.fog){ const d=Math.hypot(54*f,41*f); scene.fog.near=d+70; scene.fog.far=d+260; } }
+  function follow(i){ camMode='follow'; camK=0.09; const c=center(i), d=innerDir(c); setWant(c.x-d.x*15,16,c.z-d.z*15,c.x+d.x*2,0.5,c.z+d.z*2); }
+  function focusTile(i){ stopFollow(); camMode='tile'; camK=0.09; const c=center(i), d=innerDir(c); setWant(c.x-d.x*10,11,c.z-d.z*10,c.x+d.x*1,0.4,c.z+d.z*1); }
+  function focusPlayer(i){ stopFollow(); camMode='player'; camK=0.06; const c=center(i), d=innerDir(c); setWant(c.x-d.x*20,22,c.z-d.z*20,c.x,0.5,c.z); }
+  function impulse(){ shake=Math.max(shake,0.7); }
+
+  function loop(now){
+    requestAnimationFrame(loop);
+    const dt=Math.min(0.05,(now-tPrev)/1000); tPrev=now;
+    // Live-Follow: Kamera folgt der laufenden Figur kontinuierlich (weich)
+    if(followMesh){ const c=followMesh.position, d=innerDir(c);
+      camWant.pos.set(c.x-d.x*15,16,c.z-d.z*15); camWant.tgt.set(c.x+d.x*2,0.5,c.z+d.z*2); }
+    // Kamera annähern
+    camNow.pos.lerp(camWant.pos,camK); camNow.tgt.lerp(camWant.tgt,camK);
+    camera.position.copy(camNow.pos);
+    if(shake>0.001){ shake*=Math.pow(0.02,dt); camera.position.x+=(Math.random()-0.5)*shake*1.4; camera.position.y+=(Math.random()-0.5)*shake*1.4; }
+    camera.lookAt(camNow.tgt);
+    // Figuren: zeitbasierter Tween mit Bogen-Hüpfer, sonst weiches Einrasten.
+    // Zusätzlich „Juice": Squash&Stretch übers Sprungprofil, Neigung in Laufrichtung,
+    // Aufprall-Stauchung bei der Landung und ruhiges Atmen im Stand (siehe ANIM).
+    for(const id in pawns){ const p=pawns[id], m=p.mesh;
+      const wasMove=p.wasMoving, isCar=(p.shape==='car'), isShip=(p.shape==='ship'), isVehicle=isCar||isShip;
+      const y0=restY(p.pos,p.shape);                    // aktuelle Standhöhe (Eckfelder höher)
+      let hopT=null, dirX=0, dirZ=0;                    // hopT: 0..1 im Sprung (nur hüpfende Figuren), dir: Laufrichtung
+      if(p.movingPath){ p.pathT+=dt; let u=p.pathDur>0?p.pathT/p.pathDur:1; if(u>=1){u=1;p.movingPath=false;}
+        // sanftes Anfahren/Abbremsen über den GESAMTEN Weg → durchgehend flüssig
+        const prog=easeInOut(u)*p.pathN; let seg=Math.floor(prog); if(seg>=p.pathN)seg=p.pathN-1;
+        const frac=prog-seg, a=p.path[seg], b=p.path[seg+1];
+        m.position.x=a.x+(b.x-a.x)*frac;
+        m.position.z=a.z+(b.z-a.z)*frac;
+        dirX=b.x-a.x; dirZ=b.z-a.z;
+        const baseY=(p.pathY?p.pathY[seg]+(p.pathY[seg+1]-p.pathY[seg])*frac:y0);   // Feldhöhe entlang des Wegs überblenden
+        if(isVehicle){                                                  // Auto & Schiff fahren: Federung + Ausrichtung
+          m.position.y=baseY+Math.sin(Math.PI*frac)*0.08;
+          if(dirX*dirX+dirZ*dirZ>1e-4){ const hd=Math.atan2(-dirZ,dirX); let dy=hd-m.rotation.y;
+            while(dy>Math.PI)dy-=2*Math.PI; while(dy<-Math.PI)dy+=2*Math.PI; m.rotation.y+=dy*0.5;
+            p.emit=(p.emit||0)+dt; if(p.emit>(isCar?0.045:0.11)){ p.emit=0; isCar?emitPuff(m,hd):emitWave(m); } }
+        } else {
+          m.position.y=baseY+Math.sin(Math.PI*frac)*0.85;              // Hüpfer je Feld, aber durchgehende Fahrt
+          hopT=frac;
+        }
+      } else if(p.moving){ p.t+=dt; let k=p.dur>0?p.t/p.dur:1; if(k>=1){k=1;p.moving=false;}
+        const e=easeInOut(k);
+        m.position.x=p.from.x+(p.to.x-p.from.x)*e;
+        m.position.z=p.from.z+(p.to.z-p.from.z)*e;
+        dirX=p.to.x-p.from.x; dirZ=p.to.z-p.from.z;
+        const baseY=(p.fromY!=null&&p.toY!=null?p.fromY+(p.toY-p.fromY)*e:y0);   // Feldhöhe weich überblenden
+        if(isVehicle){
+          m.position.y=baseY+Math.sin(Math.PI*k)*0.10;                 // Federung statt Hüpfer — das Fahrzeug fährt
+          if(p.heading!=null){ let dy=p.heading-m.rotation.y;          // in Fahrtrichtung drehen (kürzester Weg)
+            while(dy>Math.PI)dy-=2*Math.PI; while(dy<-Math.PI)dy+=2*Math.PI; m.rotation.y+=dy*0.35; }
+          p.emit=(p.emit||0)+dt;                                       // Auto: Auspuffrauch · Schiff: Kielwelle
+          if(p.emit>(isCar?0.045:0.11)){ p.emit=0; isCar?emitPuff(m,p.heading):emitWave(m); }
+        } else {
+          m.position.y=baseY+Math.sin(Math.PI*k)*0.95;                 // Hüpfbogen
+          hopT=k;
+        }
+      } else {
+        m.position.x+=(p.base.x-m.position.x)*0.22;
+        m.position.z+=(p.base.z-m.position.z)*0.22;
+        m.position.y+=(y0-m.position.y)*0.22;
+        if(isVehicle && p.pos!=null){ const hd=tileHeading(p.pos);   // im Stand: in Fahrtrichtung des Feldes drehen
+          if(hd!=null){ let dy=hd-m.rotation.y; while(dy>Math.PI)dy-=2*Math.PI; while(dy<-Math.PI)dy+=2*Math.PI; m.rotation.y+=dy*0.2; } }
+      }
+      // Landung erkennen: gerade noch in Bewegung, jetzt zur Ruhe gekommen → Stauchungs-Impuls
+      const nowMove=p.moving||p.movingPath;
+      if(wasMove && !nowMove) p.land=1; p.wasMoving=nowMove;
+      if(p.land>0) p.land=Math.max(0,p.land-dt*1000/ANIM.landMs);
+      if(!isVehicle){
+        // ---- Squash & Stretch, Landungs-Stauchung, Atmen im Stand (nur hüpfende Figuren) ----
+        let sy=1;
+        if(hopT!=null) sy=1+ANIM.stretch*Math.cos(Math.PI*hopT);        // Start gestreckt → Landung gestaucht
+        if(p.land>0) sy*=1-ANIM.land*p.land;
+        if(!nowMove && p.land<=0){                                      // ruhiges Atmen/Wippen im Stand
+          const b=Math.sin(now*0.001*ANIM.idleSpeed+p.phase);
+          m.position.y+=b*ANIM.idleBob; sy*=1+b*ANIM.idleScale;
+        }
+        const sxz=1-(sy-1)*0.5;                                         // grob volumenerhaltend
+        m.scale.set(PAWN_SCALE*Math.max(0.2,sxz),PAWN_SCALE*Math.max(0.2,sy),PAWN_SCALE*Math.max(0.2,sxz));
+        // Neigung in Laufrichtung
+        const sp=Math.hypot(dirX,dirZ);
+        if(hopT!=null && sp>1e-4){ const inv=1/sp;
+          m.quaternion.setFromAxisAngle(_leanAxis.set(-dirZ*inv,0,dirX*inv), -ANIM.lean*Math.sin(Math.PI*hopT));
+        } else { m.quaternion.slerp(_idQuat,0.15); }                    // im Stand sanft aufrichten
+      } else if(isShip){
+        // Schiff schaukelt sanft auf dem Wasser (im Stand ruhiger, in Fahrt etwas mehr)
+        m.rotation.z=Math.sin(now*0.0016+p.phase)*0.05 + (nowMove?Math.sin(now*0.02)*0.02:0);
+        if(!nowMove) m.position.y+=Math.sin(now*0.0011+p.phase)*0.025;  // leichtes Dümpeln
+      }
+    }
+    // Rauchwolken: aufsteigen, wachsen, ausblenden
+    for(let qi=puffs.length-1; qi>=0; qi--){ const q=puffs[qi]; q.life+=dt; const kk=q.life/q.ttl;
+      if(kk>=1){ smokeGroup.remove(q.s); if(q.s.material)q.s.material.dispose(); puffs.splice(qi,1); continue; }
+      q.s.position.x+=q.vx*dt; q.s.position.y+=q.vy*dt; q.s.position.z+=q.vz*dt;
+      const sc=q.s0+(q.s1-q.s0)*kk; q.s.scale.set(sc,sc,1); q.s.material.opacity=0.5*(1-kk);
+    }
+    // Kielwellen: flach ausbreiten und ausblenden
+    for(let wi=waves.length-1; wi>=0; wi--){ const w=waves[wi]; w.life+=dt; const kk=w.life/w.ttl;
+      if(kk>=1){ smokeGroup.remove(w.m); if(w.m.material)w.m.material.dispose(); waves.splice(wi,1); continue; }
+      const sc=w.s0+(w.s1-w.s0)*kk; w.m.scale.set(sc,sc,1); w.m.material.opacity=0.6*(1-kk);
+    }
+    // Highlight pulsieren
+    if(hi){ const on=hi.userData.pos!=null; hi.material.opacity += ((on?0.34:0)-hi.material.opacity)*0.15;
+      if(on) hi.material.opacity=0.22+0.16*(0.5+0.5*Math.sin(now*0.005)); }
+    // Lebendige Stadt: Fenster glimmen, Leuchtfeuer dreht, Luftschiff kreist
+    cityT+=dt;
+    for(let li=0;li<cityLights.length;li++){ const L=cityLights[li];
+      L.mat.emissiveIntensity=Math.max(0, L.base+Math.sin(cityT*0.7+L.phase)*L.amp); }
+    if(beacon) beacon.rotation.y+=dt*1.5;
+    if(airship){ const a=cityT*0.11;
+      airship.position.set(Math.cos(a)*15, 15.5+Math.sin(cityT*0.5)*0.4, Math.sin(a)*15);
+      airship.rotation.y=Math.atan2(-Math.cos(a),-Math.sin(a)); }
+    renderer.render(scene,camera);
+  }
+
+  function resize(){ if(!renderer||!host) return; const w=host.clientWidth||600,h=host.clientHeight||w;
+    renderer.setSize(w,h,false); camera.aspect=w/h; camera.updateProjectionMatrix();
+    if(camMode==='overview') overview();   // Seitenverhältnis geändert → Übersicht neu einrahmen
+  }
+
+  function onPick(e){ if(!raycaster) return;
+    const r=renderer.domElement.getBoundingClientRect();
+    pointer.x=((e.clientX-r.left)/r.width)*2-1; pointer.y=-((e.clientY-r.top)/r.height)*2+1;
+    raycaster.setFromCamera(pointer,camera);
+    const hits=raycaster.intersectObjects(tileGroup.children,true);
+    if(hits.length){ let o=hits[0].object; while(o&&o.userData.tile==null)o=o.parent;
+      if(o&&o.userData.tile!=null && typeof showTileInfo==='function') showTileInfo(o.userData.tile); }
+  }
+
+  return { init, buildTiles, updatePawns, updateTiles, highlight,
+           overview, follow, focusTile, focusPlayer, impulse,
+           moveOne, moveAlong, startFollow, stopFollow, tokenSound,
+           get ready(){return inited;} };
+})();
+</script>
+<script src="../../assets/game-chrome.js?v=20260625-nav"></script>
+  <script src="../../assets/gamepad.js?v=20260824-pad"></script>
+</body>
+</html>

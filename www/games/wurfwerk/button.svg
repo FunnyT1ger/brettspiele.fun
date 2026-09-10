@@ -1,0 +1,33 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 256 256" role="img" aria-label="Wurfwerk icon">
+  <defs>
+    <linearGradient id="bg" x1="28" y1="24" x2="224" y2="232" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#101827"/>
+      <stop offset="0.58" stop-color="#23180c"/>
+      <stop offset="1" stop-color="#070b14"/>
+    </linearGradient>
+    <linearGradient id="gold" x1="58" y1="42" x2="205" y2="212" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#fde68a"/>
+      <stop offset="0.45" stop-color="#f59e0b"/>
+      <stop offset="1" stop-color="#c8492a"/>
+    </linearGradient>
+    <filter id="glow" x="-40%" y="-40%" width="180%" height="180%">
+      <feGaussianBlur stdDeviation="8" result="b"/>
+      <feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge>
+    </filter>
+  </defs>
+  <rect x="12" y="12" width="232" height="232" rx="56" fill="url(#bg)"/>
+  <path d="M52 185h152" stroke="#f59e0b" stroke-width="11" stroke-linecap="round" opacity=".35"/>
+  <path d="M78 202h100" stroke="#fff7ed" stroke-width="5" stroke-linecap="round" opacity=".22"/>
+  <g filter="url(#glow)">
+    <path d="M90 48h76l38 66-38 66H90l-38-66 38-66Z" fill="url(#gold)"/>
+    <path d="M90 48h76l38 66-38 66H90l-38-66 38-66Z" fill="none" stroke="#fff7ed" stroke-width="6" opacity=".55"/>
+  </g>
+  <g fill="#111827">
+    <circle cx="100" cy="88" r="10"/>
+    <circle cx="128" cy="114" r="10"/>
+    <circle cx="156" cy="140" r="10"/>
+    <circle cx="156" cy="88" r="10"/>
+    <circle cx="100" cy="140" r="10"/>
+  </g>
+  <path d="M66 60 40 34M190 60l26-26M62 168l-30 30M194 168l30 30" stroke="#fbbf24" stroke-width="8" stroke-linecap="round" opacity=".72"/>
+</svg>

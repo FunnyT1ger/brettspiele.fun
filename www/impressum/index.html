@@ -1,0 +1,192 @@
+<!doctype html>
+<html lang="de" data-page="legal">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Impressum — brettspiele.fun</title>
+  <meta name="description" content="Impressum und Anbieterkennzeichnung von brettspiele.fun." />
+  <meta name="robots" content="index, follow" />
+  <link rel="canonical" href="https://brettspiele.fun/impressum/" />
+  <link rel="icon" href="../assets/favicon.svg?v=20260618-dice-logo" type="image/svg+xml" />
+  <!-- Zwei Schriften tragen den sichtbaren Bereich: die Überschriften
+       (Instrument Serif) und der Fließtext (Geist). Nur die Latin-Dateien
+       vorladen — alle weiteren Subsets holt der Browser bedarfsweise über
+       unicode-range. crossorigin ist Pflicht, auch bei eigenen Dateien. -->
+  <link rel="preload" as="font" type="font/woff2" href="../assets/fonts/instrument-serif-normal-400-latin.woff2" crossorigin />
+  <link rel="preload" as="font" type="font/woff2" href="../assets/fonts/geist-normal-latin.woff2" crossorigin />
+  <link rel="stylesheet" href="../assets/fonts/core.css?v=20260904-selfhost" />
+  <script>
+    (function(){
+      try {
+        var key = "brettspiele.themeMode";
+        var mode = localStorage.getItem(key) || "auto";
+        if (!["auto", "light", "dark"].includes(mode)) mode = "auto";
+        var prefersDark = window.matchMedia && window.matchMedia("(prefers-color-scheme: dark)").matches;
+        var theme = mode === "auto" ? (prefersDark ? "dark" : "light") : mode;
+        document.documentElement.dataset.theme = theme;
+        document.documentElement.dataset.themeMode = mode;
+      } catch (e) {
+        document.documentElement.dataset.theme = "light";
+        document.documentElement.dataset.themeMode = "auto";
+      }
+    })();
+  </script>
+  <link rel="stylesheet" href="../assets/site.css?v=20260904-legal" />
+  <link rel="stylesheet" href="../assets/gamepad.css?v=20260824-pad" />
+  <style>
+    .legal{max-width:760px;margin:0 auto;padding:48px 0 72px}
+    .legal h1{font-size:clamp(30px,5vw,48px);letter-spacing:-.04em;margin:0 0 10px}
+    .legal h2{font-size:clamp(18px,2.4vw,23px);letter-spacing:-.02em;margin:38px 0 10px}
+    .legal p,.legal li{line-height:1.65}
+    .legal address{font-style:normal;line-height:1.75}
+    .legal .lead{color:var(--muted,#9ca3af);margin:0 0 8px}
+    .legal a{color:inherit}
+    .legal-box{border:1px solid var(--line,var(--hairline,rgba(255,255,255,.16)));border-radius:18px;padding:18px 20px;margin:18px 0;background:var(--paper-2,rgba(255,255,255,.05))}
+    .legal-updated{margin-top:44px;font-size:13px;color:var(--muted,#9ca3af)}
+  </style>
+</head>
+<body>
+  <nav class="nav shell">
+    <a href="../" class="logo" data-i18n-aria="site.logo.aria" aria-label="Nicht noch eine Brettspielseite">
+      <img class="logo-mark" src="../assets/favicon.svg?v=20260618-dice-logo" alt="" aria-hidden="true">
+      <span>brettspiele<i>.</i>fun</span>
+    </a>
+    <button class="nav-menu-toggle" data-nav-toggle type="button" aria-label="Menü" aria-expanded="false" aria-controls="navActions">
+      <span aria-hidden="true">☰</span>
+    </button>
+    <div class="nav-actions" id="navActions" data-nav-actions>
+      <select class="language-select" data-language-select aria-label="Sprache"></select>
+      <button class="theme-toggle" data-theme-toggle type="button"><span aria-hidden="true">◐</span><span data-theme-label>Theme</span></button>
+      <a class="btn btn-primary" href="../#catalog" data-i18n="nav.play">Spielen</a>
+    </div>
+  </nav>
+
+  <main class="legal shell">
+    <p class="lead">Anbieterkennzeichnung</p>
+    <h1>Impressum</h1>
+
+    <h2>Angaben gemäß § 5 DDG</h2>
+    <!-- Anschrift wird an zwei Stellen gepflegt: hier und in Abschnitt 1 der
+         Datenschutzerklaerung. Aenderungen immer in beiden. -->
+    <address>
+      brettspiele.fun — Hans Magnus Hoffmann<br />
+      c/o Online-Impressum 10804<br />
+      Europaring 90<br />
+      53757 Sankt Augustin<br />
+      Deutschland
+    </address>
+
+    <h2>Kontakt</h2>
+    <p>
+      E-Mail: <a href="mailto:support@brettspiele.fun">support@brettspiele.fun</a>
+    </p>
+
+    <h2>Verantwortlich für den Inhalt</h2>
+    <p>Hans Magnus Hoffmann, Anschrift wie oben.</p>
+
+    <h2>Art des Angebots</h2>
+    <p>
+      brettspiele.fun ist ein <strong>privates Hobbyprojekt</strong>. Es werden
+      keine Spiele, Gegenstände, Abonnements oder sonstigen Leistungen verkauft
+      und es wird keine Werbung geschaltet. Die Nutzung ist und bleibt
+      vollständig kostenlos.
+    </p>
+    <p>
+      Über die Schaltfläche „Spendier mir ein Bier“ sind <strong>freiwillige
+      Zuwendungen</strong> möglich. Sie sind keine Gegenleistung für die Nutzung,
+      schalten keine Funktionen frei und begründen keinen Anspruch. Die
+      Abwicklung läuft außerhalb dieser Seite über PayPal; dort gelten die
+      Bedingungen und Datenschutzhinweise von PayPal.
+    </p>
+
+    <h2 id="quellcode">Quellcode</h2>
+    <p>
+      Der vollständige Quellcode dieser Seite ist unter der GNU AGPL-3.0-or-later
+      veröffentlicht; Inhalte und Gestaltungsmaterial stehen unter CC BY-SA 4.0.
+      Fremdkomponenten behalten ihre eigenen Lizenzen.
+    </p>
+    <div class="legal-box">
+      <!-- Sobald das Repository steht: URL eintragen. Die AGPL verlangt in § 13,
+           dass Nutzern der laufenden Fassung ihr Quellcode angeboten wird. -->
+      <p style="margin:0">Repository: <a href="https://github.com/FunnyT1ger/brettspiele.fun">https://github.com/FunnyT1ger/brettspiele.fun</a></p>
+    </div>
+
+    <h2>Datenschutz</h2>
+    <p>
+      Wie diese Seite mit personenbezogenen Daten umgeht, steht in der
+      <a href="../datenschutz/">Datenschutzerklärung</a>.
+    </p>
+
+    <h2 id="nutzerinhalte">Nutzerinhalte und Meldeverfahren</h2>
+    <p>
+      Im Spiele-Studio erstellte Spiele stammen von den jeweiligen Nutzerinnen
+      und Nutzern und geben nicht die Auffassung des Anbieters wieder; sie werden
+      nicht zu eigen gemacht. Welche Regeln für sie gelten und welche Rechte
+      Einreichende zusichern, steht in den
+      <a href="../nutzungsbedingungen/">Nutzungsbedingungen</a>.
+    </p>
+    <p>
+      Hinweise auf rechtswidrige Inhalte nimmt das Formular
+      <a href="../melden/">Rechtswidrigen Inhalt melden</a> entgegen — das
+      Melde- und Abhilfeverfahren nach Artikel 16 DSA. Formlos genügt auch eine
+      E-Mail an die oben genannte Adresse. Jede Meldung wird mit Vorgangsnummer
+      erfasst, sorgfältig, sachlich und ohne Willkür geprüft und beschieden;
+      erweist sich ein Inhalt als rechtswidrig, wird er entfernt oder gesperrt.
+      Meldende und Betroffene werden über die Entscheidung informiert und können
+      ihr widersprechen. Spiele, die zur Veröffentlichung eingereicht werden,
+      sieht sich der Betreiber vor der Freigabe freiwillig an; eine allgemeine
+      Pflicht zur Überwachung fremder Inhalte besteht nicht.
+    </p>
+
+    <h2>Haftung für Inhalte</h2>
+    <p>
+      Als Diensteanbieter sind wir für eigene Inhalte auf diesen Seiten nach den
+      allgemeinen Gesetzen verantwortlich. Wir sind jedoch nicht verpflichtet,
+      übermittelte oder gespeicherte fremde Informationen zu überwachen oder nach
+      Umständen zu forschen, die auf eine rechtswidrige Tätigkeit hinweisen.
+      Verpflichtungen zur Entfernung oder Sperrung der Nutzung von Informationen
+      nach den allgemeinen Gesetzen bleiben davon unberührt. Eine diesbezügliche
+      Haftung ist erst ab dem Zeitpunkt der Kenntnis einer konkreten
+      Rechtsverletzung möglich. Bei Bekanntwerden entsprechender Rechts&shy;ver&shy;letzungen
+      entfernen wir diese Inhalte umgehend.
+    </p>
+
+    <h2>Haftung für Links</h2>
+    <p>
+      Unser Angebot enthält Links zu externen Websites Dritter, auf deren Inhalte
+      wir keinen Einfluss haben. Deshalb können wir für diese fremden Inhalte
+      auch keine Gewähr übernehmen. Für die Inhalte der verlinkten Seiten ist
+      stets der jeweilige Anbieter oder Betreiber der Seiten verantwortlich. Eine
+      permanente inhaltliche Kontrolle der verlinkten Seiten ist ohne konkrete
+      Anhaltspunkte einer Rechtsverletzung nicht zumutbar. Bei Bekanntwerden von
+      Rechtsverletzungen entfernen wir derartige Links umgehend.
+    </p>
+
+    <h2>Urheberrecht</h2>
+    <p>
+      Soweit die Inhalte auf dieser Seite nicht ausdrücklich unter einer freien
+      Lizenz stehen (siehe Abschnitt „Quellcode"), unterliegen sie dem deutschen
+      Urheberrecht. Marken- und Kennzeichenrechte Dritter bleiben unberührt: Die
+      hier angebotenen Spiele sind eigenständige Umsetzungen und stehen in keiner
+      Verbindung zu Herstellern gleichartiger Brettspiele.
+    </p>
+
+    <h2>Streitbeilegung</h2>
+    <p>
+      Wir sind nicht bereit und nicht verpflichtet, an Streitbeilegungsverfahren
+      vor einer Verbraucherschlichtungsstelle teilzunehmen.
+    </p>
+
+    <p class="legal-updated">Stand: September 2026</p>
+  </main>
+
+  <footer>
+    <div class="shell foot"><span data-i18n="site.footer.left">© 2026 Nicht noch eine Brettspielseite</span><span class="foot-legal"><a href="../impressum/" data-i18n="site.footer.legal">Impressum</a> · <a href="../datenschutz/" data-i18n="site.footer.privacy">Datenschutz</a> · <a href="../nutzungsbedingungen/" data-i18n="site.footer.terms">Nutzungsbedingungen</a> · <a href="../melden/" data-i18n="site.footer.report">Inhalt melden</a></span><span data-i18n="site.footer.right">Keine Lootboxen · kein Tagesquest-Terror · nur Spieltische</span></div>
+  </footer>
+  <script src="../assets/runtime-config.js?v=20260905-donation-on"></script>
+  <script src="../assets/i18n/de.js?v=20260910-legal"></script><script src="../assets/i18n/en.js?v=20260910-legal"></script><script src="../assets/i18n/fr.js?v=20260910-legal"></script><script src="../assets/i18n/es.js?v=20260910-legal"></script><script src="../assets/i18n/it.js?v=20260910-legal"></script><script src="../assets/i18n/ru.js?v=20260910-legal"></script><script src="../assets/i18n/zh.js?v=20260910-legal"></script><script src="../assets/i18n/ja.js?v=20260910-legal"></script><script src="../assets/i18n.js?v=20260910-legal"></script>
+  <script src="../assets/auth.js?v=20260904-oauth-link"></script>
+  <script src="../assets/consent.js?v=20260530-optional-account"></script>
+  <script src="../assets/gamepad.js?v=20260824-pad"></script>
+</body>
+</html>

@@ -1,0 +1,9 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 800" role="img" aria-label="Buchstabensturm">
+  <defs><linearGradient id="g" x1="0" y1="0" x2="1" y2="1"><stop stop-color="#57d68d"/><stop offset=".55" stop-color="#65a8ff"/><stop offset="1" stop-color="#f2bf57"/></linearGradient><filter id="s"><feDropShadow dx="0" dy="24" stdDeviation="24" flood-opacity=".25"/></filter></defs>
+  <rect width="640" height="800" rx="72" fill="#07180f"/><circle cx="520" cy="140" r="180" fill="#65a8ff" opacity=".18"/><circle cx="110" cy="690" r="220" fill="#57d68d" opacity=".18"/>
+  <g filter="url(#s)"><rect x="100" y="120" width="440" height="560" rx="44" fill="#fbf7ec"/><rect x="130" y="170" width="380" height="82" rx="22" fill="url(#g)"/></g>
+  <text x="320" y="231" text-anchor="middle" font-family="system-ui, sans-serif" font-size="56" font-weight="950" fill="#07180f">A</text>
+  <g stroke="#173225" stroke-width="8"><path d="M145 310h350"/><path d="M145 385h350"/><path d="M145 460h350"/><path d="M145 535h350"/><path d="M245 285v300"/></g>
+  <g fill="#173225" font-family="system-ui, sans-serif" font-size="26" font-weight="800"><text x="160" y="354">Stadt</text><text x="160" y="429">Land</text><text x="160" y="504">Fluss</text><text x="160" y="579">Quatsch</text></g>
+  <text x="320" y="735" text-anchor="middle" font-family="system-ui, sans-serif" font-size="50" font-weight="900" fill="#fbf7ec">Buchstabensturm</text>
+</svg>

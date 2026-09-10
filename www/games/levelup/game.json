@@ -1,0 +1,63 @@
+{
+  "title": "LevelUp",
+  "subtitle": {
+    "de": "Karten-Ablegespiel um 10 Level",
+    "en": "Card game — race through 10 levels",
+    "fr": "Jeu de cartes en 10 niveaux",
+    "es": "Juego de cartas de 10 niveles",
+    "it": "Gioco di carte a 10 livelli",
+    "ru": "Карточная игра на 10 уровней",
+    "zh": "十关卡牌接龙游戏",
+    "ja": "10レベルのカードゲーム"
+  },
+  "description": {
+    "de": "Lege Sätze, Reihen und Farbgruppen aus und arbeite dich als Erster durch alle 10 Level. Online-Räume mit Raumcode, Bots zum Auffüllen, animierter 3D-Tisch mit sitzenden Mitspielern.",
+    "en": "Lay down sets, runs and color groups and race through all 10 levels first. Online rooms with room codes, bots to fill seats, animated 3D table with seated opponents.",
+    "fr": "Posez des brelans, des suites et des groupes de couleur et soyez le premier à franchir les 10 niveaux. Salles en ligne avec code, bots pour compléter la table, table 3D animée avec adversaires assis.",
+    "es": "Baja tríos, escaleras y grupos de color y sé el primero en superar los 10 niveles. Salas online con código, bots para completar la mesa, mesa 3D animada con rivales sentados.",
+    "it": "Cala tris, scale e gruppi di colore e sii il primo a completare tutti i 10 livelli. Stanze online con codice, bot per riempire i posti, tavolo 3D animato con avversari seduti.",
+    "ru": "Выкладывайте наборы, последовательности и цветовые группы и первым пройдите все 10 уровней. Онлайн-комнаты с кодом, боты для заполнения мест, анимированный 3D-стол с сидящими соперниками.",
+    "zh": "打出组合、顺子和同色组，率先闯过全部十关。支持房间码在线对战、机器人补位，还有坐满对手的动画3D牌桌。",
+    "ja": "セット・ラン・カラーグループを出して、誰よりも早く10レベルを制覇しよう。ルームコードでのオンライン対戦、席を埋めるボット、対戦相手が座るアニメーション3Dテーブル。"
+  },
+  "players": {
+    "de": "2–6 Spieler",
+    "en": "2–6 players",
+    "fr": "2–6 joueurs",
+    "es": "2–6 jugadores",
+    "it": "2–6 giocatori",
+    "ru": "2–6 игроков",
+    "zh": "2–6 名玩家",
+    "ja": "2〜6人"
+  },
+  "minutes": "30–60 min",
+  "category": {
+    "de": "Karten",
+    "en": "Cards",
+    "fr": "Cartes",
+    "es": "Cartas",
+    "it": "Carte",
+    "ru": "Карты",
+    "zh": "卡牌",
+    "ja": "カード"
+  },
+  "tags": [
+    {
+      "de": "Online-Räume", "en": "Online rooms", "fr": "Salles en ligne", "es": "Salas online",
+      "it": "Stanze online", "ru": "Онлайн-комнаты", "zh": "在线房间", "ja": "オンラインルーム"
+    },
+    {
+      "de": "Bots", "en": "Bots", "fr": "Bots", "es": "Bots",
+      "it": "Bot", "ru": "Боты", "zh": "机器人", "ja": "ボット"
+    },
+    {
+      "de": "3D-Tisch", "en": "3D table", "fr": "Table 3D", "es": "Mesa 3D",
+      "it": "Tavolo 3D", "ru": "3D-стол", "zh": "3D牌桌", "ja": "3Dテーブル"
+    }
+  ],
+  "image": "games/levelup/button.svg",
+  "accent": "#5ec8a6",
+  "theme": "levelup",
+  "order": 60,
+  "comingSoon": false
+}

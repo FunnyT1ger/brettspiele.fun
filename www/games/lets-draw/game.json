@@ -1,0 +1,24 @@
+{
+  "title": "Let's Draw",
+  "subtitle": {
+    "de": "Canvas-Partyspiel", "en": "Canvas Party Game", "fr": "Jeu de dessin Canvas", "es": "Juego de dibujo Canvas", "it": "Gioco di disegno Canvas", "ru": "Canvas-игра для вечеринок", "zh": "Canvas 派对游戏", "ja": "Canvas パーティーゲーム"
+  },
+  "description": {
+    "de": "Zeichenspiel mit Teams, Begriffsauswahl, Raumcode-Sync, Timer und gemeinsamer Canvas-Fläche.",
+    "en": "Drawing game with teams, word choices, room-code sync, timer and shared canvas.",
+    "fr": "Jeu de dessin avec équipes, choix de mots, synchronisation par code, minuteur et toile partagée.",
+    "es": "Juego de dibujo con equipos, elección de palabras, sincronización por código, temporizador y lienzo compartido.",
+    "it": "Gioco di disegno con squadre, scelta delle parole, sincronizzazione con codice, timer e tela condivisa.",
+    "ru": "Игра в рисование с командами, выбором слов, синхронизацией по коду, таймером и общим холстом.",
+    "zh": "团队绘画游戏，支持词语选择、房间码同步、计时器和共享画布。",
+    "ja": "チーム、お題選択、ルームコード同期、タイマー、共有キャンバス付きのお絵描きゲーム。"
+  },
+  "players": { "de": "2+ Teams", "en": "2+ teams", "fr": "2+ équipes", "es": "2+ equipos", "it": "2+ squadre", "ru": "2+ команды", "zh": "2+ 队伍", "ja": "2チーム以上" },
+  "minutes": "15–60 min",
+  "category": { "de": "Party", "en": "Party", "fr": "Ambiance", "es": "Fiesta", "it": "Party", "ru": "Вечеринка", "zh": "派对", "ja": "パーティー" },
+  "tags": ["Canvas", {"de":"Teams", "en":"Teams", "fr":"Équipes", "es":"Equipos", "it":"Squadre", "ru":"Команды", "zh":"团队", "ja":"チーム"}, {"de":"Raumcode", "en":"Room code", "fr":"Code de salle", "es":"Código de sala", "it":"Codice stanza", "ru":"Код комнаты", "zh":"房间码", "ja":"ルームコード"}],
+  "image": "games/lets-draw/button.svg",
+  "accent": "#65a8ff",
+  "theme": "lets-draw",
+  "order": 20
+}

@@ -1,0 +1,45 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 800" role="img" aria-label="Texas Hold'em">
+  <defs>
+    <linearGradient id="thBg" x1="0" y1="0" x2="0" y2="1">
+      <stop stop-color="#1d4d43"/><stop offset="1" stop-color="#0a1a17"/>
+    </linearGradient>
+    <linearGradient id="thCardW" x1="0" y1="0" x2="0" y2="1">
+      <stop stop-color="#ffffff"/><stop offset="1" stop-color="#e7e2d6"/>
+    </linearGradient>
+    <linearGradient id="thRim" x1="0" y1="0" x2="0" y2="1">
+      <stop stop-color="#6b4a28"/><stop offset="1" stop-color="#3a2a18"/>
+    </linearGradient>
+    <filter id="thShadow"><feDropShadow dx="0" dy="14" stdDeviation="16" flood-opacity=".45"/></filter>
+  </defs>
+
+  <rect width="640" height="800" rx="72" fill="#0a1a17"/>
+  <rect width="640" height="800" rx="72" fill="url(#thBg)"/>
+  <circle cx="520" cy="140" r="190" fill="#e0ac2b" opacity=".14"/>
+  <circle cx="110" cy="660" r="200" fill="#e0ac2b" opacity=".09"/>
+
+  <!-- oval table hint -->
+  <ellipse cx="320" cy="330" rx="230" ry="150" fill="url(#thRim)" opacity=".9"/>
+  <ellipse cx="320" cy="330" rx="196" ry="122" fill="#1d4d43"/>
+
+  <g filter="url(#thShadow)" transform="translate(320 330)">
+    <g transform="rotate(-14) translate(-70 0)">
+      <rect x="-52" y="-80" width="104" height="146" rx="14" fill="url(#thCardW)" stroke="#000000" stroke-opacity=".08" stroke-width="3"/>
+      <text x="-14" y="-38" text-anchor="middle" font-family="Georgia,serif" font-size="46" font-weight="700" fill="#c23b2e">A</text>
+      <path d="M -14 -8 L 2 22 L -30 22 Z" fill="#c23b2e"/>
+    </g>
+    <g transform="rotate(14) translate(70 0)">
+      <rect x="-52" y="-80" width="104" height="146" rx="14" fill="url(#thCardW)" stroke="#000000" stroke-opacity=".08" stroke-width="3"/>
+      <text x="-14" y="-38" text-anchor="middle" font-family="Georgia,serif" font-size="46" font-weight="700" fill="#1b1b1b">K</text>
+      <path d="M -14 6 l 11 -14 h -7 l 9 -12 h -7 l 9 -12 h -22 l 9 12 h -7 l 9 12 h -7 z" fill="#1b1b1b"/>
+    </g>
+    <!-- poker chips -->
+    <circle cx="0" cy="70" r="30" fill="#e0ac2b" stroke="#7a5a12" stroke-width="6"/>
+    <circle cx="-34" cy="82" r="30" fill="#c23b2e" stroke="#7a1f16" stroke-width="6"/>
+    <circle cx="34" cy="82" r="30" fill="#2f6fd6" stroke="#173b7a" stroke-width="6"/>
+  </g>
+
+  <text x="320" y="640" text-anchor="middle" font-family="'Segoe UI',system-ui,sans-serif"
+        font-size="58" font-weight="800" letter-spacing="1" fill="#eafff6">TEXAS <tspan fill="#e0ac2b">HOLD'EM</tspan></text>
+  <text x="320" y="694" text-anchor="middle" font-family="'Segoe UI',system-ui,sans-serif"
+        font-size="23" font-weight="600" letter-spacing="6" fill="#d9c48f">NO-LIMIT · 2-6 SPIELER</text>
+</svg>

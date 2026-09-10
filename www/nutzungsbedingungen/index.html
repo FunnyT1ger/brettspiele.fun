@@ -1,0 +1,360 @@
+<!doctype html>
+<html lang="de" data-page="legal">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Nutzungsbedingungen — brettspiele.fun</title>
+  <meta name="description" content="Nutzungsbedingungen von brettspiele.fun: Konten, Spiele-Studio, Nutzerinhalte, Rechte an eingereichten Spielen, KI-Funktion und Moderation." />
+  <meta name="robots" content="index, follow" />
+  <link rel="canonical" href="https://brettspiele.fun/nutzungsbedingungen/" />
+  <!-- Maschinenlesbare Fassung des Textes; wird beim Ausrollen gegen die
+       serverseitige Einstellung geprüft. Nur zusammen mit dem Fassungsdatum
+       unten ändern. -->
+  <meta name="terms-version" content="2026-09-10" />
+  <link rel="icon" href="../assets/favicon.svg?v=20260618-dice-logo" type="image/svg+xml" />
+  <!-- Zwei Schriften tragen den sichtbaren Bereich: die Überschriften
+       (Instrument Serif) und der Fließtext (Geist). Nur die Latin-Dateien
+       vorladen — alle weiteren Subsets holt der Browser bedarfsweise über
+       unicode-range. crossorigin ist Pflicht, auch bei eigenen Dateien. -->
+  <link rel="preload" as="font" type="font/woff2" href="../assets/fonts/instrument-serif-normal-400-latin.woff2" crossorigin />
+  <link rel="preload" as="font" type="font/woff2" href="../assets/fonts/geist-normal-latin.woff2" crossorigin />
+  <link rel="stylesheet" href="../assets/fonts/core.css?v=20260904-selfhost" />
+  <script>
+    (function(){
+      try {
+        var key = "brettspiele.themeMode";
+        var mode = localStorage.getItem(key) || "auto";
+        if (!["auto", "light", "dark"].includes(mode)) mode = "auto";
+        var prefersDark = window.matchMedia && window.matchMedia("(prefers-color-scheme: dark)").matches;
+        var theme = mode === "auto" ? (prefersDark ? "dark" : "light") : mode;
+        document.documentElement.dataset.theme = theme;
+        document.documentElement.dataset.themeMode = mode;
+      } catch (e) {
+        document.documentElement.dataset.theme = "light";
+        document.documentElement.dataset.themeMode = "auto";
+      }
+    })();
+  </script>
+  <link rel="stylesheet" href="../assets/site.css?v=20260904-legal" />
+  <link rel="stylesheet" href="../assets/gamepad.css?v=20260824-pad" />
+  <style>
+    .legal{max-width:760px;margin:0 auto;padding:48px 0 72px}
+    .legal h1{font-size:clamp(30px,5vw,48px);letter-spacing:-.04em;margin:0 0 10px}
+    .legal h2{font-size:clamp(18px,2.4vw,23px);letter-spacing:-.02em;margin:38px 0 10px}
+    .legal h3{font-size:clamp(15px,1.9vw,18px);margin:22px 0 6px}
+    .legal p,.legal li{line-height:1.65}
+    .legal address{font-style:normal;line-height:1.75}
+    .legal .lead{color:var(--muted,#9ca3af);margin:0 0 8px}
+    .legal a{color:inherit}
+    .legal-box{border:1px solid var(--line,var(--hairline,rgba(255,255,255,.16)));border-radius:18px;padding:18px 20px;margin:18px 0;background:var(--paper-2,rgba(255,255,255,.05))}
+    .legal-updated{margin-top:44px;font-size:13px;color:var(--muted,#9ca3af)}
+  </style>
+</head>
+<body>
+  <nav class="nav shell">
+    <a href="../" class="logo" data-i18n-aria="site.logo.aria" aria-label="Nicht noch eine Brettspielseite">
+      <img class="logo-mark" src="../assets/favicon.svg?v=20260618-dice-logo" alt="" aria-hidden="true">
+      <span>brettspiele<i>.</i>fun</span>
+    </a>
+    <button class="nav-menu-toggle" data-nav-toggle type="button" aria-label="Menü" aria-expanded="false" aria-controls="navActions">
+      <span aria-hidden="true">☰</span>
+    </button>
+    <div class="nav-actions" id="navActions" data-nav-actions>
+      <select class="language-select" data-language-select aria-label="Sprache"></select>
+      <button class="theme-toggle" data-theme-toggle type="button"><span aria-hidden="true">◐</span><span data-theme-label>Theme</span></button>
+      <a class="btn btn-primary" href="../#catalog" data-i18n="nav.play">Spielen</a>
+    </div>
+  </nav>
+
+  <main class="legal shell">
+    <p class="lead">Regeln für die Nutzung</p>
+    <h1>Nutzungsbedingungen</h1>
+    <p>
+      Diese Bedingungen gelten für die Nutzung von brettspiele.fun. Wer die
+      Seite aufruft, ein Konto anlegt, im Spiele-Studio Spiele erstellt oder
+      Inhalte einreicht, akzeptiert sie. Anbieter und ladungsfähige Anschrift
+      stehen im <a href="../impressum/">Impressum</a>; wie mit
+      personenbezogenen Daten umgegangen wird, steht in der
+      <a href="../datenschutz/">Datenschutzerklärung</a>.
+    </p>
+
+    <h2>1. Was brettspiele.fun ist</h2>
+    <p>
+      brettspiele.fun ist ein privates Hobbyprojekt. Es stellt Browserspiele und
+      einen virtuellen Spieltisch bereit, kostenlos, ohne Werbung und ohne
+      Abonnement. Es besteht <strong>kein Anspruch auf Verfügbarkeit</strong>,
+      auf einen bestimmten Funktionsumfang oder auf den Fortbestand einzelner
+      Spiele. Der Betrieb kann jederzeit unterbrochen, verändert oder ganz
+      eingestellt werden; über eine dauerhafte Einstellung wird nach
+      Möglichkeit vorab auf der Startseite informiert.
+    </p>
+    <p>
+      Ein Vertrag über eine entgeltliche Leistung kommt nicht zustande.
+      Freiwillige Zuwendungen über die Schaltfläche „Spendier mir ein Bier“ sind
+      keine Gegenleistung, schalten keine Funktionen frei und begründen keinen
+      Anspruch auf Betrieb, Support oder Rückerstattung.
+    </p>
+
+    <h2>2. Nutzung ohne und mit Konto</h2>
+    <p>
+      Die meisten Spiele lassen sich ohne Konto spielen. Ein Konto wird nur für
+      Funktionen benötigt, die etwas dauerhaft speichern — etwa Freundesliste,
+      Errungenschaften oder das Spiele-Studio.
+    </p>
+    <ul>
+      <li>Angaben bei der Registrierung müssen zutreffen; ein Konto darf nicht
+        im Namen einer anderen Person angelegt werden.</li>
+      <li>Ein Konto darfst du anlegen, wenn du <strong>mindestens 16 Jahre</strong>
+        alt bist. Jüngere brauchen die Einwilligung eines Erziehungsberechtigten.</li>
+      <li>Zugangsdaten sind geheim zu halten. Für Handlungen, die über dein
+        Konto erfolgen, bist du verantwortlich; Missbrauchsverdacht bitte
+        umgehend melden.</li>
+      <li>Konten mit erweiterten Rechten (Ersteller-Recht, KI-Funktion,
+        Administration) sind nur mit hinterlegter
+        Zwei-Faktor-Authentifizierung nutzbar.</li>
+      <li>Anzeigenamen, Kontonamen und Raumnamen sind ebenfalls Inhalte im Sinne
+        von Abschnitt 4 — sie dürfen weder Rechte Dritter verletzen noch andere
+        Nutzer in die Irre führen (etwa durch Vortäuschen einer Rolle als
+        Betreiber oder Administrator).</li>
+      <li>Du kannst dein Konto jederzeit löschen lassen. Damit entfallen die
+        daran gebundenen Inhalte nach Maßgabe von Abschnitt 5.5.</li>
+    </ul>
+
+    <h2>3. Unzulässige Nutzung</h2>
+    <p>Untersagt sind insbesondere:</p>
+    <ul>
+      <li>das Einstellen rechtswidriger Inhalte jeder Art;</li>
+      <li>das Hochladen oder Einbinden fremder Texte, Bilder, Grafiken, Musik,
+        Sounds, Schriften, Videos oder Spielinhalte ohne die dafür
+        erforderlichen Rechte;</li>
+      <li>das Nachahmen fremder Marken, Logos, Verpackungen oder
+        Produktgestaltungen sowie Angaben, die eine Verbindung zu einem
+        Rechteinhaber vortäuschen;</li>
+      <li>beleidigende, verleumderische, volksverhetzende, diskriminierende,
+        gewaltverherrlichende oder pornografische Inhalte;</li>
+      <li>das Veröffentlichen personenbezogener Daten anderer Personen (Namen,
+        Anschriften, Fotos, Nachrichten) ohne deren Einwilligung;</li>
+      <li>Schadcode, Skripte zum Ausspähen von Daten, Umgehung von
+        Zugriffsbeschränkungen, automatisiertes Abgreifen von Inhalten,
+        Überlastungsversuche und das Ausnutzen von Sicherheitslücken;</li>
+      <li>Werbung, Spam und das Bewerben fremder Angebote.</li>
+    </ul>
+    <p>
+      Sicherheitslücken dürfen gemeldet und zu diesem Zweck in dem dafür
+      erforderlichen Umfang nachvollzogen werden. Fremde Daten dürfen dabei
+      nicht abgerufen, verändert oder veröffentlicht werden; Meldung bitte an
+      <a href="mailto:support@brettspiele.fun">support@brettspiele.fun</a>.
+    </p>
+
+    <h2>4. Nutzerinhalte</h2>
+    <p>
+      Nutzerinhalte sind alle Inhalte, die du auf der Seite erstellst, speicherst
+      oder einreichst: Spiele aus dem Spiele-Studio samt Titeln, Figuren, Texten
+      und Bildern, Bewertungen und Kommentare, Anzeige- und Raumnamen sowie
+      Nachrichten in Mehrspielerräumen.
+    </p>
+
+    <h3>4.1 Verantwortung</h3>
+    <p>
+      Für Nutzerinhalte ist ausschließlich verantwortlich, wer sie erstellt hat.
+      Sie geben nicht die Auffassung des Anbieters wieder. Der Anbieter macht
+      sich Nutzerinhalte nicht zu eigen.
+    </p>
+
+    <h3>4.2 Rechte-Zusicherung</h3>
+    <p>
+      Mit dem Speichern, Teilen oder Einreichen eines Inhalts sicherst du zu,
+      dass du über <strong>alle erforderlichen Rechte</strong> daran verfügst —
+      entweder, weil du ihn selbst geschaffen hast, oder weil dir eine Lizenz
+      eingeräumt wurde, die die Nutzung auf dieser Seite deckt. Das gilt
+      ausdrücklich auch für Grafiken, Symbole, Schriften, Sounds, Kartentexte
+      und Regeltexte, die du aus anderen Quellen übernimmst.
+    </p>
+    <p>
+      Vor der Veröffentlichung eines Studio-Spiels ist diese Zusicherung
+      ausdrücklich zu bestätigen. Zeitpunkt und Fassung dieser Bedingungen
+      werden dabei am eingereichten Spiel festgehalten.
+    </p>
+
+    <h3>4.3 Eingeräumte Nutzungsrechte</h3>
+    <div class="legal-box">
+      <p style="margin:0 0 10px">
+        Damit ein Spiel überhaupt betrieben werden kann, räumst du dem Anbieter
+        an den von dir eingestellten Inhalten ein <strong>einfaches
+        (nicht ausschließliches), unentgeltliches, räumlich unbeschränktes und
+        widerrufliches Nutzungsrecht</strong> ein, beschränkt auf das, was der
+        technische Betrieb dieses Angebots erfordert:
+      </p>
+      <ul style="margin:0">
+        <li>Speicherung und Vervielfältigung auf den Servern des Anbieters
+          einschließlich Sicherungskopien;</li>
+        <li>technische Bearbeitung, soweit sie der Darstellung dient (etwa
+          Format- und Größenanpassung, Zwischenspeicherung, Auslieferung an
+          Mitspieler);</li>
+        <li>öffentliche Zugänglichmachung im Rahmen von brettspiele.fun,
+          einschließlich der Darstellung in der Community-Galerie mit Titel und
+          Urhebernennung — Letzteres nur bei Inhalten, die du zur
+          Veröffentlichung eingereicht hast.</li>
+      </ul>
+      <p style="margin:10px 0 0">
+        <strong>Nicht</strong> eingeräumt werden: eine Übertragung des
+        Urheberrechts, ausschließliche Rechte, eine Weitergabe an Dritte zu
+        deren eigenen Zwecken, eine Verwendung außerhalb dieses Angebots sowie
+        jede kommerzielle Verwertung. Deine Urheberschaft bleibt unberührt; du
+        darfst deine Inhalte uneingeschränkt anderweitig verwenden.
+      </p>
+    </div>
+
+    <h3>4.4 Veröffentlichung</h3>
+    <p>
+      Gespeicherte Studio-Spiele sind zunächst nur über den geteilten Link
+      erreichbar. Erst wenn du ein Spiel zur Veröffentlichung einreichst und es
+      freigegeben wird, erscheint es in der Community-Galerie der Startseite.
+      Die Freigabe ist eine <strong>freiwillige Prüfung im Einzelfall</strong>
+      und keine Zusicherung, dass ein Inhalt rechtmäßig ist; sie begründet
+      insbesondere keine Pflicht zur allgemeinen Überwachung. Ein Anspruch auf
+      Freigabe besteht nicht.
+    </p>
+
+    <h3>4.5 Löschung</h3>
+    <p>
+      Du kannst eigene Inhalte jederzeit selbst löschen und eingereichte oder
+      veröffentlichte Spiele zurückziehen. Mit der Löschung erlischt das
+      Nutzungsrecht aus Abschnitt 4.3; davon ausgenommen sind Sicherungskopien
+      bis zu ihrer turnusmäßigen Überschreibung sowie Kopien, die zur
+      Dokumentation einer Beschwerde oder zur Erfüllung gesetzlicher Pflichten
+      aufbewahrt werden müssen.
+    </p>
+
+    <h2>5. KI-Funktion im Studio</h2>
+    <p>
+      Wer die KI-Unterstützung im Spiele-Studio nutzt, hinterlegt dafür einen
+      <strong>eigenen API-Schlüssel</strong> von Anthropic. Die Anfragen laufen
+      über dieses Konto und unterliegen zusätzlich den Bedingungen des
+      Anbieters. Der Schlüssel wird verschlüsselt gespeichert und nie an den
+      Browser zurückgegeben.
+    </p>
+    <ul>
+      <li>Für die eingegebenen Anweisungen und die daraus erzeugten Inhalte bist
+        du verantwortlich, als hättest du sie selbst erstellt.</li>
+      <li>Ein KI-Ergebnis ist <strong>nicht automatisch frei von Rechten
+        Dritter</strong>. Anweisungen, die erkennbar auf die Nachbildung
+        geschützter Werke, Figuren, Marken oder eines bestimmten geschützten
+        Stils zielen, sind unzulässig.</li>
+      <li>Die Zusicherung aus Abschnitt 4.2 gilt für KI-erzeugte Inhalte
+        unverändert.</li>
+    </ul>
+
+    <h2>6. Altersgerechte Inhalte</h2>
+    <p>
+      Einzelne Spiele enthalten Kartensets mit anzüglichem oder schwarzem Humor.
+      Sie sind als solche gekennzeichnet und <strong>für Erwachsene
+      bestimmt</strong>. Wer solche Sets auswählt, bestätigt damit, mindestens
+      18 Jahre alt zu sein. Erziehungsberechtigte sollten die Nutzung durch
+      Minderjährige begleiten.
+    </p>
+    <p>
+      Für Nutzerinhalte gilt darüber hinaus: pornografische, jugendgefährdende
+      oder gewaltverherrlichende Inhalte sind unzulässig — auch dann, wenn ein
+      Spiel als Erwachsenen-Inhalt gekennzeichnet wäre.
+    </p>
+
+    <h2>7. Meldungen und Moderation</h2>
+    <p>
+      Hinweise auf rechtswidrige Inhalte nimmt das Formular
+      <a href="../melden/">Rechtswidrigen Inhalt melden</a> entgegen; das
+      Verfahren ist dort beschrieben. Meldungen sind auch formlos per E-Mail
+      möglich.
+    </p>
+    <p>Nach Prüfung einer Meldung oder bei einem Verstoß gegen diese Bedingungen
+      kommen abgestufte Maßnahmen in Betracht:</p>
+    <ul>
+      <li>Hinweis an die Person, die den Inhalt eingestellt hat;</li>
+      <li>Rücknahme einer Veröffentlichung (das Spiel bleibt dem Ersteller
+        erhalten);</li>
+      <li>Sperrung oder Löschung einzelner Inhalte;</li>
+      <li>Entzug des Ersteller- oder KI-Rechts;</li>
+      <li>Sperrung oder Löschung des Kontos bei schweren oder wiederholten
+        Verstößen.</li>
+    </ul>
+    <p>
+      Betroffene werden über eine Maßnahme und deren Grund informiert, soweit
+      ihre Kontaktdaten vorliegen und keine gesetzliche Pflicht entgegensteht.
+      Gegen eine Entscheidung kann formlos per E-Mail Widerspruch eingelegt
+      werden; er wird geprüft und beantwortet. Der Weg zu Gerichten und
+      Behörden bleibt davon unberührt.
+    </p>
+
+    <h2>8. Haftung</h2>
+    <p>
+      Der Anbieter haftet unbeschränkt bei Vorsatz und grober Fahrlässigkeit,
+      bei Verletzung von Leben, Körper oder Gesundheit sowie in den Fällen des
+      Produkthaftungsgesetzes. Bei einfacher Fahrlässigkeit wird nur für die
+      Verletzung wesentlicher Vertragspflichten gehaftet, und zwar begrenzt auf
+      den typischerweise vorhersehbaren Schaden. Im Übrigen ist die Haftung
+      ausgeschlossen.
+    </p>
+    <p>
+      Für Datenverluste wird nur bis zu dem Aufwand gehaftet, der bei
+      ordnungsgemäßer und regelmäßiger Datensicherung durch dich zur
+      Wiederherstellung angefallen wäre. Wichtige Spielstände und
+      Spiel-Definitionen solltest du deshalb selbst sichern.
+    </p>
+
+    <h2>9. Freistellung</h2>
+    <p>
+      Wird der Anbieter wegen eines von dir eingestellten Inhalts von Dritten in
+      Anspruch genommen, stellst du ihn von diesen Ansprüchen frei und trägst
+      die angemessenen Kosten der Rechtsverteidigung — es sei denn, du hast die
+      Rechtsverletzung nicht zu vertreten. Du wirst über eine solche
+      Inanspruchnahme informiert und erhältst Gelegenheit zur Stellungnahme.
+    </p>
+
+    <h2>10. Rechte des Anbieters an eigenen Inhalten</h2>
+    <p>
+      Der Quellcode dieser Seite steht unter der GNU AGPL-3.0-or-later, Inhalte
+      und Gestaltungsmaterial unter CC BY-SA 4.0; Fremdkomponenten behalten ihre
+      eigenen Lizenzen (Einzelheiten im <a href="../impressum/#quellcode">Impressum</a>).
+      Diese Lizenzen decken Nutzerinhalte <strong>nicht</strong> — für sie gilt
+      allein Abschnitt 4.
+    </p>
+
+    <h2>11. Änderungen dieser Bedingungen</h2>
+    <p>
+      Ändert sich der Funktionsumfang der Seite oder die Rechtslage, können
+      diese Bedingungen angepasst werden. Maßgeblich ist die jeweils hier
+      veröffentlichte Fassung; sie trägt unten ein Datum. Bei wesentlichen
+      Änderungen wird beim Einreichen neuer Inhalte erneut zugestimmt.
+      Wer mit einer Änderung nicht einverstanden ist, kann die Nutzung beenden
+      und sein Konto löschen lassen.
+    </p>
+
+    <h2>12. Schlussbestimmungen</h2>
+    <p>
+      Es gilt deutsches Recht. Gegenüber Verbrauchern bleiben zwingende
+      Vorschriften des Staates unberührt, in dem sie ihren gewöhnlichen
+      Aufenthalt haben. Sollte eine Bestimmung unwirksam sein, bleiben die
+      übrigen wirksam. Zur Teilnahme an einem Streitbeilegungsverfahren vor
+      einer Verbraucherschlichtungsstelle sind wir weder bereit noch
+      verpflichtet.
+    </p>
+    <p>
+      Kontakt für alle Fragen zu diesen Bedingungen:
+      <a href="mailto:support@brettspiele.fun">support@brettspiele.fun</a>.
+    </p>
+
+    <!-- Fassungsdatum: muss zur Angabe im <meta name="terms-version"> oben
+         passen. Beides nur gemeinsam ändern. -->
+    <p class="legal-updated">Fassung vom 10. September 2026</p>
+  </main>
+
+  <footer>
+    <div class="shell foot"><span data-i18n="site.footer.left">© 2026 Nicht noch eine Brettspielseite</span><span class="foot-legal"><a href="../impressum/" data-i18n="site.footer.legal">Impressum</a> · <a href="../datenschutz/" data-i18n="site.footer.privacy">Datenschutz</a> · <a href="../nutzungsbedingungen/" data-i18n="site.footer.terms">Nutzungsbedingungen</a> · <a href="../melden/" data-i18n="site.footer.report">Inhalt melden</a></span><span data-i18n="site.footer.right">Keine Lootboxen · kein Tagesquest-Terror · nur Spieltische</span></div>
+  </footer>
+  <script src="../assets/runtime-config.js?v=20260910-legal"></script>
+  <script src="../assets/i18n/de.js?v=20260910-legal"></script><script src="../assets/i18n/en.js?v=20260910-legal"></script><script src="../assets/i18n/fr.js?v=20260910-legal"></script><script src="../assets/i18n/es.js?v=20260910-legal"></script><script src="../assets/i18n/it.js?v=20260910-legal"></script><script src="../assets/i18n/ru.js?v=20260910-legal"></script><script src="../assets/i18n/zh.js?v=20260910-legal"></script><script src="../assets/i18n/ja.js?v=20260910-legal"></script><script src="../assets/i18n.js?v=20260910-legal"></script>
+  <script src="../assets/auth.js?v=20260904-oauth-link"></script>
+  <script src="../assets/consent.js?v=20260530-optional-account"></script>
+  <script src="../assets/gamepad.js?v=20260824-pad"></script>
+</body>
+</html>

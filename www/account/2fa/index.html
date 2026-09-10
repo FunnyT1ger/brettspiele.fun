@@ -1,0 +1,230 @@
+<!doctype html>
+<html lang="de">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta name="robots" content="noindex, nofollow" />
+  <title>Zwei-Faktor-Authentifizierung — brettspiele.fun</title>
+  <link rel="icon" href="/assets/favicon.svg?v=20260618-dice-logo" type="image/svg+xml" />
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body {
+      min-height: 100vh;
+      background: #0d1117;
+      background-image: radial-gradient(ellipse at 50% -20%, #1b2333 0%, #0d1117 60%);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 16px;
+      font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+      color: #c9d1d9;
+    }
+    .card {
+      width: min(560px, 100%);
+      background: #161b22;
+      border: 1px solid #30363d;
+      border-radius: 10px;
+      box-shadow: 0 24px 60px rgba(0,0,0,.55);
+      padding: 26px;
+    }
+    h1 { font-size: 18px; margin-bottom: 6px; }
+    p { font-size: 13px; line-height: 1.6; color: #8b949e; margin: 8px 0; }
+    .ok { color: #7ee787; }
+    .warn { color: #f0883e; }
+    .err { color: #ff6b6b; }
+    .secret {
+      display: block;
+      margin: 10px 0;
+      padding: 10px;
+      background: #0d1117;
+      border: 1px solid #30363d;
+      border-radius: 6px;
+      font-size: 15px;
+      letter-spacing: 2px;
+      word-break: break-all;
+      user-select: all;
+      color: #79c0ff;
+    }
+    a { color: #79c0ff; }
+    .qr {
+      display: none;
+      margin: 12px 0;
+      padding: 10px;
+      width: max-content;
+      max-width: 100%;
+      background: #fff;
+      border-radius: 8px;
+      border: 1px solid #30363d;
+    }
+    .qr.show { display: block; }
+    .qr svg { display: block; width: min(240px, 60vw); height: auto; }
+    input {
+      font: inherit;
+      font-size: 16px;
+      letter-spacing: 4px;
+      width: 130px;
+      padding: 8px 10px;
+      background: #0d1117;
+      color: #c9d1d9;
+      border: 1px solid #30363d;
+      border-radius: 6px;
+      text-align: center;
+    }
+    button {
+      font: inherit;
+      font-size: 13px;
+      padding: 8px 16px;
+      margin-left: 8px;
+      background: #238636;
+      color: #fff;
+      border: 0;
+      border-radius: 6px;
+      cursor: pointer;
+    }
+    button.ghost { background: transparent; border: 1px solid #30363d; color: #c9d1d9; }
+    button.danger { background: #da3633; }
+    .row { display: flex; align-items: center; margin-top: 14px; flex-wrap: wrap; gap: 8px; }
+    .hidden { display: none; }
+    .back { display: inline-block; margin-top: 18px; font-size: 12px; }
+  </style>
+  <link rel="stylesheet" href="../../assets/gamepad.css?v=20260824-pad" />
+</head>
+<body>
+  <div class="card">
+    <h1>🔐 Zwei-Faktor-Authentifizierung (2FA)</h1>
+    <div id="loading"><p>Lade Kontostatus …</p></div>
+
+    <div id="anon" class="hidden">
+      <p class="err">Nicht angemeldet.</p>
+      <p>Bitte zuerst auf <a href="/">brettspiele.fun</a> einloggen (Profil) und dann hierher zurückkehren.</p>
+    </div>
+
+    <div id="off" class="hidden">
+      <p id="requiredNote" class="warn hidden">Dein Konto hat erweiterte Rechte (Admin, Claude-Code-Terminal oder Spiele-Studio). Dafür ist 2FA <strong>Pflicht</strong> — ohne 2FA bleiben diese Funktionen gesperrt.</p>
+      <p id="optionalNote" class="hidden">2FA ist für dein Konto optional, aber empfohlen.</p>
+      <p>Beim Einrichten wird ein geheimer Schlüssel erzeugt, den du in eine Authenticator-App (z.&nbsp;B. Aegis, FreeOTP, Google&nbsp;Authenticator) einträgst. Danach fragt der Login zusätzlich nach dem 6-stelligen Code.</p>
+      <div class="row"><button id="setupBtn" type="button">2FA einrichten</button></div>
+      <div id="setup" class="hidden">
+        <p>1. Diesen QR-Code in der Authenticator-App scannen (Konto: <strong id="setupUser"></strong>, Typ: zeitbasiert/TOTP) — auf dem Handy stattdessen direkt <a id="otpauthLink" href="#">diesen otpauth-Link</a> öffnen:</p>
+        <div class="qr" id="qr"></div>
+        <p id="secretHint">Falls die App keinen QR-Code scannen kann, den Schlüssel von Hand eintragen:</p>
+        <code class="secret" id="secret"></code>
+        <p>2. Zum Bestätigen den aktuellen 6-stelligen Code eingeben:</p>
+        <div class="row">
+          <input id="enableCode" inputmode="numeric" autocomplete="one-time-code" maxlength="6" placeholder="000000" />
+          <button id="enableBtn" type="button">Aktivieren</button>
+        </div>
+      </div>
+    </div>
+
+    <div id="on" class="hidden">
+      <p class="ok">✔ 2FA ist für dein Konto aktiv.</p>
+      <p>Der Login verlangt zusätzlich zum Passwort den 6-stelligen Code aus deiner Authenticator-App.</p>
+      <p id="disableWarn" class="warn hidden">Achtung: Dein Konto hat erweiterte Rechte — nach dem Deaktivieren sind Terminal/Studio/Admin gesperrt, bis 2FA wieder eingerichtet ist.</p>
+      <div class="row">
+        <input id="disableCode" inputmode="numeric" autocomplete="one-time-code" maxlength="6" placeholder="000000" />
+        <button id="disableBtn" class="danger" type="button">2FA deaktivieren</button>
+      </div>
+    </div>
+
+    <p id="msg"></p>
+    <a class="back" href="/">← zurück zu brettspiele.fun</a>
+  </div>
+
+  <script>
+    (function () {
+      var $ = function (id) { return document.getElementById(id); };
+      var user = null;
+
+      function show(id) {
+        ["loading", "anon", "off", "on"].forEach(function (s) { $(s).classList.add("hidden"); });
+        $(id).classList.remove("hidden");
+      }
+      function msg(text, cls) { $("msg").textContent = text || ""; $("msg").className = cls || ""; }
+
+      function post(path, payload) {
+        return fetch(path, {
+          method: "POST",
+          credentials: "same-origin",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(payload || {}),
+        }).then(function (r) { return r.json().then(function (d) { d._status = r.status; return d; }); });
+      }
+
+      function errText(d) {
+        if (d.error === "totp_invalid") return "Code falsch oder abgelaufen — bitte neu versuchen.";
+        if (d.error === "rate_limited") return "Zu viele Versuche — kurz warten.";
+        if (d.error === "no_pending_setup") return "Kein Einrichtungsvorgang aktiv — bitte neu starten.";
+        return "Fehler: " + (d.error || d._status);
+      }
+
+      function render() {
+        msg("");
+        if (!user) { show("anon"); return; }
+        if (user.twofaEnabled) {
+          show("on");
+          $("disableWarn").classList.toggle("hidden", !(user.isAdmin || (user.caps && (user.caps.ai || user.caps.creator))));
+        } else {
+          show("off");
+          var mustHave = user.isAdmin || (user.caps && (user.caps.ai || user.caps.creator));
+          $("requiredNote").classList.toggle("hidden", !mustHave);
+          $("optionalNote").classList.toggle("hidden", mustHave);
+        }
+      }
+
+      fetch("/api/me", { credentials: "same-origin", cache: "no-store" })
+        .then(function (r) {
+          if (!r.ok) throw new Error("http_" + r.status);
+          return r.json();
+        })
+        .then(function (data) { user = data && data.authenticated ? data.user : null; render(); })
+        .catch(function (e) {
+          // API nicht erreichbar (Relay aus / nicht neu gestartet) — nicht mit
+          // "nicht angemeldet" verwechseln.
+          show("anon");
+          $("anon").innerHTML = '<p class="err">Kontostatus konnte nicht geladen werden (' +
+            String(e && e.message || "Netzwerkfehler") + ').</p>' +
+            '<p>Der Login-Dienst antwortet nicht. Bitte Seite neu laden; falls es bleibt, ist der Server-Dienst nicht erreichbar.</p>';
+        });
+
+      $("setupBtn").addEventListener("click", function () {
+        post("/api/auth/2fa/setup").then(function (d) {
+          if (!d.ok) { msg(errText(d), "err"); return; }
+          $("secret").textContent = d.secret;
+          $("otpauthLink").href = d.otpauth;
+          // QR liefert der Server als fertiges SVG (keine externe Bibliothek,
+          // die CSP erlaubt keine). Fehlt er, bleiben Schlüssel und Link.
+          $("qr").innerHTML = d.qrSvg || "";
+          $("qr").classList.toggle("show", !!d.qrSvg);
+          $("secretHint").textContent = d.qrSvg
+            ? "Falls die App keinen QR-Code scannen kann, den Schlüssel von Hand eintragen:"
+            : "Diesen Schlüssel in der Authenticator-App eintragen:";
+          $("setupUser").textContent = user.username;
+          $("setup").classList.remove("hidden");
+          $("setupBtn").disabled = true;
+          $("enableCode").focus();
+        });
+      });
+
+      $("enableBtn").addEventListener("click", function () {
+        post("/api/auth/2fa/enable", { code: $("enableCode").value }).then(function (d) {
+          if (!d.ok) { msg(errText(d), "err"); return; }
+          user = d.user;
+          render();
+          msg("2FA aktiviert. Beim nächsten Login wird der Code abgefragt.", "ok");
+        });
+      });
+
+      $("disableBtn").addEventListener("click", function () {
+        post("/api/auth/2fa/disable", { code: $("disableCode").value }).then(function (d) {
+          if (!d.ok) { msg(errText(d), "err"); return; }
+          user = d.user;
+          render();
+          msg("2FA deaktiviert.", "warn");
+        });
+      });
+    })();
+  </script>
+  <script src="../../assets/gamepad.js?v=20260824-pad"></script>
+</body>
+</html>

@@ -1,0 +1,63 @@
+{
+  "title": "Gruftgesindel",
+  "subtitle": {
+    "de": "Schaurige 3D-Grusel-Party",
+    "en": "Spooky 3D horror party",
+    "fr": "Fête d'horreur 3D déjantée",
+    "es": "Fiesta de terror 3D disparatada",
+    "it": "Festa horror 3D scanzonata",
+    "ru": "Жуткая 3D-хоррор-вечеринка",
+    "zh": "诡异 3D 恐怖派对",
+    "ja": "おどろおどろしい3Dホラーパーティー"
+  },
+  "description": {
+    "de": "Würfle, wanke durch die 3D-Gruft und raffe Taler und Seelenkristalle. Wer die meisten Seelenkristalle hat, gewinnt. Lokaler Hotseat, ohne App und ohne Konto.",
+    "en": "Roll, stagger through the 3D crypt and grab coins and soul crystals. Whoever has the most soul crystals wins. Local hotseat, no app and no account.",
+    "fr": "Lancez le dé, titubez dans la crypte 3D et raflez pièces et cristaux d'âme. Le plus de cristaux d'âme l'emporte. Hotseat local, sans appli ni compte.",
+    "es": "Tira el dado, tambaléate por la cripta 3D y arrampla con monedas y cristales de alma. Quien tenga más cristales de alma gana. Hotseat local, sin app ni cuenta.",
+    "it": "Tira il dado, barcolla nella cripta 3D e arraffa monete e cristalli d'anima. Chi ha più cristalli d'anima vince. Hotseat locale, senza app e senza account.",
+    "ru": "Бросайте кубик, ковыляйте по 3D-склепу и хватайте монеты и кристаллы душ. У кого больше кристаллов душ — тот и победил. Локальный хотсит, без приложения и аккаунта.",
+    "zh": "掷骰子，在 3D 墓穴中蹒跚前行，抢夺金币和灵魂水晶。灵魂水晶最多者获胜。本地同屏，无需应用、无需账号。",
+    "ja": "サイコロを振って3Dの墓所をよろめき歩き、コインと魂のクリスタルをかき集めよう。魂のクリスタルが一番多い人が勝ち。ローカルのホットシート、アプリ不要・アカウント不要。"
+  },
+  "players": {
+    "de": "2–4 Spieler",
+    "en": "2–4 players",
+    "fr": "2–4 joueurs",
+    "es": "2–4 jugadores",
+    "it": "2–4 giocatori",
+    "ru": "2–4 игрока",
+    "zh": "2–4 名玩家",
+    "ja": "2〜4人"
+  },
+  "minutes": "10–25 min",
+  "category": {
+    "de": "Party",
+    "en": "Party",
+    "fr": "Ambiance",
+    "es": "Fiesta",
+    "it": "Party",
+    "ru": "Вечеринка",
+    "zh": "派对",
+    "ja": "パーティー"
+  },
+  "tags": [
+    {
+      "de": "3D", "en": "3D", "fr": "3D", "es": "3D",
+      "it": "3D", "ru": "3D", "zh": "3D", "ja": "3D"
+    },
+    {
+      "de": "Hotseat", "en": "Hotseat", "fr": "Hotseat", "es": "Hotseat",
+      "it": "Hotseat", "ru": "Hotseat", "zh": "同屏", "ja": "ホットシート"
+    },
+    {
+      "de": "Würfel", "en": "Dice", "fr": "Dés", "es": "Dados",
+      "it": "Dadi", "ru": "Кости", "zh": "骰子", "ja": "ダイス"
+    }
+  ],
+  "image": "games/gruftgesindel/button.svg",
+  "accent": "#ff2d4a",
+  "theme": "gruftgesindel",
+  "order": 25,
+  "comingSoon": false
+}

@@ -1,0 +1,28 @@
+User-agent: *
+Allow: /
+
+# Interne Bereiche gehören nicht in den Index: /testing ist die Vorschau der
+# noch nicht veröffentlichten Spielstände, /code das Entwickler-Terminal,
+# /admin die Verwaltung und /api die Schnittstelle des Relays.
+Disallow: /testing/
+Disallow: /code/
+Disallow: /admin/
+Disallow: /account/
+Disallow: /api/
+
+# Trainings-Crawler der KI-Anbieter: die Spiele sind Handarbeit und sollen
+# nicht als Trainingsmaterial abgegriffen werden. Wer sich nicht an robots.txt
+# hält, läuft ohnehin in die Sperren von nginx (siehe brettspiele_bad_user_agents).
+User-agent: GPTBot
+User-agent: ClaudeBot
+User-agent: Claude-Web
+User-agent: anthropic-ai
+User-agent: CCBot
+User-agent: Google-Extended
+User-agent: Applebot-Extended
+User-agent: FacebookBot
+User-agent: Bytespider
+User-agent: PetalBot
+Disallow: /
+
+Sitemap: https://brettspiele.fun/sitemap.xml

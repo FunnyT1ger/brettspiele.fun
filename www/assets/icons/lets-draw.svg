@@ -1,0 +1,40 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 200">
+  <defs>
+    <linearGradient id="pen" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#93c5fd"/>
+      <stop offset="1" stop-color="#1d4ed8"/>
+    </linearGradient>
+    <linearGradient id="stroke" x1="0" y1="0" x2="1" y2="0">
+      <stop offset="0" stop-color="#f59e0b"/>
+      <stop offset="0.4" stop-color="#ff5b65"/>
+      <stop offset="0.7" stop-color="#65a8ff"/>
+      <stop offset="1" stop-color="#57d68d"/>
+    </linearGradient>
+    <filter id="sh" color-interpolation-filters="sRGB">
+      <feDropShadow dx="0" dy="8" stdDeviation="10" flood-color="#000" flood-opacity=".5"/>
+    </filter>
+    <filter id="glow" color-interpolation-filters="sRGB">
+      <feGaussianBlur stdDeviation="3" result="b"/>
+      <feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge>
+    </filter>
+  </defs>
+  <!-- Colorful drawn stroke (behind pencil) -->
+  <path d="M24 158 C55 90 88 148 126 78 C148 42 172 48 184 70"
+        fill="none" stroke="url(#stroke)" stroke-width="13"
+        stroke-linecap="round" stroke-linejoin="round" filter="url(#glow)"/>
+  <!-- Pencil body: angled from lower-left to upper-right -->
+  <g transform="translate(100,100) rotate(-42)">
+    <!-- Body -->
+    <rect x="-13" y="-70" width="26" height="130" rx="5" fill="url(#pen)" filter="url(#sh)"/>
+    <!-- Highlight stripe -->
+    <rect x="-13" y="-70" width="9" height="130" rx="5" fill="rgba(255,255,255,.18)"/>
+    <!-- Wood tip area -->
+    <polygon points="-13,60 13,60 7,82 -7,82" fill="#e8d5a0"/>
+    <!-- Graphite tip -->
+    <polygon points="-7,82 7,82 0,96" fill="#555"/>
+    <!-- Metal ferrule -->
+    <rect x="-13" y="-70" width="26" height="18" rx="4" fill="rgba(180,200,255,.55)"/>
+    <!-- Eraser -->
+    <rect x="-13" y="-88" width="26" height="22" rx="5" fill="#fca5a5"/>
+  </g>
+</svg>

@@ -1,0 +1,55 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 800" role="img" aria-label="Gruftgesindel">
+  <defs>
+    <linearGradient id="ppBg" x1="0" y1="0" x2="0" y2="1">
+      <stop stop-color="#2a0f18"/><stop offset="1" stop-color="#0c0610"/>
+    </linearGradient>
+    <linearGradient id="ppBlood" x1="0" y1="0" x2="1" y2="1">
+      <stop stop-color="#ff5a6e"/><stop offset="1" stop-color="#b0122a"/>
+    </linearGradient>
+    <linearGradient id="ppBone" x1="0" y1="0" x2="0" y2="1">
+      <stop stop-color="#f3ead2"/><stop offset="1" stop-color="#c9b98f"/>
+    </linearGradient>
+    <filter id="ppShadow"><feDropShadow dx="0" dy="16" stdDeviation="18" flood-opacity=".5"/></filter>
+  </defs>
+
+  <rect width="640" height="800" rx="72" fill="#0c0610"/>
+  <rect width="640" height="800" rx="72" fill="url(#ppBg)"/>
+  <circle cx="510" cy="150" r="180" fill="#ff2d4a" opacity=".16"/>
+  <circle cx="130" cy="680" r="210" fill="#7bed4a" opacity=".12"/>
+
+  <!-- blood splatter -->
+  <g opacity=".92">
+    <circle cx="150" cy="470" r="13" fill="#ff2d4a"/>
+    <circle cx="168" cy="452" r="5" fill="#ff2d4a"/>
+    <circle cx="510" cy="560" r="12" fill="#ff2d4a"/>
+    <circle cx="90" cy="200" r="10" fill="#7bed4a"/>
+    <rect x="470" y="120" width="20" height="20" rx="5" fill="#b14dff" transform="rotate(-15 480 130)"/>
+    <circle cx="540" cy="360" r="9" fill="#e6b23a"/>
+    <circle cx="330" cy="122" r="9" fill="#ff2d4a"/>
+    <circle cx="110" cy="580" r="11" fill="#b14dff"/>
+  </g>
+
+  <!-- blood-red die -->
+  <g filter="url(#ppShadow)" transform="translate(320 380) rotate(-8)">
+    <rect x="-125" y="-125" width="250" height="250" rx="46" fill="url(#ppBlood)" stroke="#ffffff" stroke-opacity=".22" stroke-width="4"/>
+    <circle cx="-55" cy="-55" r="20" fill="#fbe7ea"/>
+    <circle cx="55" cy="-55" r="20" fill="#fbe7ea"/>
+    <circle cx="0" cy="0" r="20" fill="#fbe7ea"/>
+    <circle cx="-55" cy="55" r="20" fill="#fbe7ea"/>
+    <circle cx="55" cy="55" r="20" fill="#fbe7ea"/>
+  </g>
+
+  <!-- little skull token -->
+  <g filter="url(#ppShadow)" transform="translate(438 244)">
+    <path d="M-46 -6 A46 46 0 0 1 46 -6 L46 26 A14 14 0 0 1 32 40 L20 40 L20 54 L-20 54 L-20 40 L-32 40 A14 14 0 0 1 -46 26 Z" fill="url(#ppBone)"/>
+    <ellipse cx="-18" cy="4" rx="12" ry="14" fill="#1a0a10"/>
+    <ellipse cx="18" cy="4" rx="12" ry="14" fill="#1a0a10"/>
+    <path d="M0 18 l-7 14 h14 Z" fill="#1a0a10"/>
+    <g stroke="#1a0a10" stroke-width="4"><line x1="-12" y1="44" x2="-12" y2="54"/><line x1="0" y1="44" x2="0" y2="54"/><line x1="12" y1="44" x2="12" y2="54"/></g>
+  </g>
+
+  <text x="320" y="716" text-anchor="middle" font-family="'Fredoka','Nunito',system-ui,sans-serif"
+        font-size="58" font-weight="700" fill="url(#ppBlood)">GRUSEL</text>
+  <text x="320" y="766" text-anchor="middle" font-family="'Nunito',system-ui,sans-serif"
+        font-size="30" font-weight="800" letter-spacing="6" fill="#c9b98f">DAS SPIEL</text>
+</svg>

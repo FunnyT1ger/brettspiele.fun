@@ -1,0 +1,89 @@
+/* Kronenlande — Menü-Chrome (dem Warbound-Atlas-Menü nachempfunden).
+   Das eigentliche Spiel lebt unangetastet in play.html und wird per <iframe>
+   eingebettet; diese Datei stylt nur das vorgeschaltete Hauptmenü/Anleitung. */
+
+:root{
+  color-scheme:dark;
+  --bg:#090705;--bg2:#150f0a;--panel:rgba(28,19,12,.92);
+  --gold:#d3a14b;--gold2:#ffd889;--gold-deep:#8a6423;
+  --text:#f7e6bf;--muted:#c2ab82;--line:rgba(211,161,75,.24);
+  --font:Georgia,'Times New Roman',serif;
+}
+
+*{box-sizing:border-box}
+html,body{margin:0;width:100%;min-height:100%}
+body{
+  background:radial-gradient(ellipse at 20% 8%,rgba(211,161,75,.12),transparent 42%),
+             radial-gradient(ellipse at 82% 92%,rgba(138,100,35,.10),transparent 44%),
+             linear-gradient(160deg,#090705 0%,#150f0a 100%);
+  color:var(--text);font-family:var(--font);
+  overflow-x:hidden;-webkit-text-size-adjust:100%;
+}
+
+/* ---- Szenen-Umschaltung ---- */
+.scene{position:fixed;inset:0;display:none;overflow-y:auto}
+#mainMenu.active{display:flex;flex-direction:column;align-items:center;justify-content:center;padding:40px 20px}
+#howtoMenu.active,#setupMenu.active,#lobbyMenu.active{display:flex;flex-direction:column;align-items:center;justify-content:flex-start;padding:38px 18px 56px}
+
+/* ---- Marke ---- */
+.brand{text-align:center;margin-bottom:28px}
+.brand .eyebrow{font-size:11px;letter-spacing:.4em;text-transform:uppercase;color:var(--muted);margin-bottom:8px;font-weight:600}
+.brand h1{font-size:clamp(52px,8vw,90px);font-weight:900;letter-spacing:.08em;text-transform:uppercase;line-height:.95;margin:0;background:linear-gradient(180deg,#fff8e6 0%,#ffd889 50%,#8a6423 100%);-webkit-background-clip:text;background-clip:text;color:transparent}
+.brand .tagline{color:var(--muted);font-style:italic;font-size:13px;margin-top:8px}
+.brand .divider{margin:16px auto 0;width:110px;height:1px;background:linear-gradient(90deg,transparent,var(--gold),transparent);position:relative}
+.brand .divider::before{content:"♛";position:absolute;left:50%;top:-11px;transform:translateX(-50%);background:var(--bg);padding:0 8px;color:var(--gold);font-size:13px}
+
+/* ---- Menükarte + Buttons ---- */
+.menu-card{width:100%;max-width:480px;background:linear-gradient(180deg,rgba(28,19,12,.95),rgba(15,10,6,.95));border:1px solid var(--line);border-radius:18px;padding:28px 26px;box-shadow:0 24px 64px rgba(0,0,0,.55);backdrop-filter:blur(10px)}
+.menu-card h2{font-size:12px;letter-spacing:.24em;text-transform:uppercase;color:var(--gold);margin:0 0 20px;font-weight:700;text-align:center;display:flex;align-items:center;gap:14px}
+.menu-card h2::before,.menu-card h2::after{content:"";flex:1;height:1px;background:linear-gradient(90deg,transparent,var(--line),transparent)}
+.menu-btn{display:flex;align-items:center;gap:14px;width:100%;padding:16px 20px;margin-bottom:9px;background:linear-gradient(180deg,rgba(255,216,137,.06),rgba(70,45,12,.10));border:1px solid var(--line);border-radius:11px;color:var(--gold2);font-size:15px;font-weight:700;letter-spacing:.04em;cursor:pointer;text-align:left;position:relative;overflow:hidden;font-family:inherit;transition:all .25s cubic-bezier(.16,1,.28,1)}
+.menu-btn::before{content:"";position:absolute;left:0;top:0;bottom:0;width:3px;background:var(--gold);transform:scaleY(0);transform-origin:bottom;transition:transform .3s}
+.menu-btn:hover{background:linear-gradient(180deg,rgba(255,216,137,.18),rgba(70,45,12,.22));border-color:var(--gold);transform:translateX(4px);box-shadow:0 6px 20px rgba(211,161,75,.18)}
+.menu-btn:hover::before{transform:scaleY(1)}
+.menu-btn.primary{background:linear-gradient(180deg,#ffd889,#c9a455);color:#1a1206;border-color:#d3a14b;font-weight:800;box-shadow:0 8px 22px rgba(211,161,75,.25)}
+.menu-btn.primary:hover{background:linear-gradient(180deg,#fff0b8,#d6b266);transform:translateX(0) translateY(-2px);box-shadow:0 12px 30px rgba(211,161,75,.35)}
+.menu-btn.back{margin-top:16px;padding:11px 16px;font-size:12px;color:var(--muted);font-weight:600;letter-spacing:.08em;text-transform:uppercase;background:transparent;border-color:transparent}
+.menu-btn.back:hover{color:var(--gold2);transform:translateX(-4px)!important}
+.menu-btn .btn-icon{width:32px;height:32px;display:grid;place-items:center;background:rgba(211,161,75,.12);border:1px solid var(--line);border-radius:8px;font-size:17px;flex-shrink:0}
+.menu-btn.primary .btn-icon{background:rgba(0,0,0,.18);border-color:rgba(0,0,0,.2)}
+.menu-btn .btn-info{flex:1}
+.menu-btn .btn-sub{font-size:11px;color:var(--muted);font-weight:400;font-style:italic;margin-top:2px}
+.menu-btn.primary .btn-sub{color:rgba(26,18,6,.65)}
+.menu-credit{margin-top:20px;max-width:480px;font-size:11px;color:var(--muted);text-align:center;letter-spacing:.02em;line-height:1.5}
+
+/* ---- Anleitung ---- */
+.howto-card{width:100%;max-width:680px;background:linear-gradient(180deg,rgba(28,19,12,.95),rgba(15,10,6,.95));border:1px solid var(--line);border-radius:18px;padding:24px 26px 28px;box-shadow:0 24px 64px rgba(0,0,0,.55);backdrop-filter:blur(10px)}
+.howto-intro{color:var(--muted);font-size:13.5px;font-style:italic;text-align:center;line-height:1.6;margin:14px 0 22px}
+.howto-sec{margin-bottom:20px}
+.howto-sec h3{font-size:15px;color:var(--gold2);font-weight:800;letter-spacing:.02em;margin-bottom:9px;padding-bottom:6px;border-bottom:1px solid var(--line)}
+.howto-sec p{font-size:14px;line-height:1.62;color:var(--text);margin-bottom:8px}
+.howto-sec ul{margin:0 0 8px 0;padding-left:20px}
+.howto-sec li{font-size:14px;line-height:1.55;color:var(--text);margin-bottom:6px}
+.howto-sec b{color:#f6d98b;font-weight:700}
+
+/* ---- Eingebettetes Spiel (iframe) ---- */
+#game{position:fixed;inset:0;display:none;z-index:40;background:#090705}
+#game.active{display:block}
+#gameFrame{width:100%;height:100%;border:0;display:block}
+
+/* Chrome (Sprache/Theme) im Spiel ausblenden — es steuert nur das Menü,
+   nicht den Spielinhalt im iframe. Der Zurück-Button bleibt sichtbar. */
+body.in-game .game-top-actions{display:none}
+
+/* ---- Heller Modus ---- */
+html[data-theme="light"]{
+  color-scheme:light;
+  --bg:#f6ede0;--bg2:#efe2cd;--panel:rgba(255,250,242,.94);
+  --gold:#9a6f1e;--gold2:#7a5510;--gold-deep:#b8923f;
+  --text:#241a0c;--muted:#7a6a4e;--line:rgba(154,111,30,.28);
+}
+html[data-theme="light"] body{
+  background:radial-gradient(ellipse at 20% 8%,rgba(154,111,30,.12),transparent 42%),
+             radial-gradient(ellipse at 82% 92%,rgba(184,146,63,.12),transparent 44%),
+             linear-gradient(160deg,#f6ede0 0%,#efe2cd 100%);
+}
+html[data-theme="light"] .brand h1{background:linear-gradient(180deg,#7a5510,#b8923f 60%,#9a6f1e);-webkit-background-clip:text;background-clip:text;color:transparent}
+html[data-theme="light"] .menu-card,html[data-theme="light"] .howto-card{background:linear-gradient(180deg,rgba(255,250,242,.96),rgba(244,235,222,.96))}
+html[data-theme="light"] .menu-btn{color:var(--gold2)}
+html[data-theme="light"] .menu-btn.primary{color:#1a1206}

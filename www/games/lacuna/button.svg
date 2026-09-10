@@ -1,0 +1,39 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 800" role="img" aria-label="Lacuna">
+  <defs>
+    <linearGradient id="lcBg" x1="0" y1="0" x2="0" y2="1">
+      <stop stop-color="#181229"/><stop offset="1" stop-color="#08060f"/>
+    </linearGradient>
+    <linearGradient id="lcRift" x1="0" y1="0" x2="1" y2="0">
+      <stop offset="0" stop-color="#ff6b6b"/>
+      <stop offset="0.2" stop-color="#ff9f4a"/>
+      <stop offset="0.4" stop-color="#ffd166"/>
+      <stop offset="0.6" stop-color="#7bdc9c"/>
+      <stop offset="0.8" stop-color="#4fd8e0"/>
+      <stop offset="1" stop-color="#c07bff"/>
+    </linearGradient>
+    <linearGradient id="lcCardL" x1="0" y1="0" x2="0" y2="1">
+      <stop stop-color="#2a2140"/><stop offset="1" stop-color="#181229"/>
+    </linearGradient>
+    <linearGradient id="lcCardR" x1="0" y1="0" x2="0" y2="1">
+      <stop stop-color="#2a2140"/><stop offset="1" stop-color="#181229"/>
+    </linearGradient>
+    <filter id="lcShadow" x="-40%" y="-40%" width="180%" height="180%">
+      <feDropShadow dx="0" dy="14" stdDeviation="18" flood-color="#000" flood-opacity="0.45"/>
+    </filter>
+    <filter id="lcGlow" x="-60%" y="-60%" width="220%" height="220%">
+      <feGaussianBlur stdDeviation="14" result="blur"/>
+      <feMerge><feMergeNode in="blur"/><feMergeNode in="SourceGraphic"/></feMerge>
+    </filter>
+  </defs>
+  <rect width="640" height="800" fill="url(#lcBg)"/>
+  <g filter="url(#lcShadow)">
+    <rect x="96" y="220" width="190" height="330" rx="26" fill="url(#lcCardL)" stroke="#4a3d6b" stroke-width="4" transform="rotate(-8 191 385)"/>
+    <text x="191" y="405" font-family="Georgia,serif" font-weight="700" font-size="86" fill="#a78bfa" text-anchor="middle" transform="rotate(-8 191 385)">27</text>
+    <rect x="354" y="220" width="190" height="330" rx="26" fill="url(#lcCardR)" stroke="#4a3d6b" stroke-width="4" transform="rotate(8 449 385)"/>
+    <text x="449" y="405" font-family="Georgia,serif" font-weight="700" font-size="86" fill="#a78bfa" text-anchor="middle" transform="rotate(8 449 385)">52</text>
+  </g>
+  <g filter="url(#lcGlow)">
+    <rect x="264" y="120" width="112" height="540" rx="56" fill="url(#lcRift)" opacity="0.9"/>
+  </g>
+  <text x="320" y="712" font-family="ui-sans-serif,system-ui,sans-serif" font-weight="900" font-size="64" fill="#f4eeff" text-anchor="middle" letter-spacing="-2">Lacuna</text>
+</svg>

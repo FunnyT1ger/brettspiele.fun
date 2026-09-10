@@ -1,0 +1,39 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 200">
+  <defs>
+    <filter id="sha" color-interpolation-filters="sRGB">
+      <feDropShadow dx="0" dy="7" stdDeviation="9" flood-color="#000" flood-opacity=".45"/>
+    </filter>
+    <filter id="shb" color-interpolation-filters="sRGB">
+      <feDropShadow dx="0" dy="9" stdDeviation="11" flood-color="#000" flood-opacity=".5"/>
+    </filter>
+    <filter id="shc" color-interpolation-filters="sRGB">
+      <feDropShadow dx="0" dy="7" stdDeviation="9" flood-color="#000" flood-opacity=".45"/>
+    </filter>
+  </defs>
+  <!-- Tile S (back left, rotated −12°) -->
+  <rect x="10" y="42" width="86" height="106" rx="14"
+        fill="#2a9d6e" filter="url(#sha)"
+        transform="rotate(-12 53 95)"/>
+  <text x="53" y="108" text-anchor="middle"
+        font-family="system-ui, sans-serif" font-weight="900" font-size="64"
+        fill="rgba(255,255,255,.85)"
+        transform="rotate(-12 53 95)">S</text>
+
+  <!-- Tile F (back right, rotated +12°) -->
+  <rect x="104" y="42" width="86" height="106" rx="14"
+        fill="#1e9c7a" filter="url(#shc)"
+        transform="rotate(12 147 95)"/>
+  <text x="147" y="108" text-anchor="middle"
+        font-family="system-ui, sans-serif" font-weight="900" font-size="64"
+        fill="rgba(255,255,255,.85)"
+        transform="rotate(12 147 95)">F</text>
+
+  <!-- Tile L (front center) -->
+  <rect x="57" y="30" width="86" height="106" rx="14"
+        fill="#57d68d" filter="url(#shb)"/>
+  <!-- Sheen -->
+  <path d="M57 44 Q57 30 71 30 L143 30 L57 75 Z" fill="rgba(255,255,255,.18)"/>
+  <text x="100" y="102" text-anchor="middle"
+        font-family="system-ui, sans-serif" font-weight="900" font-size="64"
+        fill="rgba(0,0,0,.72)">L</text>
+</svg>

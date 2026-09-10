@@ -1,0 +1,257 @@
+/* game-chrome.css — shared top control bar for every brettspiele.fun game.
+   Provides the canonical layout used by all games so the symbol/menu
+   structure is identical: a top-right cluster (language · theme · sound ·
+   account) and a top-left "back to shelf" link. Colours are self-contained
+   (not game-specific) so the bar looks the same in every game; a light theme
+   override keys off html[data-theme="light"]. */
+
+/* ===== top-right action cluster ===== */
+.game-top-actions {
+  position: fixed;
+  top: max(18px, env(safe-area-inset-top));
+  right: max(18px, env(safe-area-inset-right));
+  z-index: 80;
+  display: flex;
+  gap: 8px;
+  align-items: center;
+}
+
+.game-language-select {
+  min-height: 40px;
+  min-width: 176px;
+  border-radius: 999px;
+  border: 1px solid rgba(255,255,255,.16);
+  background: rgba(15,23,42,.76);
+  color: #f8fafc;
+  padding: 0 34px 0 14px;
+  font: inherit;
+  font-size: 13px;
+  font-weight: 900;
+  appearance: none;
+  -webkit-appearance: none;
+  box-shadow: 0 14px 36px rgba(0,0,0,.28);
+  backdrop-filter: blur(12px);
+  cursor: pointer;
+  background-image: linear-gradient(45deg, transparent 50%, currentColor 50%), linear-gradient(135deg, currentColor 50%, transparent 50%);
+  background-position: calc(100% - 18px) 50%, calc(100% - 13px) 50%;
+  background-size: 5px 5px, 5px 5px;
+  background-repeat: no-repeat;
+}
+
+/* theme toggle + any icon button (e.g. the sound toggle) sitting in the bar */
+.game-theme-toggle,
+.game-actions-toggle,
+.game-top-actions .brett-sound-toggle,
+.game-top-actions .account-button,
+.game-top-actions .donate-button {
+  position: static;
+  min-height: 0;
+  padding: 10px 13px;
+  border-radius: 999px;
+  color: #f8fafc;
+  background: rgba(15, 23, 42, 0.76);
+  border: 1px solid rgba(255,255,255,0.18);
+  box-shadow: 0 12px 34px rgba(0,0,0,.25);
+  backdrop-filter: blur(12px);
+  font: 800 13px/1 system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  white-space: nowrap;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+.game-actions-toggle { font-size: 17px; padding: 9px 14px; }
+.game-top-actions .brett-sound-toggle { width: auto; height: auto; }
+.game-top-actions .brett-sound-toggle .bs-ico { font-size: 1.15em; }
+.game-theme-toggle:hover,
+.game-actions-toggle:hover,
+.game-top-actions .brett-sound-toggle:hover,
+.game-top-actions .account-button:hover,
+.game-top-actions .donate-button:hover { filter: brightness(1.08); }
+
+/* ===== light theme ===== */
+html[data-theme="light"] .game-theme-toggle,
+html[data-theme="light"] .game-top-actions .brett-sound-toggle,
+html[data-theme="light"] .game-top-actions .account-button,
+html[data-theme="light"] .game-top-actions .donate-button {
+  color: #18140f;
+  background: rgba(255, 251, 243, .82);
+  border-color: rgba(21,20,15,.16);
+  box-shadow: 0 12px 34px rgba(84, 58, 24, .14);
+}
+html[data-theme="light"] .game-language-select {
+  background-color: rgba(255,255,255,.86);
+  color: #111827;
+  border-color: rgba(17,24,39,.14);
+}
+
+/* ===== small screens: move the cluster to the bottom-right ===== */
+@media (max-width: 680px) {
+  .game-top-actions {
+    top: auto;
+    bottom: max(12px, env(safe-area-inset-bottom));
+    right: max(12px, env(safe-area-inset-right));
+  }
+  .game-language-select { min-height: 36px; max-width: 190px; min-width: 150px; font-size: 12px; }
+}
+
+/* ===== phones & tablets: collapse the whole cluster behind one toggle =====
+   On narrow/medium screens the cluster can grow to 4-5 pill controls
+   (language, theme, sound, account, donate) — wide enough to overlap each
+   game's own UI (e.g. Warbound Atlas' burger menu / zoom controls sit in the
+   same corners). game-chrome.js prepends .game-actions-toggle as the first
+   child of .game-top-actions; everything else (added by this file, auth.js
+   and sound.js, in any order) is matched generically via :not() so new
+   controls collapse automatically without each script knowing about the
+   others. */
+.game-actions-toggle { display: none; }
+@media (max-width: 880px) {
+  .game-top-actions {
+    flex-direction: column;
+    align-items: flex-end;
+    gap: 10px;
+  }
+  .game-actions-toggle {
+    display: inline-flex;
+    order: -1;
+  }
+  .game-top-actions > *:not(.game-actions-toggle) {
+    position: absolute;
+    opacity: 0;
+    pointer-events: none;
+    transform: translateY(6px);
+    transition: opacity .15s ease, transform .15s ease;
+  }
+  .game-top-actions.open > *:not(.game-actions-toggle) {
+    position: static;
+    opacity: 1;
+    pointer-events: auto;
+    transform: none;
+  }
+  .game-language-select { min-width: 0; width: max-content; }
+}
+
+/* ===== top-left back-to-home button ===== */
+.game-top-left {
+  position: fixed;
+  top: max(18px, env(safe-area-inset-top));
+  left: max(18px, env(safe-area-inset-left));
+  z-index: 80;
+}
+
+.game-back-btn {
+  padding: 10px 13px;
+  border-radius: 999px;
+  color: #f8fafc;
+  background: rgba(15, 23, 42, 0.76);
+  border: 1px solid rgba(255,255,255,0.18);
+  box-shadow: 0 12px 34px rgba(0,0,0,.25);
+  backdrop-filter: blur(12px);
+  font: 800 13px/1 system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  white-space: nowrap;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  text-decoration: none;
+  transition: filter .15s;
+}
+.game-back-btn:hover { filter: brightness(1.12); }
+
+html[data-theme="light"] .game-back-btn {
+  color: #18140f;
+  background: rgba(255, 251, 243, .82);
+  border-color: rgba(21,20,15,.16);
+  box-shadow: 0 12px 34px rgba(84, 58, 24, .14);
+}
+
+/* ===== back confirm modal ===== */
+.brett-back-overlay {
+  display: none;
+  position: fixed;
+  inset: 0;
+  z-index: 9999;
+  background: rgba(0,0,0,.65);
+  backdrop-filter: blur(4px);
+  -webkit-backdrop-filter: blur(4px);
+  align-items: center;
+  justify-content: center;
+}
+.brett-back-overlay.open { display: flex; }
+
+.brett-back-card {
+  background: #1e2533;
+  border: 1px solid rgba(255,255,255,.12);
+  border-radius: 16px;
+  padding: 28px 28px 24px;
+  max-width: 380px;
+  width: 90%;
+  box-shadow: 0 24px 60px rgba(0,0,0,.5);
+}
+html[data-theme="light"] .brett-back-card {
+  background: #fff;
+  border-color: rgba(0,0,0,.1);
+}
+
+.brett-back-card h2 {
+  margin: 0 0 8px;
+  font-size: 18px;
+  font-weight: 800;
+  color: #f8fafc;
+}
+html[data-theme="light"] .brett-back-card h2 { color: #18140f; }
+
+.brett-back-card p {
+  margin: 0 0 20px;
+  font-size: 14px;
+  line-height: 1.5;
+  color: rgba(248,250,252,.65);
+}
+html[data-theme="light"] .brett-back-card p { color: rgba(24,20,15,.6); }
+
+.brett-back-actions {
+  display: flex;
+  gap: 10px;
+  justify-content: flex-end;
+}
+.brett-back-cancel, .brett-back-ok {
+  padding: 9px 18px;
+  border-radius: 999px;
+  font: 700 13px/1 system-ui, sans-serif;
+  cursor: pointer;
+  border: none;
+  transition: filter .15s;
+}
+.brett-back-cancel:hover, .brett-back-ok:hover { filter: brightness(1.1); }
+.brett-back-cancel {
+  background: rgba(255,255,255,.12);
+  color: #f8fafc;
+}
+html[data-theme="light"] .brett-back-cancel {
+  background: rgba(0,0,0,.08);
+  color: #18140f;
+}
+.brett-back-ok {
+  background: #ef4444;
+  color: #fff;
+}
+
+@media (max-width: 680px) {
+  .game-top-left {
+    top: auto;
+    bottom: max(12px, env(safe-area-inset-bottom));
+    left: max(12px, env(safe-area-inset-left));
+  }
+}
+
+/* Prevent accidental left/right page scrolling on mobile. Loaded after each
+   game's own stylesheet, so this wins. Uses overflow-x: clip (with hidden as a
+   fallback) so any position: sticky elements keep working. Wide in-game content
+   (tables, boards) should stay in its own overflow container, not the page. */
+@media (max-width: 768px) {
+  html, body {
+    max-width: 100%;
+    overflow-x: hidden;
+    overflow-x: clip;
+  }
+}
